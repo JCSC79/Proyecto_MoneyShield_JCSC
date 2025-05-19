@@ -1,366 +1,154 @@
 # MoneyShield API
 
-A RESTful API backend for the MoneyShield financial management application. This API provides endpoints for managing users, transactions, and budgets.
+RESTful modular API for managing users, transactions, and personal finance.
 
-## Table of Contents
+**Interactive API documentation available at `/api-docs` via Swagger UI.**
 
-- [Overview](#overview)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Database Setup](#database-setup)
-- [API Documentation](#api-documentation)
-  - [Users](#users)
-  - [Profiles](#profiles)
-  - [Transactions](#transactions)
-  - [Budgets](#budgets)
-  - [Savings](#savings)
-- [Error Handling](#error-handling)
-- [Connection Management](#connection-management)
-- [Security Considerations](#security-considerations)
 
-## Overview
+## 🚀 Features
 
-MoneyShield API is a Node.js Express server application that connects to a MySQL database to manage financial data. It implements complete CRUD operations (Create, Read, Update, Delete) for users, transactions, and budgets, providing a comprehensive backend solution for a personal finance management application.
+- Modular architecture (controllers, services, DAOs)
+- MySQL database connection via connection pool
+- Environment-based configuration
+- Easy to extend with new entities (budgets, savings, categories, etc)
+- Interactive, auto-generated API documentation (Swagger/OpenAPI)
+- Users and transactions modules fully implemented with CRUD and Swagger doc
+- Referential integrity and validation for catalog tables (profiles, transaction types, categories, etc.)
+- Password hashes never exposed in API responses
 
-## Requirements
-
-- Node.js (v14+)
-- MySQL (v5.7+)
-- npm or yarn
-
-## Installation
-
-1. Clone the repository:
-    ```bash
-    git clone <repository-url>
-    cd moneyshield-api
-    ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Configure the database connection in the code (see "Database Setup" section).
-
-4. Start the server:
-   ```bash
-   npm start
-   ```
-
-## Database Setup
-
-Create a MySQL database named `moneyshield` and configure the connection in the code. Default configuration:
-
-```javascript
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '*******************',  // Change this to your MySQL password
-  database: 'moneyshield'
-});
+## 📦 Installation
+```
+git clone https://github.com/Thesharingan312/Sql_CA.git
+cd moneyshield
+npm install
 ```
 
-**Important:** For production environments, store sensitive information like database passwords in environment variables.
+## ⚙️ Configuration
 
-### Required Tables
+Create a `.env` file in the project root with your database and server settings:
 
-The application expects the following tables in the database:
+```
+DB_HOST=localhost
+DB_USER=youruser
+DB_PASSWORD=yourpassword
+DB_NAME=moneyshield
+PORT=3000
+```
 
-1. `users` - Store user information
-   - `id` (Primary Key)
-   - `first_name` VARCHAR(100)
-   - `last_name` VARCHAR(100)
-   - `email` VARCHAR(150)
-   - `password_hash` VARCHAR(100)
-   - `profile_id` INT (Foreign Key to profiles.id)
 
-2. `profiles` - Store profile types
-   - `id` (Primary Key)
-   - `name` VARCHAR(50)
+## 🏃‍♂️ Usage
 
-3. `transactions` - Store financial transactions
-   - `id` (Primary Key)
-   - `user_id` INT (Foreign Key)
-   - `type` ENUM(...)
-   - `amount` DECIMAL(10,2)
-   - `category` VARCHAR(100)
-   - `description` TEXT (optional)
-   - `created_at` TIMESTAMP
+Start the server:
 
-4. `budgets` - Store budget information
-   - `id` (Primary Key)
-   - `user_id` INT (Foreign Key)
-   - `year` INT
-   - `month` INT
-   - `total_amount` DECIMAL(10,2)
-   - `notes` TEXT (optional)
-   - `created_at` TIMESTAMP
+```
+npm start
+```
 
-5. `savings` - Store savings information
-   - `id` (Primary Key)
-   - `user_id` INT (Foreign Key)
-   - `budget_id` INT (Foreign Key, optional)
-   - `transaction_id` INT (Foreign Key, optional)
-   - `name` VARCHAR(100)
-   - `type` ENUM(...)
-   - `amount` DECIMAL(10,2)
-   - `notes` TEXT (optional)
-   - `created_at` TIMESTAMP
+The server will run at [http://localhost:3000](http://localhost:3000).
 
-## API Documentation
+## 🧪 Running Tests
 
-### Users
+To run all automated tests (users, transactions, etc.):
 
-#### GET /users
-- Description: Get all users
-- Response: Array of user objects
-- Status codes:
-  - 200: Success
-  - 500: Server error
+```
+npm test
+```
 
-#### GET /users/:id
-- Description: Get a specific user by ID
-- Parameters:
-  - `id`: User ID
-- Response: User object
-- Status codes:
-  - 200: Success
-  - 404: User not found
-  - 500: Server error
+To run only the users tests:
 
-#### POST /users
-- Description: Create a new user
-- Request body:
-  - `first_name` (required)
-  - `last_name` (optional)
-  - `email` (required)
-  - `password_hash` (required)
-  - `profile_id` (required)
-- Response: Created user object with ID
-- Status codes:
-  - 200: Success
-  - 400: Missing required fields
-  - 500: Server error
+```
+npm test -- tests/users.test.js
+```
 
-#### PUT /users/:id
-- Description: Update an existing user
-- Parameters:
-  - `id`: User ID
-- Request body: Any fields to update
-- Response: Success message
-- Status codes:
-  - 200: Success
-  - 400: No fields to update
-  - 500: Server error
+## 📖 API Documentation
 
-#### DELETE /users/:id
-- Description: Delete a user
-- Parameters:
-  - `id`: User ID
-- Response: Success message
-- Status codes:
-  - 200: Success
-  - 500: Server error
+Interactive API documentation is available at:
 
-### Transactions
+```
+http://localhost:3000/api-docs
+```
 
-#### GET /transactions
-- Description: Get all transactions
-- Query parameters:
-  - `user_id` (optional): Filter by user
-- Response: Array of transaction objects
-- Status codes:
-  - 200: Success
-  - 500: Server error
+Use this interface to explore, test, and understand all available endpoints in real time.
 
-#### GET /transactions/:id
-- Description: Get a specific transaction by ID
-- Parameters:
-  - `id`: Transaction ID
-- Response: Transaction object
-- Status codes:
-  - 200: Success
-  - 404: Transaction not found
-  - 500: Server error
+## 🧾 API Endpoints
+**Users**
+- `GET /users` - List all users (without password)
+- `GET /users/{id}` - Get user by ID
+- `POST /users` - Create a new user (requires: first_name, last_name, email, password_hash, profile_id; optional: base_budget, base_saving)
+- `PUT /users/{id}` -  Fully update a user (all fields required)
+- `PATCH /users/{id}` - Partially update a user (any field)
+- `DELETE /users/{id}` - Delete a user
 
-#### POST /transactions
-- Description: Create a new transaction
-- Request body:
-  - `user_id` (required)
-  - `amount` (required)
-  - `type` (required)
-  - `category_id` (required)
-  - `description` (optional)
-  - `date` (required)
-- Response: Created transaction object with ID
-- Status codes:
-  - 200: Success
-  - 400: Missing required fields
-  - 500: Server error
+**Transactions**
+- `GET /transactions` - List all transactions (optionally filtered by user)
+- `GET /transactions/{id}` - Get transaction by ID
+- `POST /transactions` - Create a new transaction
+- `PUT /transactions/{id}` - Update a transaction fully
+- `PATCH /transactions/{id}` - Update a transaction partially
+- `DELETE /transactions/{id}` - Delete a transaction
 
-#### PUT /transactions/:id
-- Description: Update an existing transaction
-- Parameters:
-  - `id`: Transaction ID
-- Request body: Any fields to update
-- Response: Success message
-- Status codes:
-  - 200: Success
-  - 400: No fields to update
-  - 500: Server error
+## 🟢 Default Category Assignment in Transactions / Asignación automática de categoría por defecto
 
-#### DELETE /transactions/:id
-- Description: Delete a transaction
-- Parameters:
-  - `id`: Transaction ID
-- Response: Success message
-- Status codes:
-  - 200: Success
-  - 500: Server error
+- If you create a transaction without specifying the category_id field, the system will automatically assign the "Others" category (by searching for its real id in the database).
 
-### Budgets
+- IMPORTANT: The "Others" category must exist in the categories table for the backend to work correctly.
 
-#### GET /budgets
-- Description: Get all budgets
-- Query parameters:
-  - `user_id` (optional): Filter by user
-- Response: Array of budget objects
-- Status codes:
-  - 200: Success
-  - 500: Server error
+- If "Others" does not exist, creating transactions without a category will fail with a 500 error.
 
-#### GET /budgets/:id
-- Description: Get a specific budget by ID
-- Parameters:
-  - `id`: Budget ID
-- Response: Budget object
-- Status codes:
-  - 200: Success
-  - 404: Budget not found
-  - 500: Server error
+Español:
 
-#### GET /budgets/sum
-- Description: Sum total saving amount
-- Query parameters:
-  - `user_id` (optional): Filter by user
-  - `month` (optional): Filter by month (format: YYYY-MM)
-- Response: Object with total_saving property
-- Status codes:
-  - 200: Success
-  - 500: Server error
+- Si creas una transacción sin especificar el campo category_id, el sistema asignará automáticamente la categoría "Others" (buscando su id real en la base de datos).
 
-#### POST /budgets
-- Description: Create a new budget
-- Request body:
-  - `user_id` (required)
-  - `category_id` (required)
-  - `amount` (required)
-  - `saving_amount` (required)
-  - `date` (required)
-  - `note` (optional)
-- Response: Created budget object with ID
-- Status codes:
-  - 200: Success
-  - 400: Missing required fields
-  - 500: Server error
+- IMPORTANTE: La categoría "Others" debe existir en la tabla categories para que el backend funcione correctamente.
 
-#### PUT /budgets/:id
-- Description: Update an existing budget
-- Parameters:
-  - `id`: Budget ID
-- Request body: Any fields to update
-- Response: Success message
-- Status codes:
-  - 200: Success
-  - 400: No fields to update
-  - 500: Server error
+- Si "Others" no existe, la creación de transacciones sin categoría fallará con error 500.
 
-#### DELETE /budgets/:id
-- Description: Delete a budget
-- Parameters:
-  - `id`: Budget ID
-- Response: Success message
-- Status codes:
-  - 200: Success
-  - 500: Server error
+## 🗂️ Project Structure
 
-## Error Handling
+```
+src/
+    db/DBHelper.mjs
+    modules/
+        users/
+            user.controller.mjs
+            user.service.mjs
+            user.dao.mjs
+        transactions/
+            transaction.controller.mjs
+            transaction.service.mjs
+            transaction.dao.mjs
+            
+    index.mjs
+.env
+package.json
+README.md
+/tests
+  users.test.js
+  transactions.test.js
+```
+## 🛡️ Security
 
-The API handles various errors:
-- Database connection errors (with automatic reconnection)
-- Missing required fields in requests
-- Server-side errors during query execution
-- Not found errors for specific resources
+- Password hashes are never returned by the API.
+- Referential integrity is enforced at the database level.
+- Input validation and error handling on all endpoints.
 
-## Connection Management
 
-The API implements robust database connection management:
-- Automatic connection on server startup
-- Error detection for common connection issues (PROTOCOL_CONNECTION_LOST, ECONNREFUSED, ETIMEDOUT)
-- Automatic reconnection with a 5-second delay if the connection is lost
-- Proper error logging for connection issues
+## 🤝 Contributing
 
-This ensures that the application can recover from temporary database connectivity issues without requiring manual intervention.
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
-## Security Considerations
+## 📄 License
 
-### Current Implementation
-- Parameterized SQL queries to prevent SQL injection
-- Basic validation of required fields
-- Error handling that doesn't expose sensitive information
-
-### Recommended Improvements
-- Store database credentials in environment variables instead of hardcoding
-- Implement authentication using JWT or similar token-based system
-- Add rate limiting to prevent abuse
-- Add HTTPS support for production environments
-- Implement proper password hashing (although the API currently accepts pre-hashed passwords)
-
-## Development
-
-### Adding New Endpoints
-To add new endpoints, follow the established pattern:
-1. Create route handlers for the standard CRUD operations
-2. Implement proper validation for inputs
-3. Use parameterized queries for database operations
-4. Add appropriate Swagger documentation
-5. Handle all potential errors
-
-### Coding Style
-- Use consistent naming conventions
-- Add bilingual comments (English and Spanish)
-- Group related endpoints together
-- Format SQL queries for readability
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Connection refused**
-   - Check that MySQL server is running
-   - Verify the host and port settings
-   - Ensure the database user has proper permissions
-
-2. **Authentication error**
-   - Verify the username and password for MySQL
-   - Check that the user has access to the specified database
-
-3. **Table doesn't exist**
-   - Ensure the database schema has been properly set up
-   - Verify table names match exactly what's referenced in the code
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## License
-
+[MIT](LICENSE)
 This project is licensed under the MIT License - see the LICENSE file for details.
+---
+
+## 📚 Español
+
+**MoneyShield API** es una API modular para la gestión de usuarios, transacciones y finanzas personales.  
+Sigue las instrucciones anteriores para instalar, configurar y ejecutar el proyecto.
 
 ---
 
 Created for MoneyShield © 2025
+Current date: Thursday, May 15, 2025, 1:20 PM
