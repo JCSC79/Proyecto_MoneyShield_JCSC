@@ -1,4 +1,4 @@
-# MoneyShield JCSC API
+# MoneyShield (JCSC Version) API
 
 RESTful modular API for managing users, transactions, and personal finance.
 

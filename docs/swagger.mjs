@@ -7,9 +7,9 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'MoneyShield API',
+      title: 'MoneyShield API (JCSC Version)',
       version: '1.0.0',
-      description: 'REST API documentation for MoneyShield project',
+      description: 'REST API documentation for MoneyShield project (JCSC Version)',
     },
     servers: [
       {
