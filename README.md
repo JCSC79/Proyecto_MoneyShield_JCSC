@@ -1,4 +1,4 @@
-# MoneyShield API
+# MoneyShield JCSC API
 
 RESTful modular API for managing users, transactions, and personal finance.
 
@@ -150,5 +150,5 @@ Sigue las instrucciones anteriores para instalar, configurar y ejecutar el proye
 
 ---
 
-Created for MoneyShield © 2025
-Current date: Thursday, May 15, 2025, 1:20 PM
+Created for MoneyShield by Juan Carlos Sandomingo version © 2025
+Current date: Monday, May 19, 2025, 9:00 AM
