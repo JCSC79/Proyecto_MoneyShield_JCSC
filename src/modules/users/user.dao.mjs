@@ -1,24 +1,34 @@
 // src/modules/users/user.dao.mjs
+
 import db from '../../db/DBHelper.mjs';
 
 /**
- * Obtener todos los usuarios | Get all users
+ * Obtener todos los usuarios (sin exponer password_hash)
+ * Get all users (without exposing password_hash)
  */
 export async function getAllUsers() {
-  const [rows] = await db.query('SELECT * FROM users');
+  const [rows] = await db.query(`
+    SELECT id, first_name, last_name, email, profile_id, base_budget, base_saving, created_at
+    FROM users
+  `);
   return rows;
 }
 
 /**
- * Obtener usuario por ID | Get user by ID
+ * Obtener usuario por ID (sin exponer password_hash)
+ * Get user by ID (without exposing password_hash)
  */
 export async function getUserById(id) {
-  const [rows] = await db.query('SELECT * FROM users WHERE id = ?', [id]);
+  const [rows] = await db.query(`
+    SELECT id, first_name, last_name, email, profile_id, base_budget, base_saving, created_at
+    FROM users WHERE id = ?
+  `, [id]);
   return rows[0];
 }
 
 /**
- * Obtener usuario por email | Get user by email
+ * Obtener usuario por email (incluye password_hash para autenticación)
+ * Get user by email (includes password_hash for authentication)
  */
 export async function getUserByEmail(email) {
   const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
@@ -36,9 +46,10 @@ export async function profileExists(profile_id) {
 /**
  * Crear un nuevo usuario | Create a new user
  */
-export async function createUser({ first_name, last_name, email, password_hash, profile_id, base_budget = 0, base_saving = 0 }) {
-  const [result] = await db.query(
-    'INSERT INTO users (first_name, last_name, email, password_hash, profile_id, base_budget, base_saving) VALUES (?, ?, ?, ?, ?, ?, ?)',
+export async function createUser({ first_name, last_name, email, password_hash, profile_id, base_budget = 0, base_saving = 0 }, connection = db) {
+  const [result] = await connection.query(
+    `INSERT INTO users (first_name, last_name, email, password_hash, profile_id, base_budget, base_saving)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
     [first_name, last_name, email, password_hash, profile_id, base_budget, base_saving]
   );
   return { id: result.insertId, first_name, last_name, email, profile_id, base_budget, base_saving };
@@ -49,17 +60,21 @@ export async function createUser({ first_name, last_name, email, password_hash, 
  */
 export async function updateUser(id, { first_name, last_name, email, password_hash, profile_id, base_budget = 0, base_saving = 0 }) {
   const [result] = await db.query(
-    'UPDATE users SET first_name = ?, last_name = ?, email = ?, password_hash = ?, profile_id = ?, base_budget = ?, base_saving = ? WHERE id = ?',
+    `UPDATE users SET first_name = ?, last_name = ?, email = ?, password_hash = ?, profile_id = ?, base_budget = ?, base_saving = ? WHERE id = ?`,
     [first_name, last_name, email, password_hash, profile_id, base_budget, base_saving, id]
   );
   return result.affectedRows > 0;
 }
 
 /**
- * Actualizar parcialmente un usuario | Partially update a user
+ * Actualizar parcialmente un usuario (solo campos válidos)
+ * Partially update a user (only valid fields)
  */
 export async function patchUser(id, fields) {
-  const keys = Object.keys(fields);
+  const ALLOWED_FIELDS = [
+    'first_name', 'last_name', 'email', 'password_hash', 'profile_id', 'base_budget', 'base_saving'
+  ];
+  const keys = Object.keys(fields).filter(k => ALLOWED_FIELDS.includes(k));
   if (keys.length === 0) return false;
   const values = keys.map(key => fields[key]);
   const setClause = keys.map(key => `${key} = ?`).join(', ');

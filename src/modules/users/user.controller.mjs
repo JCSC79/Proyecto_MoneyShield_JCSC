@@ -1,4 +1,3 @@
-// src/modules/users/user.controller.mjs
 import express from 'express';
 import * as userService from './user.service.mjs';
 
@@ -10,6 +9,11 @@ const router = express.Router();
  *   name: Users
  *   description: User management | Gestión de usuarios
  */
+
+// Helper para status HTTP según error
+function getStatus(err) {
+  return err.status || 400;
+}
 
 /**
  * @swagger
@@ -26,7 +30,7 @@ router.get('/', async (req, res) => {
     const users = await userService.getAllUsers();
     res.json(users);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(getStatus(err)).json({ error: err.message });
   }
 });
 
@@ -51,10 +55,9 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const user = await userService.getUserById(req.params.id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(getStatus(err)).json({ error: err.message });
   }
 });
 
@@ -98,13 +101,15 @@ router.get('/:id', async (req, res) => {
  *         description: User created | Usuario creado
  *       400:
  *         description: Invalid request | Solicitud inválida
+ *       409:
+ *         description: Email already exists | El email ya existe
  */
 router.post('/', async (req, res) => {
   try {
     const user = await userService.createUser(req.body);
     res.status(201).json(user);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(getStatus(err)).json({ error: err.message });
   }
 });
 
@@ -152,14 +157,15 @@ router.post('/', async (req, res) => {
  *         description: User updated | Usuario actualizado
  *       404:
  *         description: User not found | Usuario no encontrado
+ *       409:
+ *         description: Email already exists | El email ya existe
  */
 router.put('/:id', async (req, res) => {
   try {
-    const updated = await userService.editUser(req.params.id, req.body);
-    if (!updated) return res.status(404).json({ error: 'User not found' });
+    await userService.editUser(req.params.id, req.body);
     res.json({ message: 'User updated' });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(getStatus(err)).json({ error: err.message });
   }
 });
 
@@ -201,14 +207,15 @@ router.put('/:id', async (req, res) => {
  *         description: User partially updated | Usuario parcialmente actualizado
  *       404:
  *         description: User not found or no fields to update | Usuario no encontrado o sin campos para actualizar
+ *       409:
+ *         description: Email already exists | El email ya existe
  */
 router.patch('/:id', async (req, res) => {
   try {
-    const updated = await userService.patchUser(req.params.id, req.body);
-    if (!updated) return res.status(404).json({ error: 'User not found or no fields to update' });
+    await userService.patchUser(req.params.id, req.body);
     res.json({ message: 'User patched' });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(getStatus(err)).json({ error: err.message });
   }
 });
 
@@ -232,11 +239,10 @@ router.patch('/:id', async (req, res) => {
  */
 router.delete('/:id', async (req, res) => {
   try {
-    const deleted = await userService.deleteUser(req.params.id);
-    if (!deleted) return res.status(404).json({ error: 'User not found' });
+    await userService.deleteUser(req.params.id);
     res.json({ message: 'User deleted' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(getStatus(err)).json({ error: err.message });
   }
 });
 
