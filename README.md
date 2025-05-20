@@ -87,6 +87,14 @@ Use this interface to explore, test, and understand all available endpoints in r
 - `PATCH /transactions/{id}` - Update a transaction partially
 - `DELETE /transactions/{id}` - Delete a transaction
 
+**Budgets**
+- `GET /budgets` - List all budgets (optionally filtered by user)
+- `GET /budgets/{id}` - Get budget by ID
+- `POST /budgets` - Create a new budget
+- `PUT /budgets/{id}` - Update a budget fully
+- `PATCH /budgets/{id}` - Update a budget partially
+- `DELETE /budgets/{id}` - Delete a budget
+
 ## 🟢 Default Category Assignment in Transactions / Asignación automática de categoría por defecto
 
 - If you create a transaction without specifying the category_id field, the system will automatically assign the "Others" category (by searching for its real id in the database).
@@ -117,6 +125,10 @@ src/
             transaction.controller.mjs
             transaction.service.mjs
             transaction.dao.mjs
+        budgets/
+            budget.controller.mjs
+            budget.service.mjs
+            budget.dao.mjs
             
     index.mjs
 .env
@@ -125,6 +137,7 @@ README.md
 /tests
   users.test.js
   transactions.test.js
+  budget.test.js
 ```
 ## 🛡️ Security
 
@@ -151,4 +164,4 @@ Sigue las instrucciones anteriores para instalar, configurar y ejecutar el proye
 ---
 
 Created for MoneyShield by Juan Carlos Sandomingo version © 2025
-Current date: Monday, May 19, 2025, 9:00 AM
+Current date: Monday, May 20, 2025, 1:00 PM
