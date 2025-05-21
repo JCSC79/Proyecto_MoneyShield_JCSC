@@ -14,10 +14,19 @@ export async function getAllBudgets(filter = {}, connection = db) {
     WHERE 1=1
   `;
   const values = [];
-  if (user_id) { sql += ' AND b.user_id = ?'; values.push(user_id); }
-  if (year) { sql += ' AND b.year = ?'; values.push(year); }
-  if (month) { sql += ' AND b.month = ?'; values.push(month); }
-  if (category_id) { sql += ' AND b.category_id = ?'; values.push(category_id); }
+  if (user_id) {
+    sql += ' AND b.user_id = ?';
+    values.push(user_id); }
+  if (year) {
+    sql += ' AND b.year = ?';
+    values.push(year); }
+  if (month) {
+    sql += ' AND b.month = ?';
+    values.push(month); }
+  if (category_id) {
+    sql += ' AND b.category_id = ?';
+    values.push(category_id); }
+  
   sql += ' ORDER BY b.year DESC, b.month DESC, b.category_id';
   const [rows] = await connection.query(sql, values);
   return rows;

@@ -6,7 +6,7 @@ import userRoutes from './modules/users/user.controller.mjs';
 import transactionRoutes from './modules/transactions/transaction.controller.mjs';
 import budgetRoutes from './modules/budgets/budget.controller.mjs';
 
-import setupSwagger from '../docs/swagger.mjs'; // Ajusta la ruta si la carpeta docs está en otro lugar
+import setupSwagger from '../docs/swagger.mjs'; // OJO: Ajustar la ruta si la carpeta docs se mueve a otro lugar
 
 const app = express();
 app.use(express.json()); // Permite recibir y procesar JSON | Allows receiving and processing JSON

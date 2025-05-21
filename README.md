@@ -34,7 +34,18 @@ DB_PASSWORD=yourpassword
 DB_NAME=moneyshield
 PORT=3000
 ```
+## 🗄️ Database Setup
+The database schema, initial data, and triggers are located in the /db/moneyshield_schema.sql file.
 
+To create the database and load all tables, initial data, and triggers, run:
+
+```
+mysql -u youruser -p < db/moneyshield_schema.sql
+```
+
+- Make sure your MySQL user has privileges to create databases and tables.
+
+- The script will create the moneyshield database, all tables, insert initial data (profiles, categories, types, etc.), and set up triggers (e.g., to protect the "Others" category).
 
 ## 🏃‍♂️ Usage
 
@@ -58,6 +69,8 @@ To run only the users tests:
 
 ```
 npm test -- tests/users.test.js
+npm test -- tests/transactions.test.js
+npm test -- tests/budgets.test.js
 ```
 
 ## 📖 API Documentation
@@ -114,6 +127,10 @@ Español:
 ## 🗂️ Project Structure
 
 ```
+db/
+    moneyshield_schema.sql
+docs/
+    swagger.mjs
 src/
     db/DBHelper.mjs
     modules/
@@ -134,7 +151,7 @@ src/
 .env
 package.json
 README.md
-/tests
+tests/
   users.test.js
   transactions.test.js
   budget.test.js
@@ -164,4 +181,4 @@ Sigue las instrucciones anteriores para instalar, configurar y ejecutar el proye
 ---
 
 Created for MoneyShield by Juan Carlos Sandomingo version © 2025
-Current date: Monday, May 20, 2025, 1:00 PM
+Current date: Monday, May 21, 2025, 12:20 PM
