@@ -1,3 +1,5 @@
+// src/modules/users/user.controller.mjs
+
 import express from 'express';
 import * as userService from './user.service.mjs';
 

@@ -3,7 +3,7 @@ import app from '../src/app.js';
 import db from '../src/db/DBHelper.mjs';
 
 describe('Transactions API (full integration, extended)', () => {
-  // IDs de prueba - AJUSTA según tus datos reales
+  // IDs de prueba - AJUSTAR según datos reales
   const validUserId = 1;
   const validTypeId = 1;
   const validCategoryId = 1;

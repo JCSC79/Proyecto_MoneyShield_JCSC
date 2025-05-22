@@ -17,7 +17,7 @@ const options = {
       },
     ],
   },
-  apis: ['./src/modules/users/*.mjs', './src/modules/transactions/*.mjs', './src/modules/budgets/*.mjs'],
+  apis: ['./src/modules/users/*.mjs', './src/modules/transactions/*.mjs', './src/modules/budgets/*.mjs', './src/modules/savings/*.mjs'],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
