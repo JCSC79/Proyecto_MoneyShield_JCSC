@@ -172,6 +172,47 @@ router.put('/:id', async (req, res) => {
 /**
  * @swagger
  * /savings/{id}:
+ *   patch:
+ *     tags: [Savings]
+ *     summary: Partially update saving | Actualizar parcialmente un ahorro
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               type_id: { type: integer }
+ *               name: { type: string }
+ *               amount: { type: number }
+ *               target_amount: { type: number, nullable: true }
+ *               target_date: { type: string, format: date, nullable: true }
+ *     responses:
+ *       200:
+ *         description: Saving partially updated | Ahorro parcialmente actualizado
+ *       404:
+ *         description: Saving not found | Ahorro no encontrado
+ *       400:
+ *         description: Invalid request | Solicitud inválida
+ */
+router.patch('/:id', async (req, res) => {
+  try {
+    await savingsService.patchSaving(req.params.id, req.body);
+    res.json({ message: 'Saving patched' });
+  } catch (err) {
+    res.status(getStatus(err)).json({ error: err.message });
+  }
+});
+
+
+/**
+ * @swagger
+ * /savings/{id}:
  *   delete:
  *     tags: [Savings]
  *     summary: Delete saving | Eliminar ahorro

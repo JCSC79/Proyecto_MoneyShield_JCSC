@@ -57,6 +57,24 @@ export async function updateSaving(id, { type_id, name, amount, target_amount = 
 }
 
 /**
+ * Actualizar parcialmente un ahorro
+ * Partially update a saving
+ */
+export async function patchSaving(id, fields) {
+  const allowedFields = ['type_id', 'name', 'amount', 'target_amount', 'target_date'];
+  const keys = Object.keys(fields).filter(k => allowedFields.includes(k));
+  if (keys.length === 0) return false;
+  const values = keys.map(key => fields[key]);
+  const setClause = keys.map(key => `${key} = ?`).join(', ');
+  values.push(id);
+  const [result] = await db.query(
+    `UPDATE savings SET ${setClause} WHERE id = ?`,
+    values
+  );
+  return result.affectedRows > 0;
+}
+
+/**
  * Eliminar un ahorro
  * Delete a saving
  */

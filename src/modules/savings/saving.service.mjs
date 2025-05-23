@@ -91,6 +91,44 @@ export async function updateSaving(id, data) {
 }
 
 /**
+ * Actualizar parcialmente un ahorro | Partially update a saving
+ */
+export async function patchSaving(id, fields) {
+  validateSavingId(id);
+  const allowedFields = ['type_id', 'name', 'amount', 'target_amount', 'target_date'];
+  const keys = Object.keys(fields).filter(k => allowedFields.includes(k));
+  if (keys.length === 0) throw new ValidationError('No valid fields to update');
+
+  // Validaciones parciales
+  if (fields.amount !== undefined && (isNaN(fields.amount) || fields.amount < 0)) {
+    throw new ValidationError('Amount must be a positive number');
+  }
+  if (
+    fields.target_amount !== undefined &&
+    fields.target_amount !== null &&
+    (isNaN(fields.target_amount) || fields.target_amount < 0)
+  ) {
+    throw new ValidationError('Target amount must be a positive number');
+  }
+  if (fields.target_date && isNaN(Date.parse(fields.target_date))) {
+    throw new ValidationError('Invalid target date');
+  }
+  // Validar que target_amount > amount si ambos están presentes
+  if (
+    fields.amount !== undefined &&
+    fields.target_amount !== undefined &&
+    fields.target_amount !== null &&
+    fields.target_amount <= fields.amount
+  ) {
+    throw new ValidationError('Target amount must be greater than amount');
+  }
+
+  const updated = await savingsDao.patchSaving(id, fields);
+  if (!updated) throw new NotFoundError('Saving not found or no valid fields to update');
+  return true;
+}
+
+/**
  * Eliminar un ahorro | Delete a saving
  */
 export async function deleteSaving(id) {
