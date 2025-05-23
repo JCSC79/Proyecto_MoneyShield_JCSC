@@ -2,6 +2,8 @@
 
 import * as userDao from './user.dao.mjs';
 import db from '../../db/DBHelper.mjs';
+import bcrypt from 'bcryptjs'; // Librería para encriptar contraseñas | Library for password hashing
+
 
 // Clases de error personalizadas | Custom error classes
 class ValidationError extends Error {
@@ -121,6 +123,11 @@ export async function createUser(userData) {
   const profileExists = await userDao.profileExists(userData.profile_id);
   if (!profileExists) throw new ValidationError('Profile does not exist');
 
+  // Hashear la contraseña antes de guardar
+  const hashedPassword = await bcrypt.hash(userData.password_hash, 10);
+  userData.password_hash = hashedPassword;
+
+
   // Transacción para operación atómica
   let connection;
   try {
@@ -157,6 +164,11 @@ export async function editUser(id, userData) {
   // Validaciones comunes
   await commonValidations(id, userData);
 
+  // Hashear la contraseña si está presente
+  if (userData.password_hash) {
+    userData.password_hash = await bcrypt.hash(userData.password_hash, 10);
+  }
+
   // Actualizar
   const updated = await userDao.updateUser(id, userData);
   if (!updated) throw new NotFoundError('User not found');
@@ -177,6 +189,11 @@ export async function patchUser(id, fields) {
 
   // Validaciones comunes
   await commonValidations(id, fields);
+
+  // Hashear la contraseña si está presente
+  if (fields.password_hash) {
+    fields.password_hash = await bcrypt.hash(fields.password_hash, 10);
+  }
 
   // Actualizar
   const updated = await userDao.patchUser(id, fields);

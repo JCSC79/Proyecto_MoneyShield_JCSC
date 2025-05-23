@@ -1,4 +1,6 @@
 // src/modules/users/user.controller.mjs
+import { authenticate } from '../auth/auth.middleware.mjs';
+
 
 import express from 'express';
 import * as userService from './user.service.mjs';
@@ -162,7 +164,7 @@ router.post('/', async (req, res) => {
  *       409:
  *         description: Email already exists | El email ya existe
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticate, async (req, res) => {
   try {
     await userService.editUser(req.params.id, req.body);
     res.json({ message: 'User updated' });
@@ -212,7 +214,7 @@ router.put('/:id', async (req, res) => {
  *       409:
  *         description: Email already exists | El email ya existe
  */
-router.patch('/:id', async (req, res) => {
+router.patch('/:id',authenticate, async (req, res) => {
   try {
     await userService.patchUser(req.params.id, req.body);
     res.json({ message: 'User patched' });
@@ -239,7 +241,7 @@ router.patch('/:id', async (req, res) => {
  *       404:
  *         description: User not found | Usuario no encontrado
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',authenticate, async (req, res) => {
   try {
     await userService.deleteUser(req.params.id);
     res.json({ message: 'User deleted' });
