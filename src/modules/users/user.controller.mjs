@@ -2,7 +2,7 @@
 
 import express from 'express';
 import * as userService from './user.service.mjs';
-import { authenticate } from '../auth/auth.middleware.mjs';
+import { authenticate, authorize } from '../auth/auth.middleware.mjs';
 
 const router = express.Router();
 
@@ -38,7 +38,7 @@ function getStatus(err) {
  *       200:
  *         description: List of users | Lista de usuarios
  */
-router.get('/', authenticate, async (req, res) => {
+router.get('/', authenticate, authorize([1]), async (req, res) => {
   try {
     const users = await userService.getAllUsers();
     res.json(users);
