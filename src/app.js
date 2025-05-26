@@ -7,6 +7,7 @@ import transactionRoutes from './modules/transactions/transaction.controller.mjs
 import budgetRoutes from './modules/budgets/budget.controller.mjs';
 import savingRoutes from './modules/savings/saving.controller.mjs';
 import categoryRoutes from './modules/categories/categories.controller.mjs';
+import profileRoutes from './modules/profiles/profile.controller.mjs';
 import authRoutes from './modules/auth/auth.controller.mjs';
 
 
@@ -23,6 +24,7 @@ app.use('/transactions', transactionRoutes);
 app.use('/budgets', budgetRoutes);
 app.use('/savings', savingRoutes);
 app.use('/categories', categoryRoutes);
+app.use('/profiles', profileRoutes);
 app.use('/auth', authRoutes);
 
 
