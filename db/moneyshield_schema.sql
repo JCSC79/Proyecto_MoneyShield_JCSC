@@ -119,6 +119,13 @@ CREATE TABLE savings (
 INSERT INTO profiles (name) VALUES 
 ('admin'), ('user');
 
+-- Usuarios de prueba (password: 3lManduc0.56)
+INSERT INTO users 
+  (first_name, last_name, email, password_hash, profile_id)
+VALUES
+  ('Admin', 'User', 'admin@money.com', '$2a$12$8/B/aamlRLtF.s5Tq0yLXOgEjma0z3LWzksX5y9LsudloSOen7iZK', 1),
+  ('Normal', 'User', 'user@money.com', '$2a$12$8/B/aamlRLtF.s5Tq0yLXOgEjma0z3LWzksX5y9LsudloSOen7iZK', 2);
+
 -- Categorías
 INSERT INTO categories (name) VALUES 
 ('General'), ('Food'), ('Housing'), ('Health'), 

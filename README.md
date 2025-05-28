@@ -72,6 +72,17 @@ npm test -- tests/users.test.js
 npm test -- tests/transactions.test.js
 npm test -- tests/budgets.test.js
 ```
+## 👤 Usuarios de Prueba
+
+**Administrador**  
+Email: `admin@money.com`  
+Contraseña: `3lManduc0.56`  
+
+**Usuario Normal**  
+Email: `user@money.com`  
+Contraseña: `3lManduc0.56`
+
+Ambos usuarios tienen la misma contraseña para facilitar las pruebas.
 
 ## 📖 API Documentation
 
