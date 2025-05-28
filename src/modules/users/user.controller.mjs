@@ -117,14 +117,32 @@ router.get('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
  *       409:
  *         description: Email already exists | El email ya existe
  */
-router.post('/', authenticate, async (req, res) => {
+
+// router.post('/', authenticate, async (req, res) => {
+//   try {
+//     const user = await userService.createUser(req.body);
+//     res.status(201).json(user);
+//   } catch (err) {
+//     res.status(getStatus(err)).json({ error: err.message });
+//   }
+// });
+
+router.post('/', async (req, res) => {
   try {
-    const user = await userService.createUser(req.body);
+    // Forzar siempre perfil de usuario normal (profile_id: 2)
+    // Esto es para evitar que se creen usuarios con perfil de admin desde el endpoint de creación
+    const userData = {
+      ...req.body,
+      profile_id: 2
+    };
+    const user = await userService.createUser(userData);
     res.status(201).json(user);
   } catch (err) {
     res.status(getStatus(err)).json({ error: err.message });
   }
 });
+
+
 
 /**
  * @swagger
