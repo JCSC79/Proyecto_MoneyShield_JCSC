@@ -169,3 +169,17 @@ async function validateTransactionData(data, existingId = null) {
     }
   }
 }
+
+// =================== REPORTES FINANCIEROS ===================
+
+export async function getUserBalance(user_id) {
+  return transactionDao.getUserBalance(user_id);
+}
+
+export async function getExpensesByCategory(user_id) {
+  return transactionDao.getExpensesByCategory(user_id);
+}
+
+export async function getMonthlyExpenses(user_id) {
+  return transactionDao.getMonthlyExpenses(user_id);
+}

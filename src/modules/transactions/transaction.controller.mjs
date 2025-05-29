@@ -249,4 +249,90 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// =================== ENDPOINTS DE REPORTES FINANCIEROS ===================
+
+/**
+ * @swagger
+ * /transactions/report/balance:
+ *   get:
+ *     tags: [Transactions]
+ *     summary: Get user balance (ingresos - gastos) | Obtener balance del usuario
+ *     parameters:
+ *       - in: query
+ *         name: user_id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: User ID | ID de usuario
+ *     responses:
+ *       200:
+ *         description: User balance | Balance del usuario
+ */
+router.get('/report/balance', async (req, res) => {
+  try {
+    const user_id = Number(req.query.user_id);
+    if (!user_id) return res.status(400).json({ error: 'user_id is required' });
+    const balance = await transactionService.getUserBalance(user_id);
+    res.json({ balance });
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+/**
+ * @swagger
+ * /transactions/report/expenses-by-category:
+ *   get:
+ *     tags: [Transactions]
+ *     summary: Get expenses by category | Obtener gastos por categoría
+ *     parameters:
+ *       - in: query
+ *         name: user_id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: User ID | ID de usuario
+ *     responses:
+ *       200:
+ *         description: Expenses grouped by category | Gastos agrupados por categoría
+ */
+router.get('/report/expenses-by-category', async (req, res) => {
+  try {
+    const user_id = Number(req.query.user_id);
+    if (!user_id) return res.status(400).json({ error: 'user_id is required' });
+    const data = await transactionService.getExpensesByCategory(user_id);
+    res.json(data);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+/**
+ * @swagger
+ * /transactions/report/monthly-expenses:
+ *   get:
+ *     tags: [Transactions]
+ *     summary: Get monthly expenses evolution | Obtener evolución mensual de gastos
+ *     parameters:
+ *       - in: query
+ *         name: user_id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: User ID | ID de usuario
+ *     responses:
+ *       200:
+ *         description: Monthly expenses evolution | Evolución mensual de gastos
+ */
+router.get('/report/monthly-expenses', async (req, res) => {
+  try {
+    const user_id = Number(req.query.user_id);
+    if (!user_id) return res.status(400).json({ error: 'user_id is required' });
+    const data = await transactionService.getMonthlyExpenses(user_id);
+    res.json(data);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
 export default router;
