@@ -2,13 +2,13 @@
 
 import db from '../../db/DBHelper.mjs';
 
-// Campos permitidos para actualización
+// Campos permitidos para actualización | Allowed fields for update
 const ALLOWED_UPDATE_FIELDS = new Set([
   'user_id', 'type_id', 'category_id', 'amount', 'description'
 ]);
 
 /**
- * Obtener todas las transacciones con joins y filtros
+ * Obtener todas las transacciones con joins y filtros | Get all transactions with joins and filters
  */
 export async function getAllTransactions(filter = {}, connection = db) {
   const { user_id, type_id, from, to } = filter;
@@ -48,11 +48,13 @@ export async function getAllTransactions(filter = {}, connection = db) {
 }
 
 /**
- * Obtener transacción por ID con datos relacionados
+ * Obtener transacción por ID con datos relacionados | Get transaction by ID with related data
  */
 export async function getTransactionById(id, connection = db) {
   const numId = Number(id);
-  if (!Number.isInteger(numId) || numId <= 0) return null;
+  if (!Number.isInteger(numId) || numId <= 0) {
+    return null;
+  }
   
   const [rows] = await connection.query(
     `SELECT t.*,
@@ -70,13 +72,13 @@ export async function getTransactionById(id, connection = db) {
 }
 
 /**
- * Crear nueva transacción
+ * Crear nueva transacción | Create new transaction
  */
 export async function createTransaction(data, connection = db) {
   const { user_id, type_id, category_id, amount, description } = data;
   
   const [result] = await connection.query(
-    `INSERT INTO transactions 
+    `INSERT INTO transactions
     (user_id, type_id, category_id, amount, description)
     VALUES (?, ?, ?, ?, ?)`,
     [user_id, type_id, category_id, amount, description || null]
@@ -90,13 +92,15 @@ export async function createTransaction(data, connection = db) {
 }
 
 /**
- * Actualizar transacción existente
+ * Actualizar transacción existente | Update existing transaction
  */
 export async function updateTransaction(id, fields, connection = db) {
   const numId = Number(id);
-  if (!Number.isInteger(numId) || numId <= 0) return false;
+  if (!Number.isInteger(numId) || numId <= 0) {
+    return false;
+  }
   
-  // Filtrar campos permitidos
+  // Filtrar campos permitidos | Filter allowed fields
   const validFields = Object.keys(fields)
     .filter(key => ALLOWED_UPDATE_FIELDS.has(key))
     .reduce((obj, key) => {
@@ -104,7 +108,9 @@ export async function updateTransaction(id, fields, connection = db) {
       return obj;
     }, {});
 
-  if (Object.keys(validFields).length === 0) return false;
+  if (Object.keys(validFields).length === 0) { 
+    return false;
+  }
 
   const setClause = Object.keys(validFields)
     .map(key => `${key} = ?`)
@@ -121,11 +127,13 @@ export async function updateTransaction(id, fields, connection = db) {
 }
 
 /**
- * Eliminar transacción
+ * Eliminar transacción | Delete transaction
  */
 export async function deleteTransaction(id, connection = db) {
   const numId = Number(id);
-  if (!Number.isInteger(numId) || numId <= 0) return false;
+  if (!Number.isInteger(numId) || numId <= 0) {
+    return false;
+  }
   
   const [result] = await connection.query(
     'DELETE FROM transactions WHERE id = ?',
@@ -135,7 +143,7 @@ export async function deleteTransaction(id, connection = db) {
   return result.affectedRows > 0;
 }
 
-// Funciones de validación de relaciones
+// Funciones de validación de relaciones | Relationship validation functions
 export async function userExists(user_id, connection = db) {
   const [rows] = await connection.query(
     'SELECT id FROM users WHERE id = ?',
@@ -153,7 +161,9 @@ export async function typeExists(type_id, connection = db) {
 }
 
 export async function categoryExists(category_id, connection = db) {
-  if (category_id === null) return true; // Permitir NULL
+  if (category_id === null) {
+    return true; // Permitir NULL
+  }
   const [rows] = await connection.query(
     'SELECT id FROM categories WHERE id = ?',
     [category_id]
@@ -165,7 +175,7 @@ export async function categoryExists(category_id, connection = db) {
 // =================== REPORTES FINANCIEROS ===================
 
 /**
- * Balance general (ingresos - gastos)
+ * Balance general (ingresos - gastos) | General balance (income - expenses)
  */
 export async function getUserBalance(user_id, connection = db) {
   const [rows] = await connection.query(
@@ -179,7 +189,7 @@ export async function getUserBalance(user_id, connection = db) {
 }
 
 /**
- * Gastos por categoría
+ * Gastos por categoría | Expenses by category
  */
 export async function getExpensesByCategory(user_id, connection = db) {
   const [rows] = await connection.query(
@@ -195,7 +205,7 @@ export async function getExpensesByCategory(user_id, connection = db) {
 }
 
 /**
- * Evolución mensual de gastos
+ * Evolución mensual de gastos | Monthly expenses evolution
  */
 export async function getMonthlyExpenses(user_id, connection = db) {
   const [rows] = await connection.query(

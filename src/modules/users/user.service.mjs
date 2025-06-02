@@ -6,7 +6,8 @@ import bcrypt from 'bcryptjs'; // Librería para encriptar contraseñas | Librar
 
 
 // Clases de error personalizadas | Custom error classes
-class ValidationError extends Error {
+
+class ValidationError extends Error {// Error de validación personalizada | Custom validation error
   constructor(message) {
     super(message);
     this.name = 'ValidationError';
@@ -14,7 +15,7 @@ class ValidationError extends Error {
   }
 }
 
-class NotFoundError extends Error {
+class NotFoundError extends Error {// Error de no encontrado personalizada | Custom not found error
   constructor(message) {
     super(message);
     this.name = 'NotFoundError';
@@ -22,7 +23,7 @@ class NotFoundError extends Error {
   }
 }
 
-class ConflictError extends Error {
+class ConflictError extends Error {// Error de conflicto personalizada | Custom conflict error
   constructor(message) {
     super(message);
     this.name = 'ConflictError';
@@ -35,7 +36,7 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 // Campos permitidos para actualización parcial | Allowed fields for PATCH
 const ALLOWED_PATCH_FIELDS = new Set([
-  'first_name', 'last_name', 'email', 
+  'first_name', 'last_name', 'email',
   'password_hash', 'profile_id',
   'base_budget', 'base_saving'
 ]);
@@ -44,7 +45,9 @@ const ALLOWED_PATCH_FIELDS = new Set([
  * Filtra campos sensibles de usuario | Filter sensitive user fields
  */
 function omitPassword(user) {
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
   const { password_hash, ...rest } = user;
   return rest;
 }
@@ -60,10 +63,10 @@ function isValidEmail(email) {
  * Valida fortaleza de contraseña | Validate password strength
  */
 function isStrongPassword(password) {
-  return password.length >= 8 && 
-         /[A-Z]/.test(password) && 
-         /[a-z]/.test(password) && 
-         /\d/.test(password);
+  return password.length >= 8 &&
+        /[A-Z]/.test(password) &&
+        /[a-z]/.test(password) &&
+        /\d/.test(password);
 }
 
 /**
@@ -89,7 +92,9 @@ export async function getAllUsers() {
 export async function getUserById(id) {
   validateUserId(id);
   const user = await userDao.getUserById(id);
-  if (!user) throw new NotFoundError('User not found');
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
   return omitPassword(user);
 }
 
@@ -97,7 +102,7 @@ export async function getUserById(id) {
  * Crear un nuevo usuario | Create a new user
  */
 export async function createUser(userData) {
-  // Valida los campos requeridos
+  // Valida los campos requeridos | Validate required fields
   const requiredFields = ['first_name', 'last_name', 'email', 'password_hash', 'profile_id'];
   for (const field of requiredFields) {
     if (!userData[field]) {
@@ -105,36 +110,40 @@ export async function createUser(userData) {
     }
   }
 
-  // Valida formato y fortaleza de contraseña
+  // Valida formato y fortaleza de contraseña | Validate password format and strength
   if (!isStrongPassword(userData.password_hash)) {
     throw new ValidationError('Password must be at least 8 characters long and contain uppercase, lowercase, and numbers');
   }
 
-  // Valida email
+  // Valida email | Validate email format
   if (!isValidEmail(userData.email)) {
     throw new ValidationError('Invalid email format');
   }
 
-  // Valida unicidad de email
+  // Valida unicidad de email | Validate email uniqueness
   const existing = await userDao.getUserByEmail(userData.email);
-  if (existing) throw new ConflictError('Email already exists');
+  if (existing) {
+    throw new ConflictError('Email already exists');
+  }
 
-  // Valida perfil existente
+  // Valida perfil existente | Validate existing profile
   const profileExists = await userDao.profileExists(userData.profile_id);
-  if (!profileExists) throw new ValidationError('Profile does not exist');
+  if (!profileExists) {
+    throw new ValidationError('Profile does not exist');
+  }
 
-  // Hashear la contraseña antes de guardar
+  // Hashear la contraseña antes de guardar | Hash the password before saving
   const hashedPassword = await bcrypt.hash(userData.password_hash, 10);
   userData.password_hash = hashedPassword;
 
 
-  // Transacción para operación atómica
+  // Transacción para operación atómica | Transaction for atomic operation
   let connection;
   try {
     connection = await db.getConnection();
     await connection.beginTransaction();
 
-    // Crear usuario
+    // Crear usuario | Create user
     const user = await userDao.createUser(userData, connection);
     
     await connection.commit();
@@ -153,7 +162,7 @@ export async function createUser(userData) {
 export async function editUser(id, userData) {
   validateUserId(id);
   
-  // Valida campos requeridos
+  // Valida campos requeridos | Validate required fields
   const requiredFields = ['first_name', 'last_name', 'email', 'password_hash', 'profile_id'];
   for (const field of requiredFields) {
     if (!userData[field]) {
@@ -161,17 +170,19 @@ export async function editUser(id, userData) {
     }
   }
 
-  // Validaciones comunes
+  // Validaciones comunes | Common validations
   await commonValidations(id, userData);
 
-  // Hashear la contraseña si está presente
+  // Hashear la contraseña si está presente | Hash the password if present
   if (userData.password_hash) {
     userData.password_hash = await bcrypt.hash(userData.password_hash, 10);
   }
 
-  // Actualizar
+  // Actualizar usuario | Update user
   const updated = await userDao.updateUser(id, userData);
-  if (!updated) throw new NotFoundError('User not found');
+  if (!updated) {
+    throw new NotFoundError('User not found');
+  }
   return true;
 }
 
@@ -181,23 +192,25 @@ export async function editUser(id, userData) {
 export async function patchUser(id, fields) {
   validateUserId(id);
   
-  // Validar campos permitidos
+  // Validar campos permitidos | Validate allowed fields
   const invalidFields = Object.keys(fields).filter(f => !ALLOWED_PATCH_FIELDS.has(f));
   if (invalidFields.length > 0) {
     throw new ValidationError(`Invalid fields: ${invalidFields.join(', ')}`);
   }
 
-  // Validaciones comunes
+  // Validaciones comunes | Common validations
   await commonValidations(id, fields);
 
-  // Hashear la contraseña si está presente
+  // Hashear la contraseña si está presente | Hash the password if present
   if (fields.password_hash) {
     fields.password_hash = await bcrypt.hash(fields.password_hash, 10);
   }
 
-  // Actualizar
+  // Actualizar | Update user
   const updated = await userDao.patchUser(id, fields);
-  if (!updated) throw new NotFoundError('User not found or no valid fields to update');
+  if (!updated) {
+    throw new NotFoundError('User not found or no valid fields to update');
+  }
   return true;
 }
 
@@ -207,13 +220,15 @@ export async function patchUser(id, fields) {
 export async function deleteUser(id) {
   validateUserId(id);
   const deleted = await userDao.deleteUser(id);
-  if (!deleted) throw new NotFoundError('User not found');
+  if (!deleted) {
+    throw new NotFoundError('User not found');
+  }
   return true;
 }
 
 // Funciones de ayuda | Helper functions
 async function commonValidations(id, data) {
-  // Validar email si está presente
+  // Validar email si está presente | Validate email if present
   if (data.email) {
     if (!isValidEmail(data.email)) {
       throw new ValidationError('Invalid email format');
@@ -224,13 +239,15 @@ async function commonValidations(id, data) {
     }
   }
 
-  // Validar profile_id si está presente
+  // Validar profile_id si está presente | Validate profile_id if present
   if (data.profile_id) {
     const profileExists = await userDao.profileExists(data.profile_id);
-    if (!profileExists) throw new ValidationError('Profile does not exist');
+    if (!profileExists) {
+      throw new ValidationError('Profile does not exist');
+    }
   }
 
-  // Validar password si está presente
+  // Validar password si está presente | Validate password if present
   if (data.password_hash && !isStrongPassword(data.password_hash)) {
     throw new ValidationError('Password must be at least 8 characters long and contain uppercase, lowercase, and numbers');
   }

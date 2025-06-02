@@ -1,10 +1,10 @@
 // src/modules/users/user.controller.mjs
 
-import express from 'express';
-import * as userService from './user.service.mjs';
-import { authenticate, authorize } from '../auth/auth.middleware.mjs';
+import express from 'express'; // Importar express | Importar el servicio de usuario
+import * as userService from './user.service.mjs'; // Importar el servicio de usuario | Import user service
+import { authenticate, authorize } from '../auth/auth.middleware.mjs'; // Importar middleware de autenticación y autorización | Import authentication and authorization middleware
 
-const router = express.Router();
+const router = express.Router(); // Crear un router de Express | Create an Express router
 
 /**
  * Middleware: Permite solo admin o el propio usuario
@@ -23,7 +23,7 @@ function allowSelfOrAdmin(req, res, next) {
  *   description: User management | Gestión de usuarios
  */
 
-// Helper para status HTTP según error
+// Helper para status HTTP según error | Helper to get HTTP status based on error
 function getStatus(err) {
   return err.status || 400;
 }
@@ -74,58 +74,6 @@ router.get('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /users:
- *   post:
- *     tags: [Users]
- *     summary: Create new user | Crear un nuevo usuario
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - first_name
- *               - last_name
- *               - email
- *               - password_hash
- *               - profile_id
- *             properties:
- *               first_name:
- *                 type: string
- *               last_name:
- *                 type: string
- *               email:
- *                 type: string
- *               password_hash:
- *                 type: string
- *               profile_id:
- *                 type: integer
- *               base_budget:
- *                 type: number
- *                 default: 0
- *               base_saving:
- *                 type: number
- *                 default: 0
- *     responses:
- *       201:
- *         description: User created | Usuario creado
- *       400:
- *         description: Invalid request | Solicitud inválida
- *       409:
- *         description: Email already exists | El email ya existe
- */
-
-// router.post('/', authenticate, async (req, res) => {
-//   try {
-//     const user = await userService.createUser(req.body);
-//     res.status(201).json(user);
-//   } catch (err) {
-//     res.status(getStatus(err)).json({ error: err.message });
-//   }
-// });
 
 router.post('/', async (req, res) => {
   try {

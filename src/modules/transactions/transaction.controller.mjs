@@ -271,7 +271,9 @@ router.delete('/:id', async (req, res) => {
 router.get('/report/balance', async (req, res) => {
   try {
     const user_id = Number(req.query.user_id);
-    if (!user_id) return res.status(400).json({ error: 'user_id is required' });
+    if (!user_id) {
+      return res.status(400).json({ error: 'user_id is required' });
+    }
     const balance = await transactionService.getUserBalance(user_id);
     res.json({ balance });
   } catch (err) {
@@ -299,7 +301,9 @@ router.get('/report/balance', async (req, res) => {
 router.get('/report/expenses-by-category', async (req, res) => {
   try {
     const user_id = Number(req.query.user_id);
-    if (!user_id) return res.status(400).json({ error: 'user_id is required' });
+    if (!user_id) {
+      return res.status(400).json({ error: 'user_id is required' });
+    }
     const data = await transactionService.getExpensesByCategory(user_id);
     res.json(data);
   } catch (err) {
@@ -327,7 +331,9 @@ router.get('/report/expenses-by-category', async (req, res) => {
 router.get('/report/monthly-expenses', async (req, res) => {
   try {
     const user_id = Number(req.query.user_id);
-    if (!user_id) return res.status(400).json({ error: 'user_id is required' });
+    if (!user_id) {
+      return res.status(400).json({ error: 'user_id is required' });
+    }
     const data = await transactionService.getMonthlyExpenses(user_id);
     res.json(data);
   } catch (err) {
