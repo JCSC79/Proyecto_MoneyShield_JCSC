@@ -63,7 +63,9 @@ export async function updateSaving(id, { type_id, name, amount, target_amount = 
 export async function patchSaving(id, fields) {
   const allowedFields = ['type_id', 'name', 'amount', 'target_amount', 'target_date'];
   const keys = Object.keys(fields).filter(k => allowedFields.includes(k));
-  if (keys.length === 0) return false;
+  if (keys.length === 0) {
+    return false;
+  }
   const values = keys.map(key => fields[key]);
   const setClause = keys.map(key => `${key} = ?`).join(', ');
   values.push(id);

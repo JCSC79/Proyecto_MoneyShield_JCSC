@@ -10,7 +10,7 @@ const router = express.Router();
  *   description: Category management | Gestión de categorías
  */
 
-// Helper para status HTTP según error
+// Helper para status HTTP según error | Helper for HTTP status based on error
 function getStatus(err) {
   return err.status || 400;
 }

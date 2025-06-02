@@ -66,7 +66,9 @@ export async function getAllSavings(user_id) {
 export async function getSavingById(id) {
   validateSavingId(id);
   const saving = await savingsDao.getSavingById(id);
-  if (!saving) throw new NotFoundError('Saving not found');
+  if (!saving) {
+    throw new NotFoundError('Saving not found');
+  }
   return saving;
 }
 
@@ -75,7 +77,7 @@ export async function getSavingById(id) {
  */
 export async function createSaving(data) {
   validateSavingData(data);
-  // Puedes agregar aquí validaciones adicionales, como existencia de usuario o tipo de ahorro si lo necesitas
+  // Se puede agregar aquí validaciones adicionales, como existencia de usuario o tipo de ahorro
   return await savingsDao.createSaving(data);
 }
 
@@ -86,7 +88,9 @@ export async function updateSaving(id, data) {
   validateSavingId(id);
   validateSavingData(data, true);
   const updated = await savingsDao.updateSaving(id, data);
-  if (!updated) throw new NotFoundError('Saving not found');
+  if (!updated) {
+    throw new NotFoundError('Saving not found');
+  }
   return true;
 }
 
@@ -97,7 +101,9 @@ export async function patchSaving(id, fields) {
   validateSavingId(id);
   const allowedFields = ['type_id', 'name', 'amount', 'target_amount', 'target_date'];
   const keys = Object.keys(fields).filter(k => allowedFields.includes(k));
-  if (keys.length === 0) throw new ValidationError('No valid fields to update');
+  if (keys.length === 0) {
+    throw new ValidationError('No valid fields to update');
+  }
 
   // Validaciones parciales
   if (fields.amount !== undefined && (isNaN(fields.amount) || fields.amount < 0)) {
@@ -124,7 +130,9 @@ export async function patchSaving(id, fields) {
   }
 
   const updated = await savingsDao.patchSaving(id, fields);
-  if (!updated) throw new NotFoundError('Saving not found or no valid fields to update');
+  if (!updated) {
+    throw new NotFoundError('Saving not found or no valid fields to update');
+  }
   return true;
 }
 
@@ -134,6 +142,8 @@ export async function patchSaving(id, fields) {
 export async function deleteSaving(id) {
   validateSavingId(id);
   const deleted = await savingsDao.deleteSaving(id);
-  if (!deleted) throw new NotFoundError('Saving not found');
+  if (!deleted) {
+    throw new NotFoundError('Saving not found');
+  }
   return true;
 }

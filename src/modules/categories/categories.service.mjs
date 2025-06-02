@@ -22,9 +22,13 @@ export async function getAllCategories() {
  * Obtener categoría por ID | Get category by ID
  */
 export async function getCategoryById(id) {
-  if (!id || isNaN(id) || id <= 0) throw new ValidationError('Invalid category ID');
+  if (!id || isNaN(id) || id <= 0) {
+    throw new ValidationError('Invalid category ID');
+  }
   const category = await categoryDao.getCategoryById(id);
-  if (!category) throw new NotFoundError('Category not found');
+  if (!category) {
+    throw new NotFoundError('Category not found');
+  }
   return category;
 }
 
@@ -45,12 +49,16 @@ export async function createCategory({ name }) {
  * Actualizar categoría | Update category
  */
 export async function updateCategory(id, { name }) {
-  if (!id || isNaN(id) || id <= 0) throw new ValidationError('Invalid category ID');
+  if (!id || isNaN(id) || id <= 0) {
+    throw new ValidationError('Invalid category ID');
+  }
   if (!name || typeof name !== 'string' || !name.trim()) {
     throw new ValidationError('Category name is required');
   }
   const updated = await categoryDao.updateCategory(id, { name: name.trim() });
-  if (!updated) throw new NotFoundError('Category not found');
+  if (!updated) {
+    throw new NotFoundError('Category not found');
+  }
   return true;
 }
 
@@ -58,8 +66,12 @@ export async function updateCategory(id, { name }) {
  * Eliminar categoría | Delete category
  */
 export async function deleteCategory(id) {
-  if (!id || isNaN(id) || id <= 0) throw new ValidationError('Invalid category ID');
+  if (!id || isNaN(id) || id <= 0) {
+    throw new ValidationError('Invalid category ID');
+  }
   const deleted = await categoryDao.deleteCategory(id);
-  if (!deleted) throw new NotFoundError('Category not found');
+  if (!deleted) {
+    throw new NotFoundError('Category not found');
+  }
   return true;
 }
