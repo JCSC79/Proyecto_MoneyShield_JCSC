@@ -341,4 +341,62 @@ router.get('/report/monthly-expenses', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /transactions/report/periodic-balance:
+ *   get:
+ *     tags: [Transactions]
+ *     summary: Get periodic balance (weekly or monthly) | Obtener balance periódico (semanal o mensual)
+ *     parameters:
+ *       - in: query
+ *         name: user_id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: User ID | ID de usuario
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: string
+ *           enum: [week, month]
+ *         required: false
+ *         description: Period ('week' or 'month'), default 'week' | Periodo ('week' o 'month'), por defecto 'week'
+ *     responses:
+ *       200:
+ *         description: Periodic balance | Balance periódico
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   period:
+ *                     type: string
+ *                     example: "2025-06"  # o "2025-W23"
+ *                   ingresos:
+ *                     type: number
+ *                     example: 1200.00
+ *                   gastos:
+ *                     type: number
+ *                     example: 800.00
+ *                   balance:
+ *                     type: number
+ *                     example: 400.00
+ */
+router.get('/report/periodic-balance', async (req, res) => {
+  try {
+    const user_id = Number(req.query.user_id);
+    const period = req.query.period || 'week';
+    if (!user_id) {
+      return res.status(400).json({ error: 'user_id is required' });
+    }
+    const data = await transactionService.getPeriodicBalance(user_id, period);
+    res.json(data);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+
 export default router;

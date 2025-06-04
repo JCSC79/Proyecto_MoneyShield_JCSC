@@ -218,3 +218,28 @@ export async function getMonthlyExpenses(user_id, connection = db) {
   );
   return rows;
 }
+
+/**
+ * Balance por semana o mes | Weekly or monthly balance
+ */
+export async function getPeriodicBalance(user_id, period = 'week', connection = db) {
+  let selectPeriod;
+  if (period === 'week') {// Si es semanal | If weekly
+    selectPeriod = `CONCAT(YEAR(t.created_at), '-W', LPAD(WEEK(t.created_at),2,'0'))`;
+  } else {// Si es mensual | If monthly
+    selectPeriod = `CONCAT(YEAR(t.created_at), '-', LPAD(MONTH(t.created_at),2,'0'))`;
+  }
+  const [rows] = await connection.query(// Consulta SQL para balance por periodo | SQL query for periodic balance
+    `SELECT
+      ${selectPeriod} AS period,
+      SUM(CASE WHEN t.type_id = 1 THEN t.amount ELSE 0 END) AS ingresos,
+      SUM(CASE WHEN t.type_id = 2 THEN t.amount ELSE 0 END) AS gastos,
+      SUM(CASE WHEN t.type_id = 1 THEN t.amount ELSE -t.amount END) AS balance
+    FROM transactions t
+    WHERE t.user_id = ?
+    GROUP BY period
+    ORDER BY period`,
+    [user_id]
+  );
+  return rows;
+}

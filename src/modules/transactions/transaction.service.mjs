@@ -208,3 +208,13 @@ export async function getExpensesByCategory(user_id) {
 export async function getMonthlyExpenses(user_id) {
   return transactionDao.getMonthlyExpenses(user_id);
 }
+
+export async function getPeriodicBalance(user_id, period = 'week') {
+  if (!user_id || isNaN(user_id) || user_id <= 0) {
+    throw new ValidationError('Invalid user ID');
+  }
+  if (!['week', 'month'].includes(period)) {
+    throw new ValidationError('Invalid period (must be "week" or "month")');
+  }
+  return transactionDao.getPeriodicBalance(user_id, period);
+}
