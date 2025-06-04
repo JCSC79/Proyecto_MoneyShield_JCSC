@@ -243,3 +243,30 @@ export async function getPeriodicBalance(user_id, period = 'week', connection = 
   );
   return rows;
 }
+
+/**
+ * Top categorías de gasto del usuario en el mes y año indicados (por defecto: mes actual)
+ */
+export async function getTopCategories(user_id, { year, month, limit = 3 } = {}, connection = db) {
+  const now = new Date();
+  year = year || now.getFullYear();
+  month = month || (now.getMonth() + 1);
+
+  const [rows] = await connection.query(
+    `SELECT
+      c.name AS category,
+      SUM(t.amount) AS total
+    FROM transactions t
+    JOIN categories c ON t.category_id = c.id
+    WHERE t.user_id = ?
+      AND t.type_id = 2
+      AND YEAR(t.created_at) = ?
+      AND MONTH(t.created_at) = ?
+    GROUP BY c.name
+    ORDER BY total DESC
+    LIMIT ?`,
+    [user_id, year, month, limit]
+  );
+  return rows;
+}
+

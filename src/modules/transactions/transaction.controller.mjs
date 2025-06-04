@@ -398,5 +398,65 @@ router.get('/report/periodic-balance', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /transactions/report/top-categories:
+ *   get:
+ *     tags: [Transactions]
+ *     summary: Get top spending categories for user (current month by default) | Top categorías de gasto del usuario
+ *     parameters:
+ *       - in: query
+ *         name: user_id
+ *         schema: { type: integer }
+ *         required: true
+ *         description: "User ID | ID de usuario"
+ *       - in: query
+ *         name: year
+ *         schema: { type: integer }
+ *         required: false
+ *         description: "Year (default: current year) | Año (por defecto: actual)"
+ *       - in: query
+ *         name: month
+ *         schema: { type: integer }
+ *         required: false
+ *         description: "Month (default: current month) | Mes (por defecto: actual)"
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer }
+ *         required: false
+ *         description: "Max categories to return (default: 3) | Máximo de categorías (por defecto: 3)"
+ *     responses:
+ *       200:
+ *         description: "Top categories | Top categorías"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   category:
+ *                     type: string
+ *                     example: "Food"
+ *                   total:
+ *                     type: number
+ *                     example: 250.00
+ */
+router.get('/report/top-categories', async (req, res) => {
+  try {
+    const user_id = Number(req.query.user_id);
+    const year = req.query.year ? Number(req.query.year) : undefined;
+    const month = req.query.month ? Number(req.query.month) : undefined;
+    const limit = req.query.limit ? Number(req.query.limit) : undefined;
+    if (!user_id) {
+      return res.status(400).json({ error: 'user_id is required' });
+    }
+    const data = await transactionService.getTopCategories(user_id, { year, month, limit });
+    res.json(data);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
 
 export default router;

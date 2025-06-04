@@ -218,3 +218,20 @@ export async function getPeriodicBalance(user_id, period = 'week') {
   }
   return transactionDao.getPeriodicBalance(user_id, period);
 }
+
+export async function getTopCategories(user_id, { year, month, limit } = {}) {
+  if (!user_id || isNaN(user_id) || user_id <= 0) {
+    throw new ValidationError('Invalid user ID');
+  }
+  if (year && (isNaN(year) || year < 2000 || year > 2100)) {
+    throw new ValidationError('Invalid year');
+  }
+  if (month && (isNaN(month) || month < 1 || month > 12)) {
+    throw new ValidationError('Invalid month');
+  }
+  if (limit && (isNaN(limit) || limit < 1 || limit > 20)) {
+    throw new ValidationError('Invalid limit');
+  }
+  return transactionDao.getTopCategories(user_id, { year, month, limit });
+}
+
