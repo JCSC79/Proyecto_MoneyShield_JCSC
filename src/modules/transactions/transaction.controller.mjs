@@ -458,5 +458,65 @@ router.get('/report/top-categories', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /transactions/report/spending-patterns:
+ *   get:
+ *     tags: [Transactions]
+ *     summary: Get spending patterns by day of week or day of month | Patrones de gasto por día de la semana o del mes
+ *     parameters:
+ *       - in: query
+ *         name: user_id
+ *         schema: { type: integer }
+ *         required: true
+ *         description: "User ID | ID de usuario"
+ *       - in: query
+ *         name: year
+ *         schema: { type: integer }
+ *         required: false
+ *         description: "Year (optional) | Año (opcional)"
+ *       - in: query
+ *         name: month
+ *         schema: { type: integer }
+ *         required: false
+ *         description: "Month (optional) | Mes (opcional)"
+ *       - in: query
+ *         name: mode
+ *         schema: { type: string, enum: [week, month] }
+ *         required: false
+ *         description: "Grouping mode: week (default, by day of week) or month (by day of month)"
+ *     responses:
+ *       200:
+ *         description: Spending patterns | Patrones de gasto
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   day:
+ *                     type: string
+ *                     example: "Monday"  # o "15" para día del mes
+ *                   total:
+ *                     type: number
+ *                     example: 120.00
+ */
+router.get('/report/spending-patterns', async (req, res) => {
+  try {
+    const user_id = Number(req.query.user_id);
+    const year = req.query.year ? Number(req.query.year) : undefined;
+    const month = req.query.month ? Number(req.query.month) : undefined;
+    const mode = req.query.mode || 'week';
+    if (!user_id) {
+      return res.status(400).json({ error: 'user_id is required' });
+    }
+    const data = await transactionService.getSpendingPatterns(user_id, { year, month, mode });
+    res.json(data);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
 
 export default router;

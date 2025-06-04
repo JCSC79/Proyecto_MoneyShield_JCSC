@@ -235,3 +235,19 @@ export async function getTopCategories(user_id, { year, month, limit } = {}) {
   return transactionDao.getTopCategories(user_id, { year, month, limit });
 }
 
+export async function getSpendingPatterns(user_id, { year, month, mode } = {}) {
+  if (!user_id || isNaN(user_id) || user_id <= 0) {
+    throw new ValidationError('Invalid user ID');
+  }
+  if (year && (isNaN(year) || year < 2000 || year > 2100)) {
+    throw new ValidationError('Invalid year');
+  }
+  if (month && (isNaN(month) || month < 1 || month > 12)) {
+    throw new ValidationError('Invalid month');
+  }
+  if (mode && !['week', 'month'].includes(mode)) {
+    throw new ValidationError('Invalid mode (must be "week" or "month")');
+  }
+  return transactionDao.getSpendingPatterns(user_id, { year, month, mode });
+}
+

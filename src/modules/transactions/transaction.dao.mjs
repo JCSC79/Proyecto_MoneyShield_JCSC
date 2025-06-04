@@ -245,7 +245,7 @@ export async function getPeriodicBalance(user_id, period = 'week', connection = 
 }
 
 /**
- * Top categorías de gasto del usuario en el mes y año indicados (por defecto: mes actual)
+ * Top categorías de gasto del usuario en el mes y año indicados (por defecto: mes actual) | Top spending categories for the user in the specified month and year (default: current month)
  */
 export async function getTopCategories(user_id, { year, month, limit = 3 } = {}, connection = db) {
   const now = new Date();
@@ -269,4 +269,41 @@ export async function getTopCategories(user_id, { year, month, limit = 3 } = {},
   );
   return rows;
 }
+
+/**
+ * Patrones de gasto por día de la semana | Spending patterns by day of the week
+ */
+export async function getSpendingPatterns(user_id, { year, month, mode = 'week' } = {}, connection = db) {
+  let groupField, selectField;
+  if (mode === 'month') {
+    groupField = 'DAY(t.created_at)';
+    selectField = 'DAY(t.created_at) AS day';
+  } else {
+    groupField = 'DAYNAME(t.created_at)';
+    selectField = 'DAYNAME(t.created_at) AS day';
+  }
+  let dateFilter = '';
+  const params = [user_id];
+  if (year) {
+    dateFilter += ' AND YEAR(t.created_at) = ?';
+    params.push(year);
+  }
+  if (month) {
+    dateFilter += ' AND MONTH(t.created_at) = ?';
+    params.push(month);
+  }
+  const [rows] = await connection.query(
+    `SELECT 
+      ${selectField},
+      SUM(t.amount) AS total
+    FROM transactions t
+    WHERE t.user_id = ? AND t.type_id = 2
+    ${dateFilter}
+    GROUP BY ${groupField}
+    ORDER BY total DESC`,
+    params
+  );
+  return rows;
+}
+
 
