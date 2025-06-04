@@ -71,15 +71,17 @@ To run only the users tests:
 npm test -- tests/users.test.js
 npm test -- tests/transactions.test.js
 npm test -- tests/budgets.test.js
+npm test -- tests/savings.test.js
+npm test -- tests/categories.test.js
 ```
 ## 👤 Usuarios de Prueba
 
-**Administrador**  
-Email: `admin@money.com`  
-Contraseña: `3lManduc0.56`  
+**Administrador**
+Email: `admin@money.com`
+Contraseña: `3lManduc0.56`
 
-**Usuario Normal**  
-Email: `user@money.com`  
+**Usuario Normal**
+Email: `user@money.com`
 Contraseña: `3lManduc0.56`
 
 Ambos usuarios tienen la misma contraseña para facilitar las pruebas.
@@ -120,12 +122,19 @@ Use this interface to explore, test, and understand all available endpoints in r
 - `DELETE /budgets/{id}` - Delete a budget
 
 **Savings**
-- `GET /savings` - List all savings (optionally filtered by user)
 - `GET /savings/{id}` - Get saving by ID
 - `POST /savings` - Create a new saving
 - `PUT /savings/{id}` - Update a saving fully
 - `PATCH /savings/{id}` - Update a saving partially
 - `DELETE /savings/{id}` - Delete a saving
+
+**Categories**
+- `GET /categories` - List all categories (optionally filtered by user)
+- `GET /categories/{id}` - Get categories by ID
+- `POST /categories` - Create a new category
+- `PUT /categories/{id}` - Update a category fully
+- `PATCH /categories/{id}` - Update a category
+- `DELETE /categories/{id}` - Delete a category
 
 ## 🟢 Default Category Assignment in Transactions / Asignación automática de categoría por defecto
 
@@ -148,6 +157,7 @@ Español:
 ```
 db/
     moneyshield_schema.sql
+    datos_prueba_actualizados.sql
 docs/
     swagger.mjs
 src/
@@ -169,6 +179,18 @@ src/
             saving.controller.mjs
             saving.service.mjs
             saving.dao.mjs
+        categories/
+            categories.controller.mjs
+            categories.service.mjs
+            categories.dao.mjs
+        profiles/
+            profile.controller.mjs
+            profile.service.mjs
+            profile.dao.mjs
+        auth/
+            auth.controller.mjs
+            auth.service.mjs
+            auth.middleware.mjs
             
     index.mjs
 .env
@@ -177,7 +199,9 @@ README.md
 tests/
   users.test.js
   transactions.test.js
-  budget.test.js
+  budgets.test.js
+  categories.test.js
+  savings.test.js
 ```
 ## 🛡️ Security
 
@@ -198,10 +222,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📚 Español
 
-**MoneyShield API** es una API modular para la gestión de usuarios, transacciones y finanzas personales.  
+**MoneyShield API** es una API modular para la gestión de usuarios, transacciones y finanzas personales.
 Sigue las instrucciones anteriores para instalar, configurar y ejecutar el proyecto.
 
 ---
 
 Created for MoneyShield by Juan Carlos Sandomingo version © 2025
-Current date: Monday, June 2, 2025, 12:30 PM
+Current date: Monday, June 4, 2025, 10:00 AM

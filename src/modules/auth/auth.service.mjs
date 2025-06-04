@@ -30,7 +30,7 @@ export async function login(email, password) {
     email: user.email,
     profile_id: user.profile_id
   };
- 
+
   // Firma el token | Sign the token
   const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
   return token;
