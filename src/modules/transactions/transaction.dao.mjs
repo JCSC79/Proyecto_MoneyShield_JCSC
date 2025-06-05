@@ -179,7 +179,7 @@ export async function categoryExists(category_id, connection = db) {
  */
 export async function getUserBalance(user_id, connection = db) {
   const [rows] = await connection.query(
-    `SELECT 
+    `SELECT
     SUM(CASE WHEN t.type_id = 1 THEN t.amount ELSE -t.amount END) AS balance
     FROM transactions t
     WHERE t.user_id = ?`,

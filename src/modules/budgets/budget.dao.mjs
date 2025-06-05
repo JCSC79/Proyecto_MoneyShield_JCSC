@@ -1,6 +1,6 @@
 import db from '../../db/DBHelper.mjs';
 
-// Campos permitidos para actualización
+// Campos permitidos para actualización | Allowed fields for update
 const ALLOWED_UPDATE_FIELDS = new Set([
   'user_id', 'category_id', 'budget_type', 'year', 'month', 'amount', 'notes'
 ]);
@@ -78,7 +78,7 @@ export async function deleteBudget(id, connection = db) {
   return result.affectedRows > 0;
 }
 
-// Validaciones de relaciones
+// Validaciones de relaciones | Validations for relationships
 export async function userExists(user_id, connection = db) {
   const [rows] = await connection.query('SELECT id FROM users WHERE id = ?', [user_id]);
   return rows.length > 0;
@@ -86,4 +86,34 @@ export async function userExists(user_id, connection = db) {
 export async function categoryExists(category_id, connection = db) {
   const [rows] = await connection.query('SELECT id FROM categories WHERE id = ?', [category_id]);
   return rows.length > 0;
+}
+
+/**
+ * Presupuesto restante por categoría para el mes actual | Remaining budget by category for the current month
+ */
+export async function getRemainingBudget(user_id, connection = db) {
+  const [rows] = await connection.query(
+    `SELECT
+      b.category_id,
+      c.name AS category,
+      b.amount AS budget,
+      COALESCE(SUM(t.amount), 0) AS spent,
+      b.amount - COALESCE(SUM(t.amount), 0) AS remaining
+    FROM budgets b
+    LEFT JOIN transactions t
+      ON b.user_id = t.user_id
+      AND b.category_id = t.category_id
+      AND t.type_id = 2
+      AND YEAR(t.created_at) = YEAR(CURDATE())
+      AND MONTH(t.created_at) = MONTH(CURDATE())
+    JOIN categories c ON b.category_id = c.id
+    WHERE
+      b.user_id = ?
+      AND b.budget_type = 'monthly'
+      AND b.year = YEAR(CURDATE())
+      AND b.month = MONTH(CURDATE())
+    GROUP BY b.category_id, b.amount, c.name`,
+    [user_id]
+  );
+  return rows;
 }

@@ -219,4 +219,59 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /budgets/report/remaining:
+ *   get:
+ *     tags: [Budgets]
+ *     summary: Get remaining budget by category | Presupuesto restante por categoría
+ *     parameters:
+ *       - in: query
+ *         name: user_id
+ *         schema: { type: integer }
+ *         required: true
+ *         description: "User ID | ID de usuario"
+ *     responses:
+ *       200:
+ *         description: Remaining budget data | Datos de presupuesto restante
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   category_id:
+ *                     type: integer
+ *                     example: 3
+ *                   category:
+ *                     type: string
+ *                     example: "Housing"
+ *                   budget:
+ *                     type: number
+ *                     example: 750.00
+ *                   spent:
+ *                     type: number
+ *                     example: 1200.00
+ *                   remaining:
+ *                     type: number
+ *                     example: -450.00
+ */
+router.get('/report/remaining', async (req, res) => {
+  try {
+    const user_id = Number(req.query.user_id);
+    if (!user_id) {
+      return res.status(400).json({ error: 'user_id is required' });
+    }
+    const data = await budgetService.getRemainingBudget(user_id);
+    res.json(data);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+
+
+
+
 export default router;

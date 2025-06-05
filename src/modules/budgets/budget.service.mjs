@@ -102,3 +102,12 @@ export async function deleteBudget(id) {
   }
   return deleted;
 }
+
+// Function to get remaining budget for a user
+// This function assumes that the budget table has a column for total budget and spent amount
+export async function getRemainingBudget(user_id) {
+  if (!user_id || isNaN(user_id) || user_id <= 0) {
+    throw new ValidationError('Invalid user ID');
+  }
+  return await budgetDao.getRemainingBudget(user_id);
+}
