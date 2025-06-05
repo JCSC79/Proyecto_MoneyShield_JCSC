@@ -251,3 +251,10 @@ export async function getSpendingPatterns(user_id, { year, month, mode } = {}) {
   return transactionDao.getSpendingPatterns(user_id, { year, month, mode });
 }
 
+export async function getMonthlyForecast(user_id) {
+  if (!user_id || isNaN(user_id) || user_id <= 0) {
+    throw new ValidationError('Invalid user ID');
+  }
+  return transactionDao.getMonthlyForecast(user_id);
+}
+

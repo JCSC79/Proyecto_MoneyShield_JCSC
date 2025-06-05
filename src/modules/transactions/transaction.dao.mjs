@@ -306,4 +306,23 @@ export async function getSpendingPatterns(user_id, { year, month, mode = 'week' 
   return rows;
 }
 
+/**
+ * Proyección de gasto mensual | Monthly spending forecast
+ */
+export async function getMonthlyForecast(user_id, connection = db) {
+  const [rows] = await connection.query(
+    `SELECT
+      SUM(amount) AS gasto_actual,
+      DAY(CURDATE()) AS dias_transcurridos,
+      DAY(LAST_DAY(CURDATE())) AS dias_mes,
+      ROUND(SUM(amount) / DAY(CURDATE()) * DAY(LAST_DAY(CURDATE())), 2) AS proyeccion_mes
+    FROM transactions
+    WHERE user_id = ?
+      AND type_id = 2
+      AND YEAR(created_at) = YEAR(CURDATE())
+      AND MONTH(created_at) = MONTH(CURDATE())`,
+    [user_id]
+  );
+  return rows[0] || null;
+}
 

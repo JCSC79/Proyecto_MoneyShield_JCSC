@@ -518,5 +518,52 @@ router.get('/report/spending-patterns', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /transactions/report/forecast:
+ *   get:
+ *     tags: [Transactions]
+ *     summary: Get monthly spending forecast | Proyección de gasto mensual
+ *     parameters:
+ *       - in: query
+ *         name: user_id
+ *         schema: { type: integer }
+ *         required: true
+ *         description: "User ID | ID de usuario"
+ *     responses:
+ *       200:
+ *         description: "Forecast data | Datos de proyección"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 gasto_actual:
+ *                   type: number
+ *                   example: 1200.00
+ *                 dias_transcurridos:
+ *                   type: integer
+ *                   example: 5
+ *                 dias_mes:
+ *                   type: integer
+ *                   example: 30
+ *                 proyeccion_mes:
+ *                   type: number
+ *                   example: 7200.00
+ */
+router.get('/report/forecast', async (req, res) => {
+  try {
+    const user_id = Number(req.query.user_id);
+    if (!user_id) {
+      return res.status(400).json({ error: 'user_id is required' });
+    }
+    const data = await transactionService.getMonthlyForecast(user_id);
+    res.json(data);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+
 
 export default router;
