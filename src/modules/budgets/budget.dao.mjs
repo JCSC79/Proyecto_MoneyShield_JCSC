@@ -117,3 +117,35 @@ export async function getRemainingBudget(user_id, connection = db) {
   );
   return rows;
 }
+
+/**
+ * Alertas de presupuesto: categorías donde el usuario ha gastado >= threshold% (umbral de porcentaje) del presupuesto mensual
+ * Budget alerts: categories where the user has spent >= threshold% of the monthly budget
+ */
+export async function getBudgetAlerts(user_id, threshold = 80, connection = db) {
+  const [rows] = await connection.query(
+    `SELECT
+      b.category_id,
+      c.name AS category,
+      b.amount AS budget,
+      COALESCE(SUM(t.amount), 0) AS spent,
+      ROUND((COALESCE(SUM(t.amount), 0) / b.amount) * 100, 2) AS percentage_spent
+    FROM budgets b
+    LEFT JOIN transactions t
+      ON b.user_id = t.user_id
+      AND b.category_id = t.category_id
+      AND t.type_id = 2
+      AND YEAR(t.created_at) = YEAR(CURDATE())
+      AND MONTH(t.created_at) = MONTH(CURDATE())
+    JOIN categories c ON b.category_id = c.id
+    WHERE
+      b.user_id = ?
+      AND b.budget_type = 'monthly'
+      AND b.year = YEAR(CURDATE())
+      AND b.month = MONTH(CURDATE())
+    GROUP BY b.category_id, b.amount, c.name
+    HAVING percentage_spent >= ?`,
+    [user_id, threshold]
+  );
+  return rows;
+}

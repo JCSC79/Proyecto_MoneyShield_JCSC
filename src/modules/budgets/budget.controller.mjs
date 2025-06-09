@@ -270,6 +270,63 @@ router.get('/report/remaining', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /budgets/report/alerts:
+ *   get:
+ *     tags: [Budgets]
+ *     summary: Get budget alerts when spending exceeds a threshold | Alertas de presupuesto
+ *     parameters:
+ *       - in: query
+ *         name: user_id
+ *         schema: { type: integer }
+ *         required: true
+ *         description: "User ID | ID de usuario"
+ *       - in: query
+ *         name: threshold
+ *         schema: { type: integer }
+ *         required: false
+ *         description: "Alert threshold (default 80) | Umbral de alerta (por defecto 80)"
+ *     responses:
+ *       200:
+ *         description: "Budget alerts | Alertas de presupuesto"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   category_id:
+ *                     type: integer
+ *                     example: 2
+ *                   category:
+ *                     type: string
+ *                     example: "Supermercado"
+ *                   budget:
+ *                     type: number
+ *                     example: 500.00
+ *                   spent:
+ *                     type: number
+ *                     example: 400.00
+ *                   percentage_spent:
+ *                     type: number
+ *                     example: 80.00
+ */
+router.get('/report/alerts', async (req, res) => {
+  try {
+    const user_id = Number(req.query.user_id);
+    const threshold = req.query.threshold ? Number(req.query.threshold) : 80;
+    if (!user_id) {
+      return res.status(400).json({ error: 'user_id is required' });
+    }
+    const data = await budgetService.getBudgetAlerts(user_id, threshold);
+    res.json(data);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
 
 
 

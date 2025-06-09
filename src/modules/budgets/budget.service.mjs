@@ -103,11 +103,23 @@ export async function deleteBudget(id) {
   return deleted;
 }
 
-// Function to get remaining budget for a user
-// This function assumes that the budget table has a column for total budget and spent amount
+// Función para obtener el presupuesto restante para un usuario | Function to get remaining budget for a user
+// Esta función asume que la tabla de presupuestos tiene una columna para el presupuesto total y el monto gastado | This function assumes that the budget table has a column for total budget and spent amount
 export async function getRemainingBudget(user_id) {
   if (!user_id || isNaN(user_id) || user_id <= 0) {
     throw new ValidationError('Invalid user ID');
   }
   return await budgetDao.getRemainingBudget(user_id);
 }
+
+// Función para obtener alertas de presupuesto según un porcentaje umbral (80%) | Function to get budget alerts based on a threshold percentage
+export async function getBudgetAlerts(user_id, threshold = 80) {
+  if (!user_id || isNaN(user_id) || user_id <= 0) {
+    throw new ValidationError('Invalid user ID');
+  }
+  if (threshold < 0 || threshold > 100 || isNaN(threshold)) {
+    throw new ValidationError('Threshold must be between 0 and 100');
+  }
+  return await budgetDao.getBudgetAlerts(user_id, threshold);
+}
+

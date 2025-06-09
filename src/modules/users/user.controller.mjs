@@ -74,7 +74,33 @@ router.get('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
   }
 });
 
-
+/**
+ * @swagger
+ * /users:
+ *   post:
+ *     tags: [Users]
+ *     summary: Create a new user | Crear un nuevo usuario
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [first_name, last_name, email, password_hash, profile_id]
+ *             properties:
+ *               first_name: {type: string}
+ *               last_name: {type: string}
+ *               email: {type: string, format: email}
+ *               password_hash: {type: string}
+ *               profile_id: {type: integer, enum: [1, 2]} # 1 = admin, 2 = user
+ *               base_budget: {type: number, default: 0}
+ *               base_saving: {type: number, default: 0}
+ *     responses:
+ *      201:
+ *        description: User created | Usuario creado
+ *      400:
+ *        description: Bad request | Solicitud incorrecta
+ */
 router.post('/', async (req, res) => {
   try {
     // Forzar siempre perfil de usuario normal (profile_id: 2)
