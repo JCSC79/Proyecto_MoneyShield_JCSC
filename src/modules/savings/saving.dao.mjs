@@ -87,3 +87,24 @@ export async function deleteSaving(id) {
   );
   return result.affectedRows > 0;
 }
+
+/**
+ * Progreso de ahorros para un usuario | Progress of savings for a user
+ */
+export async function getSavingsProgress(user_id, connection = db) {
+  const [rows] = await connection.query(
+    `SELECT
+      id,
+      name,
+      amount,
+      target_amount,
+      target_date,
+      IF(target_amount IS NOT NULL AND target_amount > 0, ROUND((amount / target_amount) * 100, 2), NULL) AS progress_percent,
+      IF(target_date IS NOT NULL, DATEDIFF(target_date, CURDATE()), NULL) AS days_left
+    FROM savings
+    WHERE user_id = ?`,
+    [user_id]
+  );
+  return rows;
+}
+

@@ -147,3 +147,13 @@ export async function deleteSaving(id) {
   }
   return true;
 }
+
+/**
+ * Obtener progreso de ahorros de un usuario | Get savings progress for a user
+ */
+export async function getSavingsProgress(user_id) {
+  if (!user_id || isNaN(user_id) || user_id <= 0) {
+    throw new ValidationError('Invalid user ID');
+  }
+  return await savingsDao.getSavingsProgress(user_id);
+}

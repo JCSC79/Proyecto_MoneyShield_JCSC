@@ -237,4 +237,48 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /savings/report/progress:
+ *   get:
+ *     tags: [Savings]
+ *     summary: Get savings progress for a user | Progreso de ahorros de un usuario
+ *     parameters:
+ *       - in: query
+ *         name: user_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: "Savings progress | Progreso de ahorros"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id: { type: integer, example: 1 }
+ *                   name: { type: string, example: "Vacaciones" }
+ *                   amount: { type: number, example: 500.00 }
+ *                   target_amount: { type: number, example: 2000.00 }
+ *                   target_date: { type: string, format: date, example: "2025-12-31" }
+ *                   progress_percent: { type: number, example: 25.00 }
+ *                   days_left: { type: integer, example: 180 }
+ */
+router.get('/report/progress', async (req, res) => {
+  try {
+    const user_id = Number(req.query.user_id);
+    if (!user_id) {
+      return res.status(400).json({ error: 'user_id is required' });
+    }
+    const data = await savingsService.getSavingsProgress(user_id);
+    res.json(data);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+
 export default router;
