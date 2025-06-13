@@ -3,25 +3,26 @@
 import * as userDao from './user.dao.mjs';
 import db from '../../db/DBHelper.mjs';
 import bcrypt from 'bcryptjs'; // Librería para encriptar contraseñas | Library for password hashing
-
+import { Result } from '../../utils/result.mjs';
+import { isValidEmail, isStrongPassword, isValidId } from '../../utils/validation.mjs';
 
 // Clases de error personalizadas | Custom error classes
 
-class ValidationError extends Error {// Error de validación personalizada | Custom validation error
-  constructor(message) {
-    super(message);
-    this.name = 'ValidationError';
-    this.status = 400;
-  }
-}
+// class ValidationError extends Error {// Error de validación personalizada | Custom validation error
+//   constructor(message) {
+//     super(message);
+//     this.name = 'ValidationError';
+//     this.status = 400;
+//   }
+// }
 
-class NotFoundError extends Error {// Error de no encontrado personalizada | Custom not found error
-  constructor(message) {
-    super(message);
-    this.name = 'NotFoundError';
-    this.status = 404;
-  }
-}
+// class NotFoundError extends Error {// Error de no encontrado personalizada | Custom not found error
+//   constructor(message) {
+//     super(message);
+//     this.name = 'NotFoundError';
+//     this.status = 404;
+//   }
+// }
 
 class ConflictError extends Error {// Error de conflicto personalizada | Custom conflict error
   constructor(message) {
@@ -31,8 +32,12 @@ class ConflictError extends Error {// Error de conflicto personalizada | Custom 
   }
 }
 
-// Expresión regular mejorada para emails | Improved email regex
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+// Nueva validateUserId usando utils | New validateUserId using utils
+function validateUserId(id) {
+  if (!isValidId(id)) {
+    throw new ValidationError('Invalid user ID');
+  }
+}
 
 // Campos permitidos para actualización parcial | Allowed fields for PATCH
 const ALLOWED_PATCH_FIELDS = new Set([
@@ -53,32 +58,6 @@ function omitPassword(user) {
 }
 
 /**
- * Valida formato de email | Validate email format
- */
-function isValidEmail(email) {
-  return EMAIL_REGEX.test(email);
-}
-
-/**
- * Valida fortaleza de contraseña | Validate password strength
- */
-function isStrongPassword(password) {
-  return password.length >= 8 &&
-        /[A-Z]/.test(password) &&
-        /[a-z]/.test(password) &&
-        /\d/.test(password);
-}
-
-/**
- * Valida ID de usuario | Validate user ID
- */
-function validateUserId(id) {
-  if (!id || isNaN(id) || id <= 0) {
-    throw new ValidationError('Invalid user ID');
-  }
-}
-
-/**
  * Obtener todos los usuarios | Get all users
  */
 export async function getAllUsers() {
@@ -89,70 +68,93 @@ export async function getAllUsers() {
 /**
  * Obtener usuario por ID | Get user by ID
  */
+// Actualizar la función getUserById
 export async function getUserById(id) {
-  validateUserId(id);
-  const user = await userDao.getUserById(id);
-  if (!user) {
-    throw new NotFoundError('User not found');
+  try {
+    // Validación usando utils (devuelve Result)
+    if (!isValidId(id)) {
+      return Result.Fail('Invalid user ID', 400);
+    }
+
+    const user = await userDao.getUserById(id);
+    
+    if (!user) {
+      return Result.Fail('User not found', 404);
+    }
+    
+    return Result.Success(omitPassword(user));
+  } catch (error) {
+    return Result.Fail('Internal server error', 500);
   }
-  return omitPassword(user);
 }
 
+// Eliminé las clases de error personalizadas (ValidationError, NotFoundError, etc.)
+// Ya no son necesarias gracias el patrón Result
+
+
 /**
- * Crear un nuevo usuario | Create a new user
+ * Crear un nuevo usuario | Create a new user (Modificación 13/06/2023)
  */
 export async function createUser(userData) {
-  // Valida los campos requeridos | Validate required fields
-  const requiredFields = ['first_name', 'last_name', 'email', 'password_hash', 'profile_id'];
-  for (const field of requiredFields) {
-    if (!userData[field]) {
-      throw new ValidationError(`Missing required field: ${field}`);
-    }
-  }
-
-  // Valida formato y fortaleza de contraseña | Validate password format and strength
-  if (!isStrongPassword(userData.password_hash)) {
-    throw new ValidationError('Password must be at least 8 characters long and contain uppercase, lowercase, and numbers');
-  }
-
-  // Valida email | Validate email format
-  if (!isValidEmail(userData.email)) {
-    throw new ValidationError('Invalid email format');
-  }
-
-  // Valida unicidad de email | Validate email uniqueness
-  const existing = await userDao.getUserByEmail(userData.email);
-  if (existing) {
-    throw new ConflictError('Email already exists');
-  }
-
-  // Valida perfil existente | Validate existing profile
-  const profileExists = await userDao.profileExists(userData.profile_id);
-  if (!profileExists) {
-    throw new ValidationError('Profile does not exist');
-  }
-
-  // Hashear la contraseña antes de guardar | Hash the password before saving
-  const hashedPassword = await bcrypt.hash(userData.password_hash, 10);
-  userData.password_hash = hashedPassword;
-
-
-  // Transacción para operación atómica | Transaction for atomic operation
-  let connection;
   try {
-    connection = await db.getConnection();
-    await connection.beginTransaction();
+    // 1. Validación de campos requeridos
+    const requiredFields = ['first_name', 'last_name', 'email', 'password_hash', 'profile_id'];
+    for (const field of requiredFields) {
+      if (!userData[field]) {
+        return Result.Fail(`Missing required field: ${field}`, 400);
+      }
+    }
 
-    // Crear usuario | Create user
-    const user = await userDao.createUser(userData, connection);
-    
-    await connection.commit();
-    return omitPassword(user);
+    // 2. Validación de formato de contraseña
+    if (!isStrongPassword(userData.password_hash)) {
+      return Result.Fail(
+        'Password must be at least 8 characters long and contain uppercase, lowercase, and numbers',
+        400
+      );
+    }
+
+    // 3. Validación de formato de email
+    if (!isValidEmail(userData.email)) {
+      return Result.Fail('Invalid email format', 400);
+    }
+
+    // 4. Validación de unicidad de email
+    const existing = await userDao.getUserByEmail(userData.email);
+    if (existing) {
+      return Result.Fail('Email already exists', 409);
+    }
+
+    // 5. Validación de perfil existente
+    const profileExists = await userDao.profileExists(userData.profile_id);
+    if (!profileExists) {
+      return Result.Fail('Profile does not exist', 400);
+    }
+
+    // 6. Hashear contraseña
+    const hashedPassword = await bcrypt.hash(userData.password_hash, 10);
+    userData.password_hash = hashedPassword;
+
+    // 7. Transacción de base de datos
+    let connection;
+    try {
+      connection = await db.getConnection();
+      await connection.beginTransaction();
+
+      const user = await userDao.createUser(userData, connection);
+      await connection.commit();
+
+      return Result.Success(omitPassword(user));
+    } catch (error) {
+      // Rollback en caso de error
+      if (connection) await connection.rollback();
+      return Result.Fail('Database operation failed', 500);
+    } finally {
+      // Liberar conexión siempre
+      if (connection) connection.release();
+    }
   } catch (error) {
-    if (connection) await connection.rollback();
-    throw error;
-  } finally {
-    if (connection) connection.release();
+    // Capturar errores inesperados
+    return Result.Fail('Internal server error', 500);
   }
 }
 
@@ -215,16 +217,23 @@ export async function patchUser(id, fields) {
 }
 
 /**
- * Eliminar un usuario | Delete a user
+ * Eliminar un usuario | Delete a user (Modificado 13/6/2023)
  */
 export async function deleteUser(id) {
-  validateUserId(id);
-  const deleted = await userDao.deleteUser(id);
-  if (!deleted) {
-    throw new NotFoundError('User not found');
+  try {
+    if (!isValidId(id)) {
+      return Result.Fail('Invalid user ID', 400);
+    }
+
+    const deleted = await userDao.deleteUser(id);
+    return deleted 
+      ? Result.Success(true)
+      : Result.Fail('User not found', 404); // <-- Manejar no encontrado
+  } catch (error) {
+    return Result.Fail('Internal server error', 500);
   }
-  return true;
 }
+
 
 // Funciones de ayuda | Helper functions
 async function commonValidations(id, data) {

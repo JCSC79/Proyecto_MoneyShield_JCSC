@@ -224,8 +224,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 **MoneyShield API** es una API modular para la gestión de usuarios, transacciones y finanzas personales.
 Sigue las instrucciones anteriores para instalar, configurar y ejecutar el proyecto.
-
 ---
 
 Created for MoneyShield by Juan Carlos Sandomingo version © 2025
-Current date: Wednesday, June 11, 2025, 2:00 PM
+Current date: Friday, June 13, 2025, 2:00 PM

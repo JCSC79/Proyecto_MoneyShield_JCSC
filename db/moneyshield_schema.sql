@@ -2,8 +2,8 @@
 DROP DATABASE IF EXISTS moneyshield;
 
 -- Crear base de datos nueva
-CREATE DATABASE moneyshield 
-  CHARACTER SET utf8mb4 
+CREATE DATABASE moneyshield
+  CHARACTER SET utf8mb4
   COLLATE utf8mb4_0900_ai_ci;
 
 USE moneyshield;
@@ -111,30 +111,30 @@ CREATE TABLE savings (
 
 -- ================== DATOS INICIALES ================== --
 -- Perfiles
-INSERT INTO profiles (name) VALUES 
+INSERT INTO profiles (name) VALUES
 ('admin'), ('user');
 
 -- Usuarios de prueba (password: 3lManduc0.56)
-INSERT INTO users 
+INSERT INTO users
   (first_name, last_name, email, password_hash, profile_id)
 VALUES
   ('Admin', 'User', 'admin@money.com', '$2a$12$8/B/aamlRLtF.s5Tq0yLXOgEjma0z3LWzksX5y9LsudloSOen7iZK', 1),
   ('Normal', 'User', 'user@money.com', '$2a$12$8/B/aamlRLtF.s5Tq0yLXOgEjma0z3LWzksX5y9LsudloSOen7iZK', 2);
 
 -- Categorías
-INSERT INTO categories (name) VALUES 
-('General'), ('Food'), ('Housing'), ('Health'), 
-('Transport'), ('Leisure'), ('Technology'), 
-('Groceries'), ('Savings'), ('Investments'), 
-('Education'), ('Utilities'), ('Insurance'), 
+INSERT INTO categories (name) VALUES
+('General'), ('Food'), ('Housing'), ('Health'),
+('Transport'), ('Leisure'), ('Technology'),
+('Groceries'), ('Savings'), ('Investments'),
+('Education'), ('Utilities'), ('Insurance'),
 ('Entertainment'), ('Childcare'), ('Others');
 
 -- Tipos de transacción
-INSERT INTO transaction_types (name) VALUES 
+INSERT INTO transaction_types (name) VALUES
 ('income'), ('expense');
 
 -- Tipos de ahorro
-INSERT INTO saving_types (name) VALUES 
+INSERT INTO saving_types (name) VALUES
 ('fixed'), ('extra');
 
 -- Usuarios de ejemplo
@@ -213,12 +213,8 @@ CREATE TABLE IF NOT EXISTS _schema_version (
   applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) COMMENT='Control de versiones del esquema';
 
-INSERT IGNORE INTO _schema_version (version, description) VALUES 
+INSERT IGNORE INTO _schema_version (version, description) VALUES
 ('1.1', 'Ajustes de índices, chequeos, protección y columnas adicionales (MoneyShield)');
 
--- Usuario de aplicación (opcional, ajusta contraseña/host)
--- CREATE USER IF NOT EXISTS 'moneyshield_app'@'localhost' IDENTIFIED BY 'StrongPassword123!';
--- GRANT SELECT, INSERT, UPDATE, DELETE ON moneyshield.* TO 'moneyshield_app'@'localhost';
--- REVOKE DROP, ALTER, CREATE TEMPORARY TABLES ON moneyshield.* FROM 'moneyshield_app'@'localhost';
 
 

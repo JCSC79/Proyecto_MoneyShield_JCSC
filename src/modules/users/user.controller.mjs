@@ -23,10 +23,10 @@ function allowSelfOrAdmin(req, res, next) {
  *   description: User management | Gestión de usuarios
  */
 
-// Helper para status HTTP según error | Helper to get HTTP status based on error
-function getStatus(err) {
-  return err.status || 400;
-}
+// // Helper para status HTTP según error | Helper to get HTTP status based on error
+// function getStatus(err) {
+//   return err.status || 400;
+// }
 
 /**
  * @swagger
@@ -65,14 +65,20 @@ router.get('/', authenticate, authorize([1]), async (req, res) => {
  *       404:
  *         description: User not found | Usuario no encontrado
  */
+// Modificando el endpoint GET /:id
 router.get('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
-  try {
-    const user = await userService.getUserById(req.params.id);
-    res.json(user);
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await userService.getUserById(req.params.id);
+  
+  if (result.success) {
+    return res.status(200).json(result.data);
   }
+  
+  return res.status(result.error.code).json({ error: result.error.message });
 });
+
+// Eliminamos la función getStatus (ya no es necesaria)
+
+
 
 /**
  * @swagger
@@ -102,20 +108,16 @@ router.get('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
  *        description: Bad request | Solicitud incorrecta
  */
 router.post('/', async (req, res) => {
-  try {
-    // Forzar siempre perfil de usuario normal (profile_id: 2)
-    // Esto es para evitar que se creen usuarios con perfil de admin desde el endpoint de creación
-    const userData = {
-      ...req.body,
-      profile_id: 2
-    };
-    const user = await userService.createUser(userData);
-    res.status(201).json(user);
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  //const userData = { ...req.body, profile_id: 2 };
+  const userData = req.body; // <-- Recibir el profile_id del body
+  const result = await userService.createUser(userData);
+  
+  if (result.success) {
+    return res.status(201).json(result.data);
   }
+  res.status(result.error.code).json({ error: result.error.message }); // <-- Usar código de Result
 });
-
+//modificado 13/6/2023
 
 
 /**
@@ -242,13 +244,16 @@ router.patch('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
  *       404:
  *         description: User not found | Usuario no encontrado
  */
+
 router.delete('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
-  try {
-    await userService.deleteUser(req.params.id);
-    res.json({ message: 'User deleted' });
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await userService.deleteUser(req.params.id);
+  
+  if (result.success) {
+    return res.status(200).json({ message: 'User deleted' });
   }
+  
+  res.status(result.error.code).json({ error: result.error.message });
 });
+
 
 export default router;
