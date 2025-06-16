@@ -1,10 +1,10 @@
 // src/modules/users/user.service.mjs
 
-import * as userDao from './user.dao.mjs';
+import * as userDao from './user.dao.mjs'; // Importa el DAO de usuario | Import user DAO
 import db from '../../db/DBHelper.mjs';
 import bcrypt from 'bcryptjs'; // Librería para encriptar contraseñas | Library for password hashing
-import { Result } from '../../utils/result.mjs';
-import { isValidEmail, isStrongPassword, isValidId } from '../../utils/validation.mjs';
+import { Result } from '../../utils/result.mjs'; // Importa clase Result para manejar resultados de operaciones | Import Result class to handle operation results
+import { isValidEmail, isStrongPassword, isValidId } from '../../utils/validation.mjs'; // Importa funciones de validación | Import validation functions
 
 // Validar ID usando Result | Validate ID using Result
 function validateUserId(id) {
@@ -35,7 +35,8 @@ export async function getAllUsers() {
     const users = await userDao.getAllUsers();
     return Result.Success(users.map(omitPassword));
   } catch (error) {
-    return Result.Fail(error);
+    console.error("Error en getAllUsers:", error); // Log interno para depuración | Internal log for debugging
+    return Result.Fail('Internal server error', 500); // Mensaje y código HTTP de error | Error message and HTTP code
   }
 }
 
@@ -51,7 +52,8 @@ export async function getUserById(id) {
       ? Result.Success(omitPassword(user))
       : Result.Fail('User not found', 404);
   } catch (error) {
-    return Result.Fail(error);
+    console.error("Error en getUserById:", error); // Log interno para depuración | Internal log for debugging
+    return Result.Fail('Internal server error', 500); // Mensaje y código HTTP de error | Error message and HTTP code
   }
 }
 
@@ -64,6 +66,7 @@ export async function createUser(userData) {
       return Result.Fail(`Missing required field: ${field}`, 400);
     }
   }
+
   // Validar formato y fortaleza de contraseña | Validate password format and strength
   if (!isStrongPassword(userData.password_hash)) {
     return Result.Fail(
@@ -71,20 +74,24 @@ export async function createUser(userData) {
       400
     );
   }
+
   // Validar email | Validate email format
   if (!isValidEmail(userData.email)) {
     return Result.Fail('Invalid email format', 400);
   }
+
   // Validar unicidad de email | Validate email uniqueness
   const existing = await userDao.getUserByEmail(userData.email);
   if (existing) {
     return Result.Fail('Email already exists', 409);
   }
+
   // Validar perfil existente | Validate existing profile
   const profileExists = await userDao.profileExists(userData.profile_id);
   if (!profileExists) {
     return Result.Fail('Profile does not exist', 400);
   }
+
   // Hashear la contraseña antes de guardar | Hash the password before saving
   const hashedPassword = await bcrypt.hash(userData.password_hash, 10);
   userData.password_hash = hashedPassword;
@@ -101,19 +108,21 @@ export async function createUser(userData) {
     return Result.Success(omitPassword(user));
   } catch (error) {
     if (connection) await connection.rollback();
-    return Result.Fail(error);
+    console.error("Error en createUser:", error);
+    return Result.Fail('Error creating user', 500);
   } finally {
     if (connection) connection.release();
   }
 }
 
-// Actualiza completamente un usuario | Fully update a user
+// Actualizar completamente un usuario | Fully update a user
 export async function editUser(id, userData) {
   const idValidation = validateUserId(id);
   if (!idValidation.success) {
     return idValidation;
   }
 
+  // Validación de campos requeridos | Required fields validation
   const requiredFields = ['first_name', 'last_name', 'email', 'password_hash', 'profile_id'];
   for (const field of requiredFields) {
     if (!userData[field]) {
@@ -121,11 +130,13 @@ export async function editUser(id, userData) {
     }
   }
 
+  // Validaciones comunes | Common validations
   const commonResult = await commonValidations(id, userData);
   if (!commonResult.success) {
     return commonResult;
   }
 
+  // Hashear contraseña si está presente | Hash password if present
   if (userData.password_hash) {
     userData.password_hash = await bcrypt.hash(userData.password_hash, 10);
   }
@@ -136,7 +147,9 @@ export async function editUser(id, userData) {
       ? Result.Success(true)
       : Result.Fail('User not found', 404);
   } catch (error) {
-    return Result.Fail(error);
+    // Mejora clave: mensaje controlado y código 500 | Controlled message and 500 code
+    console.error("Error en editUser:", error); // Log interno
+    return Result.Fail('Error updating user', 500); //  Mensaje seguro
   }
 }
 
@@ -167,7 +180,8 @@ export async function patchUser(id, fields) {
       ? Result.Success(true)
       : Result.Fail('User not found or no valid fields to update', 404);
   } catch (error) {
-    return Result.Fail(error);
+    console.error("Error en patchUser:", error); // Log interno para depuración | Internal log for debugging
+    return Result.Fail('Error patching user', 500); // Mensaje seguro | Safe message
   }
 }
 
@@ -188,7 +202,8 @@ export async function deleteUser(id) {
       ? Result.Success(true)
       : Result.Fail('Delete operation failed', 500);
   } catch (error) {
-    return Result.Fail(error);
+    console.error("Error en deleteUser:", error); // Log interno para depuración | Internal log for debugging
+    return Result.Fail('Error deleting user', 500); // Mensaje seguro | Safe message
   }
 }
 
