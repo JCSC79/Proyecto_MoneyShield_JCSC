@@ -1,3 +1,5 @@
+// src/modules/categories/categories.service.mjs
+
 import * as categoryDao from './categories.dao.mjs';
 
 // Clases de error personalizadas | Custom error classes

@@ -1,3 +1,5 @@
+// src/modules/profiles/profile.service.mjs
+
 import * as profileDao from './profile.dao.mjs';
 
 /**

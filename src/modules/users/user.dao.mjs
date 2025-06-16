@@ -75,7 +75,9 @@ export async function patchUser(id, fields) {
     'first_name', 'last_name', 'email', 'password_hash', 'profile_id', 'base_budget', 'base_saving'
   ];
   const keys = Object.keys(fields).filter(k => ALLOWED_FIELDS.includes(k));
-  if (keys.length === 0) return false;
+  if (keys.length === 0) {
+    return false;
+  }
   const values = keys.map(key => fields[key]);
   const setClause = keys.map(key => `${key} = ?`).join(', ');
   values.push(id);

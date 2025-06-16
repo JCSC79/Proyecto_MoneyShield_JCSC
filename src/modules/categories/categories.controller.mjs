@@ -1,3 +1,5 @@
+// src/modules/categories/categories.controller.mjs
+
 import express from 'express';
 import * as categoryService from './categories.service.mjs';
 

@@ -4,14 +4,9 @@ import * as userDao from './user.dao.mjs'; // Importa el DAO de usuario | Import
 import db from '../../db/DBHelper.mjs';
 import bcrypt from 'bcryptjs'; // Librería para encriptar contraseñas | Library for password hashing
 import { Result } from '../../utils/result.mjs'; // Importa clase Result para manejar resultados de operaciones | Import Result class to handle operation results
-import { isValidEmail, isStrongPassword, isValidId } from '../../utils/validation.mjs'; // Importa funciones de validación | Import validation functions
+import { isValidEmail, isStrongPassword, validateUserId } from '../../utils/validation.mjs'; // Importa funciones de validación | Import validation functions
 
-// Validar ID usando Result | Validate ID using Result
-function validateUserId(id) {
-  return isValidId(id)
-    ? Result.Success(id)
-    : Result.Fail('Invalid user ID', 400);
-}
+
 
 // Campos permitidos para actualización parcial | Allowed fields for partial update
 const ALLOWED_PATCH_FIELDS = new Set([

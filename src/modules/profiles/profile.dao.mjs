@@ -1,3 +1,5 @@
+// src/modules/profiles/profile.dao.mjs
+
 import db from '../../db/DBHelper.mjs';
 
 /**

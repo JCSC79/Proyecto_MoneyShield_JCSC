@@ -9,10 +9,6 @@ import savingRoutes from './modules/savings/saving.controller.mjs';
 import categoryRoutes from './modules/categories/categories.controller.mjs';
 import profileRoutes from './modules/profiles/profile.controller.mjs';
 import authRoutes from './modules/auth/auth.controller.mjs';
-
-
-
-
 import setupSwagger from '../docs/swagger.mjs'; // OJO: Ajustar la ruta si la carpeta docs se mueve a otro lugar
 
 const app = express();
@@ -26,7 +22,6 @@ app.use('/savings', savingRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/profiles', profileRoutes);
 app.use('/auth', authRoutes);
-
 
 // Configura Swagger | Setup Swagger
 setupSwagger(app);

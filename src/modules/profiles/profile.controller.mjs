@@ -1,3 +1,5 @@
+// src/modules/profiles/profile.controller.mjs
+
 import express from 'express';
 import * as profileService from './profile.service.mjs';
 import { authenticate, authorize } from '../auth/auth.middleware.mjs';

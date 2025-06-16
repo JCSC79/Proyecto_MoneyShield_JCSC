@@ -1,3 +1,5 @@
+// src/modules/categories/categories.dao.mjs
+
 import db from '../../db/DBHelper.mjs';
 
 /**

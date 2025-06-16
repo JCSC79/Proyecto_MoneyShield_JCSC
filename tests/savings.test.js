@@ -24,7 +24,7 @@ describe('Savings API', () => {
     await db.end();
   });
 
-  // POST: Crear ahorro (con target)
+  // 1. POST: Crear ahorro (con target)
   it('should create saving with target', async () => {
     const res = await request(app)
       .post('/savings')
@@ -42,7 +42,7 @@ describe('Savings API', () => {
     createdSavingId = res.body.id;
   });
 
-  // POST: Crear ahorro (sin target)
+  // 2. POST: Crear ahorro (sin target)
   it('should create saving without target', async () => {
     const res = await request(app)
       .post('/savings')
@@ -58,7 +58,7 @@ describe('Savings API', () => {
     expect(res.body.target_date).toBeNull();
   });
 
-  // POST: Fallar con monto inválido
+  // 3. POST: Fallar con monto inválido
   it('should fail to create saving with invalid amount', async () => {
     const res = await request(app)
       .post('/savings')
@@ -71,7 +71,7 @@ describe('Savings API', () => {
     expect(res.body.error).toMatch(/positive number/i);
   });
 
-  // POST: Fallar con target_amount menor que amount
+  // 4. POST: Fallar con target_amount menor que amount
   it('should fail if target_amount is less than amount', async () => {
     const res = await request(app)
       .post('/savings')
@@ -84,7 +84,7 @@ describe('Savings API', () => {
     expect(res.statusCode).toBe(400);
   });
 
-  // GET: Todos los ahorros del usuario
+  // 5. GET: Todos los ahorros del usuario
   it('should get all savings for user', async () => {
     const res = await request(app)
       .get('/savings')
@@ -95,20 +95,20 @@ describe('Savings API', () => {
     expect(res.body.length).toBeGreaterThan(0);
   });
 
-  // GET: Ahorro por ID
+  // 6. GET: Ahorro por ID
   it('should get saving by ID', async () => {
     const res = await request(app).get(`/savings/${createdSavingId}`);
     expect(res.statusCode).toBe(200);
     expect(res.body.id).toBe(createdSavingId);
   });
 
-  // GET: Ahorro inexistente
+  // 7. GET: Ahorro inexistente
   it('should fail to get non-existent saving', async () => {
     const res = await request(app).get('/savings/999999');
     expect(res.statusCode).toBe(404);
   });
 
-  // PUT: Actualización completa (todos los campos)
+  // 8. PUT: Actualización completa (todos los campos)
   it('should fully update saving', async () => {
     const updatedData = {
       type_id: testSavingType,
@@ -136,7 +136,7 @@ describe('Savings API', () => {
     expect(dbDate).toBe(updatedData.target_date);
   });
 
-  // PATCH: Actualización parcial (solo nombre)
+  // 9. PATCH: Actualización parcial (solo nombre)
   it('should partially update saving (name)', async () => {
     const res = await request(app)
       .patch(`/savings/${createdSavingId}`)
@@ -148,7 +148,7 @@ describe('Savings API', () => {
     expect(rows[0].name).toBe('Nombre parcial');
   });
 
-  // PATCH: Actualización parcial (solo amount)
+  // 10. PATCH: Actualización parcial (solo amount)
   it('should partially update saving (amount)', async () => {
     const res = await request(app)
       .patch(`/savings/${createdSavingId}`)
@@ -160,7 +160,7 @@ describe('Savings API', () => {
     expect(Number(rows[0].amount)).toBe(1234);
   });
 
-  // PATCH: Fallar con campos inválidos
+  // 11. PATCH: Fallar con campos inválidos
   it('should fail to patch with invalid fields', async () => {
     const res = await request(app)
       .patch(`/savings/${createdSavingId}`)
@@ -170,7 +170,7 @@ describe('Savings API', () => {
     expect(res.body.error).toMatch(/valid fields/i);
   });
 
-  // DELETE: Eliminar ahorro
+  // 12. DELETE: Eliminar ahorro
   it('should delete saving', async () => {
     const res = await request(app).delete(`/savings/${createdSavingId}`);
     expect(res.statusCode).toBe(200);
@@ -180,7 +180,7 @@ describe('Savings API', () => {
     expect(rows.length).toBe(0);
   });
 
-  // DELETE: Fallar al eliminar ahorro inexistente
+  // 13. DELETE: Fallar al eliminar ahorro inexistente
   it('should fail to delete non-existent saving', async () => {
     const res = await request(app).delete('/savings/999999');
     expect(res.statusCode).toBe(404);

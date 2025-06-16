@@ -59,14 +59,12 @@ router.get('/', authenticate, authorize([1]), async (req, res) => {
  *       404:
  *         description: User not found | Usuario no encontrado
  */
-// Modificando el endpoint GET /:id
 router.get('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
   const result = await userService.getUserById(req.params.id);
   result.success
     ? res.status(200).json(result.data)
     : res.status(result.error.code).json({ error: result.error.message });
 });
-
 
 /**
  * @swagger
@@ -102,8 +100,6 @@ router.post('/', async (req, res) => {
     ? res.status(201).json(result.data)
     : res.status(result.error.code).json({ error: result.error.message });
 });
-//modificado 13/6/2023
-
 
 /**
  * @swagger
@@ -225,13 +221,11 @@ router.patch('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
  *       404:
  *         description: User not found | Usuario no encontrado
  */
-
 router.delete('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
   const result = await userService.deleteUser(req.params.id);
   result.success
     ? res.status(200).json({ message: 'User deleted' })
     : res.status(result.error.code).json({ error: result.error.message });
 });
-
 
 export default router;

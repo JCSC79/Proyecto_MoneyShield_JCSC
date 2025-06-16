@@ -209,7 +209,6 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
-
 /**
  * @swagger
  * /savings/{id}:
@@ -279,6 +278,5 @@ router.get('/report/progress', async (req, res) => {
     res.status(err.status || 500).json({ error: err.message });
   }
 });
-
 
 export default router;

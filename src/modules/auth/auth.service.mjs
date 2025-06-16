@@ -1,3 +1,5 @@
+// src/modules/auth/auth.service.mjs
+
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import * as userDao from '../users/user.dao.mjs';

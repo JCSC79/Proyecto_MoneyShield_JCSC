@@ -564,6 +564,4 @@ router.get('/report/forecast', async (req, res) => {
   }
 });
 
-
-
 export default router;

@@ -16,7 +16,7 @@ describe('Users API (con autenticación JWT)', () => {
     adminToken = loginRes.body.token;
   });
 
-  // GET all users (solo admin)
+  // 1. GET all users (solo admin)
   it('should get all users with 200 OK (admin)', async () => {
     const res = await request(app)
       .get('/users')
@@ -25,7 +25,7 @@ describe('Users API (con autenticación JWT)', () => {
     expect(Array.isArray(res.body)).toBe(true);
   });
 
-  // POST: fail with missing fields
+  // 2. POST: fail with missing fields
   it('should return 400 for incomplete user data', async () => {
     const res = await request(app)
       .post('/users')
@@ -35,7 +35,7 @@ describe('Users API (con autenticación JWT)', () => {
     expect(res.body).toMatchObject({ error: expect.any(String) });
   });
 
-  // POST: fail with invalid email
+  // 3. POST: fail with invalid email
   it('should return 400 for invalid email format', async () => {
     const res = await request(app)
       .post('/users')
@@ -51,7 +51,7 @@ describe('Users API (con autenticación JWT)', () => {
     expect(res.body.error).toMatch(/email/i);
   });
 
-  // POST: fail with invalid profile
+  // 4. POST: fail with invalid profile
   it('should return 400 for non-existent profile', async () => {
     const res = await request(app)
       .post('/users')
@@ -67,7 +67,7 @@ describe('Users API (con autenticación JWT)', () => {
     expect(res.body.error).toMatch(/profile/i);
   });
 
-  // POST: success
+  // 5. POST: success
   it('should create user with 201 and return sanitized data', async () => {
     const res = await request(app)
       .post('/users')
@@ -83,7 +83,7 @@ describe('Users API (con autenticación JWT)', () => {
     createdUserId = res.body.id;
   });
 
-  // POST: fail duplicate email
+  // 6. POST: fail duplicate email
   it('should return 409 for duplicate email', async () => {
     const res = await request(app)
       .post('/users')
@@ -99,7 +99,7 @@ describe('Users API (con autenticación JWT)', () => {
     expect(res.body.error).toMatch(/already exists/i);
   });
 
-  // GET by ID
+  // 7. GET by ID
   it('should get user by ID with 200 OK', async () => {
     const res = await request(app)
       .get(`/users/${createdUserId}`)
@@ -108,7 +108,7 @@ describe('Users API (con autenticación JWT)', () => {
     expect(res.body.id).toBe(createdUserId);
   });
 
-  // GET non-existent user
+  // 8. GET non-existent user
   it('should return 404 for non-existent user', async () => {
     const res = await request(app)
       .get('/users/999999')
@@ -117,7 +117,7 @@ describe('Users API (con autenticación JWT)', () => {
     expect(res.body.error).toMatch(/not found/i);
   });
 
-  // PUT: full update (admin)
+  // 9. PUT: full update (admin)
   it('should fully update user with 200 OK', async () => {
     const newEmail = `updated${Date.now()}@example.com`;
     const res = await request(app)
@@ -133,7 +133,7 @@ describe('Users API (con autenticación JWT)', () => {
     expect(res.statusCode).toBe(200);
   });
 
-  // PATCH: partial update (admin)
+  // 10. PATCH: partial update (admin)
   it('should partially update user with 200 OK', async () => {
     const res = await request(app)
       .patch(`/users/${createdUserId}`)
@@ -142,7 +142,7 @@ describe('Users API (con autenticación JWT)', () => {
     expect(res.statusCode).toBe(200);
   });
 
-  // DELETE: success (admin)
+  // 11. DELETE: success (admin)
   it('should delete user with 200 OK', async () => {
     const res = await request(app)
       .delete(`/users/${createdUserId}`)
@@ -150,7 +150,7 @@ describe('Users API (con autenticación JWT)', () => {
     expect(res.statusCode).toBe(200);
   });
 
-  // DELETE non-existent user
+  // 12. DELETE non-existent user
   it('should return 404 when deleting non-existent user', async () => {
     const res = await request(app)
       .delete('/users/999999')
@@ -161,4 +161,5 @@ describe('Users API (con autenticación JWT)', () => {
   afterAll(async () => {
     await db.end();
   });
+  
 });

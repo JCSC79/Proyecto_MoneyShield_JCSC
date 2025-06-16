@@ -1,3 +1,5 @@
+// src/modules/budgets/budget.dao.mjs
+
 import db from '../../db/DBHelper.mjs';
 
 // Campos permitidos para actualización | Allowed fields for update
