@@ -23,10 +23,6 @@ function allowSelfOrAdmin(req, res, next) {
  *   description: User management | Gestión de usuarios
  */
 
-// // Helper para status HTTP según error | Helper to get HTTP status based on error
-// function getStatus(err) {
-//   return err.status || 400;
-// }
 
 /**
  * @swagger
@@ -39,12 +35,10 @@ function allowSelfOrAdmin(req, res, next) {
  *         description: List of users | Lista de usuarios
  */
 router.get('/', authenticate, authorize([1]), async (req, res) => {
-  try {
-    const users = await userService.getAllUsers();
-    res.json(users);
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
-  }
+  const result = await userService.getAllUsers();
+  result.success
+    ? res.json(result.data)
+    : res.status(result.error.code).json({ error: result.error.message });
 });
 
 /**
@@ -68,16 +62,10 @@ router.get('/', authenticate, authorize([1]), async (req, res) => {
 // Modificando el endpoint GET /:id
 router.get('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
   const result = await userService.getUserById(req.params.id);
-  
-  if (result.success) {
-    return res.status(200).json(result.data);
-  }
-  
-  return res.status(result.error.code).json({ error: result.error.message });
+  result.success
+    ? res.status(200).json(result.data)
+    : res.status(result.error.code).json({ error: result.error.message });
 });
-
-// Eliminamos la función getStatus (ya no es necesaria)
-
 
 
 /**
@@ -108,14 +96,11 @@ router.get('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
  *        description: Bad request | Solicitud incorrecta
  */
 router.post('/', async (req, res) => {
-  //const userData = { ...req.body, profile_id: 2 };
-  const userData = req.body; // <-- Recibir el profile_id del body
+  const userData = req.body;
   const result = await userService.createUser(userData);
-  
-  if (result.success) {
-    return res.status(201).json(result.data);
-  }
-  res.status(result.error.code).json({ error: result.error.message }); // <-- Usar código de Result
+  result.success
+    ? res.status(201).json(result.data)
+    : res.status(result.error.code).json({ error: result.error.message });
 });
 //modificado 13/6/2023
 
@@ -168,12 +153,10 @@ router.post('/', async (req, res) => {
  *         description: Email already exists | El email ya existe
  */
 router.put('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
-  try {
-    await userService.editUser(req.params.id, req.body);
-    res.json({ message: 'User updated' });
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
-  }
+  const result = await userService.editUser(req.params.id, req.body);
+  result.success
+    ? res.status(200).json({ message: 'User updated' })
+    : res.status(result.error.code).json({ error: result.error.message });
 });
 
 /**
@@ -218,12 +201,10 @@ router.put('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
  *         description: Email already exists | El email ya existe
  */
 router.patch('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
-  try {
-    await userService.patchUser(req.params.id, req.body);
-    res.json({ message: 'User patched' });
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
-  }
+  const result = await userService.patchUser(req.params.id, req.body);
+  result.success
+    ? res.status(200).json({ message: 'User patched' })
+    : res.status(result.error.code).json({ error: result.error.message });
 });
 
 /**
@@ -247,12 +228,9 @@ router.patch('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
 
 router.delete('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
   const result = await userService.deleteUser(req.params.id);
-  
-  if (result.success) {
-    return res.status(200).json({ message: 'User deleted' });
-  }
-  
-  res.status(result.error.code).json({ error: result.error.message });
+  result.success
+    ? res.status(200).json({ message: 'User deleted' })
+    : res.status(result.error.code).json({ error: result.error.message });
 });
 
 
