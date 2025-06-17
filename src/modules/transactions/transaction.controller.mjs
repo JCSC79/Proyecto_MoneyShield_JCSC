@@ -46,13 +46,14 @@ const router = express.Router();
  *         description: List of transactions | Lista de transacciones
  */
 router.get('/', async (req, res) => {
-  try {
-    const transactions = await transactionService.getAllTransactions(req.query);
-    res.json(transactions);
-  } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+  const result = await transactionService.getAllTransactions(req.query);
+  if (result.success) {
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
+
 
 /**
  * @swagger
@@ -73,13 +74,14 @@ router.get('/', async (req, res) => {
  *         description: Transaction not found | Transacción no encontrada
  */
 router.get('/:id', async (req, res) => {
-  try {
-    const transaction = await transactionService.getTransactionById(req.params.id);
-    res.json(transaction);
-  } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+  const result = await transactionService.getTransactionById(req.params.id);
+  if (result.success) {
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
+
 
 /**
  * @swagger

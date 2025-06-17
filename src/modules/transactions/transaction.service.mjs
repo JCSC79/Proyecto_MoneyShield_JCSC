@@ -2,6 +2,8 @@
 
 import * as transactionDao from './transaction.dao.mjs';
 import db from '../../db/DBHelper.mjs';
+import { Result } from '../../utils/result.mjs';
+import { isValidId } from '../../utils/validation.mjs';
 
 // Clases de error personalizadas // Custom error classes
 class ValidationError extends Error {
@@ -35,10 +37,7 @@ const MAX_AMOUNT = 1_000_000;
 let othersCategoryId = null;
 
 // Helpers
-const isValidId = id => {
-  const num = Number(id);
-  return Number.isInteger(num) && num > 0;
-};
+
 const isAmountValid = amount =>
   typeof amount === 'number' &&
   amount > 0 &&
@@ -61,21 +60,33 @@ async function getOthersCategoryId() {
 }
 
 // Servicio | Service
+
 export async function getAllTransactions(filter) {
-  return transactionDao.getAllTransactions(filter);
+  try {
+    const transactions = await transactionDao.getAllTransactions(filter);
+    return Result.Success(transactions);
+  } catch (error) {
+    console.error('Error en getAllTransactions:', error);
+    return Result.Fail('Internal server error', 500);
+  }
 }
 
 export async function getTransactionById(id) {
   if (!isValidId(id)) {
-    throw new ValidationError('Invalid transaction ID');
+    return Result.Fail('Invalid transaction ID', 400);
   }
   const numericId = Number(id);
-  const transaction = await transactionDao.getTransactionById(numericId);
-  if (!transaction) {
-    throw new NotFoundError('Transaction not found');
+  try {
+    const transaction = await transactionDao.getTransactionById(numericId);
+    return transaction
+      ? Result.Success(transaction)
+      : Result.Fail('Transaction not found', 404);
+  } catch (error) {
+    console.error('Error en getTransactionById:', error);
+    return Result.Fail('Internal server error', 500);
   }
-  return transaction;
 }
+
 
 export async function createTransaction(data) {
   const requiredFields = ['user_id', 'type_id', 'amount'];
