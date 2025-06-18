@@ -4,7 +4,7 @@ import * as userDao from './user.dao.mjs'; // Importa el DAO de usuario | Import
 import db from '../../db/DBHelper.mjs';
 import bcrypt from 'bcryptjs'; // Librería para encriptar contraseñas | Library for password hashing
 import { Result } from '../../utils/result.mjs'; // Importa clase Result para manejar resultados de operaciones | Import Result class to handle operation results
-import { isValidEmail, isStrongPassword, validateUserId } from '../../utils/validation.mjs'; // Importa funciones de validación | Import validation functions
+import { isValidEmail, isStrongPassword, validateId } from '../../utils/validation.mjs'; // Importa funciones de validación | Import validation functions
 
 
 
@@ -37,7 +37,7 @@ export async function getAllUsers() {
 
 // Obtener usuario por ID | Get user by ID
 export async function getUserById(id) {
-  const idValidation = validateUserId(id);
+  const idValidation = validateId(id);
   if (!idValidation.success) {
     return idValidation;
   }
@@ -112,7 +112,7 @@ export async function createUser(userData) {
 
 // Actualizar completamente un usuario | Fully update a user
 export async function editUser(id, userData) {
-  const idValidation = validateUserId(id);
+  const idValidation = validateId(id);
   if (!idValidation.success) {
     return idValidation;
   }
@@ -150,7 +150,7 @@ export async function editUser(id, userData) {
 
 // Actualizar parcialmente un usuario | Patch a user
 export async function patchUser(id, fields) {
-  const idValidation = validateUserId(id);
+  const idValidation = validateId(id);
   if (!idValidation.success) {
     return idValidation;
   }
@@ -182,7 +182,7 @@ export async function patchUser(id, fields) {
 
 // Eliminar un usuario | Delete a user
 export async function deleteUser(id) {
-  const idValidation = validateUserId(id);
+  const idValidation = validateId(id);
   if (!idValidation.success) {
     return idValidation;
   }

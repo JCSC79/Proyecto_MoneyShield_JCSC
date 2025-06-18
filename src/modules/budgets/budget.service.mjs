@@ -2,6 +2,7 @@
 
 import * as budgetDao from './budget.dao.mjs';
 import db from '../../db/DBHelper.mjs';
+import { isValidId } from '../../utils/validation.mjs';
 
 class ValidationError extends Error {
   constructor(message) {
@@ -18,7 +19,6 @@ class NotFoundError extends Error {
   }
 }
 
-const isValidId = id => Number.isInteger(Number(id)) && Number(id) > 0;
 const isValidAmount = amount => typeof amount === 'number' && amount > 0 && Number.isFinite(amount);
 
 export async function getAllBudgets(filter) {

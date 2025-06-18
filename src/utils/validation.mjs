@@ -27,8 +27,12 @@ export function isStrongPassword(password) {
 }
 
 // Validamos ID usando Result | Validate ID using Result
-export function validateUserId(id) {
+export function validateId(id) {
   return isValidId(id)
     ? Result.Success(id)
     : Result.Fail('Invalid user ID', 400);
+}
+
+export function checkRequiredFields(obj, fields) {
+  return fields.find(field => !obj[field]);
 }

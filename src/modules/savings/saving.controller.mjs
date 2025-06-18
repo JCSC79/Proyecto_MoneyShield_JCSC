@@ -12,10 +12,6 @@ const router = express.Router();
  *   description: Savings management | Gestión de ahorros
  */
 
-// Helper para status HTTP según error
-function getStatus(err) {
-  return err.status || 400;
-}
 
 /**
  * @swagger
@@ -34,12 +30,12 @@ function getStatus(err) {
  *         description: List of savings | Lista de ahorros
  */
 router.get('/', async (req, res) => {
-  try {
-    const { user_id } = req.query;
-    const savings = await savingsService.getAllSavings(user_id);
-    res.json(savings);
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const { user_id } = req.query;
+  const result = await savingsService.getAllSavings(user_id);
+  if (result.success) {
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -62,11 +58,11 @@ router.get('/', async (req, res) => {
  *         description: Saving not found | Ahorro no encontrado
  */
 router.get('/:id', async (req, res) => {
-  try {
-    const saving = await savingsService.getSavingById(req.params.id);
-    res.json(saving);
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await savingsService.getSavingById(req.params.id);
+  if (result.success) {
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -110,11 +106,11 @@ router.get('/:id', async (req, res) => {
  *         description: Invalid request | Solicitud inválida
  */
 router.post('/', async (req, res) => {
-  try {
-    const saving = await savingsService.createSaving(req.body);
-    res.status(201).json(saving);
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await savingsService.createSaving(req.body);
+  if (result.success) {
+    res.status(201).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -161,11 +157,11 @@ router.post('/', async (req, res) => {
  *         description: Saving not found | Ahorro no encontrado
  */
 router.put('/:id', async (req, res) => {
-  try {
-    await savingsService.updateSaving(req.params.id, req.body);
-    res.json({ message: 'Saving updated' });
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await savingsService.updateSaving(req.params.id, req.body);
+  if (result.success) {
+    res.status(200).json({ message: 'Saving updated' });
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -201,11 +197,11 @@ router.put('/:id', async (req, res) => {
  *         description: Invalid request | Solicitud inválida
  */
 router.patch('/:id', async (req, res) => {
-  try {
-    await savingsService.patchSaving(req.params.id, req.body);
-    res.json({ message: 'Saving patched' });
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await savingsService.patchSaving(req.params.id, req.body);
+  if (result.success) {
+    res.status(200).json({ message: 'Saving patched' });
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -228,11 +224,11 @@ router.patch('/:id', async (req, res) => {
  *         description: Saving not found | Ahorro no encontrado
  */
 router.delete('/:id', async (req, res) => {
-  try {
-    await savingsService.deleteSaving(req.params.id);
-    res.json({ message: 'Saving deleted' });
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await savingsService.deleteSaving(req.params.id);
+  if (result.success) {
+    res.status(200).json({ message: 'Saving deleted' });
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -267,15 +263,12 @@ router.delete('/:id', async (req, res) => {
  *                   days_left: { type: integer, example: 180 }
  */
 router.get('/report/progress', async (req, res) => {
-  try {
-    const user_id = Number(req.query.user_id);
-    if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
-    }
-    const data = await savingsService.getSavingsProgress(user_id);
-    res.json(data);
-  } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+  const user_id = Number(req.query.user_id);
+  const result = await savingsService.getSavingsProgress(user_id);
+  if (result.success) {
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 

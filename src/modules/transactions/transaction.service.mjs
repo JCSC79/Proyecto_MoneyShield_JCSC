@@ -22,13 +22,6 @@ class NotFoundError extends Error {
   }
 }
 
-class ConflictError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'ConflictError';
-    this.status = 409;
-  }
-}
 
 // Configuración  | Configuration
 // Configuración de precisión decimal y monto máximo | Decimal precision and max amount configuration
@@ -268,4 +261,3 @@ export async function getMonthlyForecast(user_id) {
   }
   return transactionDao.getMonthlyForecast(user_id);
 }
-
