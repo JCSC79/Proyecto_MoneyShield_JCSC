@@ -31,12 +31,13 @@ let othersCategoryId = null;
 
 // Helpers
 
-const isAmountValid = amount =>
-  typeof amount === 'number' &&
-  amount > 0 &&
-  amount <= MAX_AMOUNT &&
-  Number.isFinite(amount) &&
-  Number(amount.toFixed(DECIMAL_PRECISION)) === amount;
+function isAmountValid(amount) {
+  return typeof amount === 'number' &&
+    amount > 0 &&
+    amount <= MAX_AMOUNT &&
+    Number.isFinite(amount) &&
+    Number(amount.toFixed(DECIMAL_PRECISION)) === amount;
+}
 
 async function getOthersCategoryId() {
   if (!othersCategoryId) {
@@ -79,7 +80,6 @@ export async function getTransactionById(id) {
     return Result.Fail('Internal server error', 500);
   }
 }
-
 
 export async function createTransaction(data) {
   const requiredFields = ['user_id', 'type_id', 'amount'];
@@ -170,14 +170,14 @@ async function validateTransactionData(data, existingId = null) {
   // Validar relaciones | Validate relationships
   if (data.user_id) {
     const userExists = await transactionDao.userExists(data.user_id);
-    if (!userExists) {  
+    if (!userExists) {
       throw new ValidationError('User does not exist');
     }
   }
 
   if (data.type_id) {
     const typeExists = await transactionDao.typeExists(data.type_id);
-    if (!typeExists) {  
+    if (!typeExists) {
       throw new ValidationError('Transaction type does not exist');
     }
   }

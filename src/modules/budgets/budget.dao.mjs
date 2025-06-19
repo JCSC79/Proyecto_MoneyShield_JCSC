@@ -47,6 +47,15 @@ export async function getBudgetById(id, connection = db) {
   return rows[0] || null;
 }
 
+export async function budgetExists({ user_id, category_id, year, month, budget_type }, connection = db) {
+  const [rows] = await connection.query(
+    `SELECT id FROM budgets
+     WHERE user_id = ? AND category_id = ? AND year = ? AND month = ? AND budget_type = ?`,
+    [user_id, category_id, year, month, budget_type]
+  );
+  return rows.length > 0;
+}
+
 export async function createBudget(data, connection = db) {
   const { user_id, category_id, budget_type, year, month, amount, notes } = data;
   const [result] = await connection.query(

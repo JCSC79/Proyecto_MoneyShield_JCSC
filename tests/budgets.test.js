@@ -9,6 +9,15 @@ describe('Budgets API', () => {
   const validCategoryId = 2;
   const anotherCategoryId = 3;
 
+   beforeEach(async () => {
+  // Solo borra presupuestos que NO sean el creado en los tests
+  await db.query(
+    'DELETE FROM budgets WHERE id != ? AND user_id = ? AND category_id = ? AND year = ? AND month = ? AND budget_type = ?',
+    [createdBudgetId || -1, validUserId, validCategoryId, 2025, 6, 'monthly']
+  );
+});
+
+
   // 1. GET all budgets (should return array)
   it('should get all budgets', async () => {
     const res = await request(app).get('/budgets');
@@ -153,7 +162,12 @@ describe('Budgets API', () => {
     expect(res.body).toHaveProperty('error');
   });
 
-  afterAll(async () => {
-    await db.end();
-  });
+afterAll(async () => {
+  // Limpieza final del presupuesto de prueba
+  if (createdBudgetId) {
+    await db.query('DELETE FROM budgets WHERE id = ?', [createdBudgetId]);
+  }
+  await db.end();
+});
+
 });

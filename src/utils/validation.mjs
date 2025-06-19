@@ -36,3 +36,33 @@ export function validateId(id) {
 export function checkRequiredFields(obj, fields) {
   return fields.find(field => !obj[field]);
 }
+
+// Nuevas validaciones agregadas | New validations added (19 de junio)
+
+// Validamos si el valor es un número positivo | Validate if the value is a positive number
+export function isPositiveNumber(value) {
+  return typeof value === 'number' && value >= 0 && Number.isFinite(value);
+}
+
+// Validamos si el monto está dentro del rango y tiene la cantidad de decimales especificada | Validate if the amount is within range and has specified decimals
+export function isAmountInRange(amount, max, decimals = 2) {
+  return isPositiveNumber(amount) &&
+    amount <= max &&
+    Number(amount.toFixed(decimals)) === amount;
+}
+
+// Validamos si la fecha es válida | Validate if the date is valid
+export function isValidDate(dateStr) {
+  return !isNaN(Date.parse(dateStr)) && dateStr.trim() !== '';
+}
+
+// Validamos si el string no está vacío | Validate if the string is not empty
+export function isNonEmptyString(str) {
+  return typeof str === 'string' && str.trim().length > 0;
+}
+
+// Validamos si el valor es un enumerado válido | Validate if the value is a valid enum
+export function isValidEnumValue(value, allowedValues) {
+  return Array.isArray(allowedValues) && allowedValues.includes(value);
+}
+

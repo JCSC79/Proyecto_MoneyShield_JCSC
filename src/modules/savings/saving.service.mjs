@@ -1,7 +1,7 @@
 // src/modules/savings/saving.service.mjs
 
 import * as savingsDao from './saving.dao.mjs';
-import { isValidId, validateId, checkRequiredFields } from '../../utils/validation.mjs';
+import { validateId, checkRequiredFields, isPositiveNumber, isValidDate } from '../../utils/validation.mjs';
 import { Result } from '../../utils/result.mjs';
 
 
@@ -18,14 +18,22 @@ export function validateSavingData(data, isUpdate = false) {
       return Result.Fail(`Missing required field: ${missingField}`, 400);
     }
   }
-  if (data.amount !== undefined && (isNaN(data.amount) || data.amount < 0)) {
+  if (data.amount !== undefined && !isPositiveNumber(data.amount)) {
     return Result.Fail('Amount must be a positive number', 400);
   }
-  if (data.target_amount !== undefined && data.target_amount !== null && (isNaN(data.target_amount) || data.target_amount < 0)) {
+  if (data.target_amount !== undefined && data.target_amount !== null && !isPositiveNumber(data.target_amount)) {
     return Result.Fail('Target amount must be a positive number', 400);
   }
-  if (data.target_date && isNaN(Date.parse(data.target_date))) {
+  if (data.target_date && !isValidDate(data.target_date)) {
     return Result.Fail('Invalid target date', 400);
+  }
+  if (
+    data.target_amount !== undefined &&
+    data.target_amount !== null &&
+    data.amount !== undefined &&
+    data.target_amount <= data.amount
+  ) {
+    return Result.Fail('Target amount must be greater than current amount', 400);
   }
   return Result.Success(true);
 }
@@ -35,7 +43,9 @@ export function validateSavingData(data, isUpdate = false) {
  */
 export async function getAllSavings(user_id) {
   const idValidation = validateId(user_id);
-  if (!idValidation.success) return idValidation;
+  if (!idValidation.success) {
+    return idValidation;
+  }
   try {
     const savings = await savingsDao.getAllSavings(user_id);
     return Result.Success(savings);
@@ -49,8 +59,9 @@ export async function getAllSavings(user_id) {
  * Obtener ahorro por ID | Get saving by ID
  */
 export async function getSavingById(id) {
-  if (!isValidId(id)) {
-    return Result.Fail('Invalid saving ID', 400);
+  const idValidation = validateId(id, 'saving ID');
+  if (!idValidation.success) {
+    return idValidation;
   }
   try {
     const saving = await savingsDao.getSavingById(id);
@@ -67,32 +78,10 @@ export async function getSavingById(id) {
  * Crear un nuevo ahorro | Create a new saving
  */
 export async function createSaving(data) {
-  // Valida campos requeridos
-  const missingField = checkRequiredFields(data, ['user_id', 'type_id', 'name', 'amount']);
-  if (missingField) {
-    return Result.Fail(`Missing required field: ${missingField}`, 400);
+  const validation = validateSavingData(data);
+  if (!validation.success) {
+    return validation;
   }
-
-  // Validaciones adicionales
-  if (isNaN(data.amount) || data.amount < 0) {
-    return Result.Fail('Amount must be a positive number', 400);
-  }
-  if (data.target_amount !== undefined && data.target_amount !== null &&
-      (isNaN(data.target_amount) || data.target_amount < 0)) {
-    return Result.Fail('Target amount must be a positive number', 400);
-  }
-  if (data.target_date && isNaN(Date.parse(data.target_date))) {
-    return Result.Fail('Invalid target date', 400);
-  }
-
-  if (
-    data.target_amount !== undefined &&
-    data.target_amount !== null &&
-    data.target_amount <= data.amount
-  ) {
-    return Result.Fail('Target amount must be greater than current amount', 400);
-  }
-
   try {
     const saving = await savingsDao.createSaving(data);
     return Result.Success(saving);
@@ -102,38 +91,23 @@ export async function createSaving(data) {
   }
 }
 
-
 /**
  * Actualizar completamente un ahorro | Fully update a saving
  */
 export async function updateSaving(id, data) {
-  if (!isValidId(id)) {
-    return Result.Fail('Invalid saving ID', 400);
+  const idValidation = validateId(id, 'saving ID');
+  if (!idValidation.success) {
+    return idValidation;
   }
-
-  // Valida campos requeridos para actualización completa
-  const missingField = checkRequiredFields(data, ['type_id', 'name', 'amount']);
-  if (missingField) {
-    return Result.Fail(`Missing required field: ${missingField}`, 400);
+  const validation = validateSavingData(data, true);
+  if (!validation.success) {
+    return validation;
   }
-
-  // Validaciones de formato y dominio
-  if (isNaN(data.amount) || data.amount < 0) {
-    return Result.Fail('Amount must be a positive number', 400);
-  }
-  if (data.target_amount !== undefined && data.target_amount !== null &&
-      (isNaN(data.target_amount) || data.target_amount < 0)) {
-    return Result.Fail('Target amount must be a positive number', 400);
-  }
-  if (data.target_date && isNaN(Date.parse(data.target_date))) {
-    return Result.Fail('Invalid target date', 400);
-  }
-
   try {
     const updated = await savingsDao.updateSaving(id, data);
     return updated
       ? Result.Success(true)
-      : Result.Fail('Saving not found', 404);
+      : Result.Fail('Saving not found or no valid fields to update', 404);
   } catch (error) {
     console.error('Error en updateSaving:', error);
     return Result.Fail('Internal server error', 500);
@@ -144,33 +118,25 @@ export async function updateSaving(id, data) {
  * Actualizar parcialmente un ahorro | Partially update a saving
  */
 export async function patchSaving(id, fields) {
-  // Valida ID
-  if (!isValidId(id)) {
-    return Result.Fail('Invalid saving ID', 400);
+  const idValidation = validateId(id, 'saving ID');
+  if (!idValidation.success) {
+    return idValidation;
   }
-
-  // Filtra campos permitidos
   const allowedFields = ['type_id', 'name', 'amount', 'target_amount', 'target_date'];
   const keys = Object.keys(fields).filter(k => allowedFields.includes(k));
   if (keys.length === 0) {
     return Result.Fail('No valid fields to update', 400);
   }
-
-  // Validaciones parciales
-  if (fields.amount !== undefined && (isNaN(fields.amount) || fields.amount < 0)) {
+  // Validaciones parciales usando helpers
+  if (fields.amount !== undefined && !isPositiveNumber(fields.amount)) {
     return Result.Fail('Amount must be a positive number', 400);
   }
-  if (
-    fields.target_amount !== undefined &&
-    fields.target_amount !== null &&
-    (isNaN(fields.target_amount) || fields.target_amount < 0)
-  ) {
+  if (fields.target_amount !== undefined && fields.target_amount !== null && !isPositiveNumber(fields.target_amount)) {
     return Result.Fail('Target amount must be a positive number', 400);
   }
-  if (fields.target_date && isNaN(Date.parse(fields.target_date))) {
+  if (fields.target_date && !isValidDate(fields.target_date)) {
     return Result.Fail('Invalid target date', 400);
   }
-  // Validamos que target_amount > amount si ambos están presentes
   if (
     fields.amount !== undefined &&
     fields.target_amount !== undefined &&
@@ -179,7 +145,6 @@ export async function patchSaving(id, fields) {
   ) {
     return Result.Fail('Target amount must be greater than amount', 400);
   }
-
   try {
     const updated = await savingsDao.patchSaving(id, fields);
     return updated
@@ -195,8 +160,9 @@ export async function patchSaving(id, fields) {
  * Eliminar un ahorro | Delete a saving
  */
 export async function deleteSaving(id) {
-  if (!isValidId(id)) {
-    return Result.Fail('Invalid saving ID', 400);
+  const idValidation = validateId(id, 'saving ID');
+  if (!idValidation.success) {
+    return idValidation;
   }
   try {
     const deleted = await savingsDao.deleteSaving(id);
@@ -213,8 +179,9 @@ export async function deleteSaving(id) {
  * Obtener progreso de ahorros de un usuario | Get savings progress for a user
  */
 export async function getSavingsProgress(user_id) {
-  if (!isValidId(user_id)) {
-    return Result.Fail('Invalid user ID', 400);
+  const idValidation = validateId(id, 'user ID');
+  if (!idValidation.success) {
+    return idValidation;
   }
   try {
     const data = await savingsDao.getSavingsProgress(user_id);

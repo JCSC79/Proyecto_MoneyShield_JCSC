@@ -5,9 +5,6 @@ import * as budgetService from './budget.service.mjs';
 
 const router = express.Router();
 
-function getStatus(err) {
-  return err.status || 400;
-}
 
 /**
  * @swagger
@@ -44,13 +41,14 @@ function getStatus(err) {
  *         description: List of budgets | Lista de presupuestos
  */
 router.get('/', async (req, res) => {
-  try {
-    const budgets = await budgetService.getAllBudgets(req.query);
-    res.json(budgets);
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await budgetService.getAllBudgets(req.query);
+  if (result.success) {
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
+
 
 /**
  * @swagger
@@ -70,13 +68,14 @@ router.get('/', async (req, res) => {
  *         description: Budget not found | Presupuesto no encontrado
  */
 router.get('/:id', async (req, res) => {
-  try {
-    const budget = await budgetService.getBudgetById(req.params.id);
-    res.json(budget);
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await budgetService.getBudgetById(req.params.id);
+  if (result.success) {
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
+
 
 /**
  * @swagger
@@ -106,13 +105,14 @@ router.get('/:id', async (req, res) => {
  *         description: Invalid request | Solicitud inválida
  */
 router.post('/', async (req, res) => {
-  try {
-    const budget = await budgetService.createBudget(req.body);
-    res.status(201).json(budget);
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await budgetService.createBudget(req.body);
+  if (result.success) {
+    res.status(201).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
+
 
 /**
  * @swagger
@@ -146,11 +146,11 @@ router.post('/', async (req, res) => {
  *         description: Budget not found | Presupuesto no encontrado
  */
 router.put('/:id', async (req, res) => {
-  try {
-    await budgetService.updateBudget(req.params.id, req.body);
-    res.json({ message: 'Budget updated' });
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await budgetService.updateBudget(req.params.id, req.body);
+  if (result.success) {
+    res.status(200).json({ message: 'Budget updated' });
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -185,11 +185,11 @@ router.put('/:id', async (req, res) => {
  *         description: Budget not found | Presupuesto no encontrado
  */
 router.patch('/:id', async (req, res) => {
-  try {
-    await budgetService.updateBudget(req.params.id, req.body);
-    res.json({ message: 'Budget patched' });
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await budgetService.updateBudget(req.params.id, req.body);
+  if (result.success) {
+    res.status(200).json({ message: 'Budget patched' });
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -211,11 +211,11 @@ router.patch('/:id', async (req, res) => {
  *         description: Budget not found | Presupuesto no encontrado
  */
 router.delete('/:id', async (req, res) => {
-  try {
-    await budgetService.deleteBudget(req.params.id);
-    res.json({ message: 'Budget deleted' });
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await budgetService.deleteBudget(req.params.id);
+  if (result.success) {
+    res.status(200).json({ message: 'Budget deleted' });
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -258,17 +258,18 @@ router.delete('/:id', async (req, res) => {
  *                     example: -450.00
  */
 router.get('/report/remaining', async (req, res) => {
-  try {
-    const user_id = Number(req.query.user_id);
-    if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
-    }
-    const data = await budgetService.getRemainingBudget(user_id);
-    res.json(data);
-  } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+  const user_id = Number(req.query.user_id);
+  if (!user_id) {
+    return res.status(400).json({ error: 'user_id is required' });
+  }
+  const result = await budgetService.getRemainingBudget(user_id);
+  if (result.success) {
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
+
 
 /**
  * @swagger
@@ -314,21 +315,18 @@ router.get('/report/remaining', async (req, res) => {
  *                     example: 80.00
  */
 router.get('/report/alerts', async (req, res) => {
-  try {
-    const user_id = Number(req.query.user_id);
-    const threshold = req.query.threshold ? Number(req.query.threshold) : 80;
-    if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
-    }
-    const data = await budgetService.getBudgetAlerts(user_id, threshold);
-    res.json(data);
-  } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+  const user_id = Number(req.query.user_id);
+  const threshold = req.query.threshold ? Number(req.query.threshold) : 80;
+  if (!user_id) {
+    return res.status(400).json({ error: 'user_id is required' });
+  }
+  const result = await budgetService.getBudgetAlerts(user_id, threshold);
+  if (result.success) {
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
-
-
-
 
 
 export default router;
