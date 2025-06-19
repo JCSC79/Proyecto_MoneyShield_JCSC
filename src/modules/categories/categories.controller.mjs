@@ -12,11 +12,6 @@ const router = express.Router();
  *   description: Category management | Gestión de categorías
  */
 
-// Helper para status HTTP según error | Helper for HTTP status based on error
-function getStatus(err) {
-  return err.status || 400;
-}
-
 /**
  * @swagger
  * /categories:
@@ -28,11 +23,11 @@ function getStatus(err) {
  *         description: List of categories | Lista de categorías
  */
 router.get('/', async (req, res) => {
-  try {
-    const categories = await categoryService.getAllCategories();
-    res.json(categories);
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await categoryService.getAllCategories();
+  if (result.success) {
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -54,11 +49,11 @@ router.get('/', async (req, res) => {
  *         description: Category not found | Categoría no encontrada
  */
 router.get('/:id', async (req, res) => {
-  try {
-    const category = await categoryService.getCategoryById(req.params.id);
-    res.json(category);
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await categoryService.getCategoryById(req.params.id);
+  if (result.success) {
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -86,11 +81,11 @@ router.get('/:id', async (req, res) => {
  *         description: Category already exists | La categoría ya existe
  */
 router.post('/', async (req, res) => {
-  try {
-    const category = await categoryService.createCategory(req.body);
-    res.status(201).json(category);
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await categoryService.createCategory(req.body);
+  if (result.success) {
+    res.status(201).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -121,11 +116,11 @@ router.post('/', async (req, res) => {
  *         description: Category not found | Categoría no encontrada
  */
 router.put('/:id', async (req, res) => {
-  try {
-    await categoryService.updateCategory(req.params.id, req.body);
-    res.json({ message: 'Category updated' });
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await categoryService.updateCategory(req.params.id, req.body);
+  if (result.success) {
+    res.status(200).json({ message: 'Category updated' });
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -147,11 +142,11 @@ router.put('/:id', async (req, res) => {
  *         description: Category not found | Categoría no encontrada
  */
 router.delete('/:id', async (req, res) => {
-  try {
-    await categoryService.deleteCategory(req.params.id);
-    res.json({ message: 'Category deleted' });
-  } catch (err) {
-    res.status(getStatus(err)).json({ error: err.message });
+  const result = await categoryService.deleteCategory(req.params.id);
+  if (result.success) {
+    res.status(200).json({ message: 'Category deleted' });
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 

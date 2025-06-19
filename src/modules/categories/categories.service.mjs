@@ -1,79 +1,94 @@
 // src/modules/categories/categories.service.mjs
 
 import * as categoryDao from './categories.dao.mjs';
-
-// Clases de error personalizadas | Custom error classes
-class ValidationError extends Error {
-  constructor(message) { super(message); this.name = 'ValidationError'; this.status = 400; }
-}
-class NotFoundError extends Error {
-  constructor(message) { super(message); this.name = 'NotFoundError'; this.status = 404; }
-}
-class ConflictError extends Error {
-  constructor(message) { super(message); this.name = 'ConflictError'; this.status = 409; }
-}
+import { Result } from '../../utils/result.mjs';
+import { validateId, isNonEmptyString } from '../../utils/validation.mjs';
 
 /**
  * Obtener todas las categorías | Get all categories
  */
 export async function getAllCategories() {
-  return await categoryDao.getAllCategories();
+  try {
+    const categories = await categoryDao.getAllCategories();
+    return Result.Success(categories);
+  } catch (error) {
+    console.error('Error in getAllCategories:', error);
+    return Result.Fail('Internal server error', 500);
+  }
 }
 
 /**
  * Obtener categoría por ID | Get category by ID
  */
 export async function getCategoryById(id) {
-  if (!id || isNaN(id) || id <= 0) {
-    throw new ValidationError('Invalid category ID');
+  const idValidation = validateId(id, 'category ID');
+  if (!idValidation.success) return idValidation;
+
+  try {
+    const category = await categoryDao.getCategoryById(id);
+    return category
+      ? Result.Success(category)
+      : Result.Fail('Category not found', 404);
+  } catch (error) {
+    console.error('Error in getCategoryById:', error);
+    return Result.Fail('Internal server error', 500);
   }
-  const category = await categoryDao.getCategoryById(id);
-  if (!category) {
-    throw new NotFoundError('Category not found');
-  }
-  return category;
 }
 
 /**
  * Crear nueva categoría | Create new category
  */
 export async function createCategory({ name }) {
-  if (!name || typeof name !== 'string' || !name.trim()) {
-    throw new ValidationError('Category name is required');
+  if (!isNonEmptyString(name)) {
+    return Result.Fail('Category name is required', 400);
   }
-  if (await categoryDao.categoryExistsByName(name.trim())) {
-    throw new ConflictError('Category name already exists');
+  try {
+    if (await categoryDao.categoryExistsByName(name.trim())) {
+      return Result.Fail('Category name already exists', 409);
+    }
+    const category = await categoryDao.createCategory({ name: name.trim() });
+    return Result.Success(category);
+  } catch (error) {
+    console.error('Error in createCategory:', error);
+    return Result.Fail('Internal server error', 500);
   }
-  return await categoryDao.createCategory({ name: name.trim() });
 }
 
 /**
  * Actualizar categoría | Update category
  */
 export async function updateCategory(id, { name }) {
-  if (!id || isNaN(id) || id <= 0) {
-    throw new ValidationError('Invalid category ID');
+  const idValidation = validateId(id, 'category ID');
+  if (!idValidation.success) return idValidation;
+
+  if (!isNonEmptyString(name)) {
+    return Result.Fail('Category name is required', 400);
   }
-  if (!name || typeof name !== 'string' || !name.trim()) {
-    throw new ValidationError('Category name is required');
+  try {
+    const updated = await categoryDao.updateCategory(id, { name: name.trim() });
+    return updated
+      ? Result.Success(true)
+      : Result.Fail('Category not found', 404);
+  } catch (error) {
+    console.error('Error in updateCategory:', error);
+    return Result.Fail('Internal server error', 500);
   }
-  const updated = await categoryDao.updateCategory(id, { name: name.trim() });
-  if (!updated) {
-    throw new NotFoundError('Category not found');
-  }
-  return true;
 }
 
 /**
  * Eliminar categoría | Delete category
  */
 export async function deleteCategory(id) {
-  if (!id || isNaN(id) || id <= 0) {
-    throw new ValidationError('Invalid category ID');
+  const idValidation = validateId(id, 'category ID');
+  if (!idValidation.success) return idValidation;
+
+  try {
+    const deleted = await categoryDao.deleteCategory(id);
+    return deleted
+      ? Result.Success(true)
+      : Result.Fail('Category not found', 404);
+  } catch (error) {
+    console.error('Error in deleteCategory:', error);
+    return Result.Fail('Internal server error', 500);
   }
-  const deleted = await categoryDao.deleteCategory(id);
-  if (!deleted) {
-    throw new NotFoundError('Category not found');
-  }
-  return true;
 }
