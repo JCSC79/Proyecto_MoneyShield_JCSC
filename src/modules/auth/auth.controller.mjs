@@ -28,12 +28,13 @@ const router = express.Router();
  *         description: Invalid credentials
  */
 router.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const token = await authService.login(email, password);
-    res.json({ token });
-  } catch (err) {
-    res.status(err.status || 401).json({ error: err.message });
+  const { email, password } = req.body;
+  const result = await authService.login(email, password);
+  
+  if (result.success) {
+    res.json({ token: result.data });
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 

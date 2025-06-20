@@ -18,7 +18,7 @@ RESTful modular API for managing users, transactions, and personal finance.
 
 ## 📦 Installation
 ```
-git clone https://github.com/Thesharingan312/Sql_CA.git
+git clone https://github.com/JCSC79/Proyecto_MoneyShield_JCSC.git
 cd moneyshield
 npm install
 ```
@@ -73,6 +73,8 @@ npm test -- tests/transactions.test.js
 npm test -- tests/budgets.test.js
 npm test -- tests/savings.test.js
 npm test -- tests/categories.test.js
+npm test -- tests/profiles.test.js
+npm test -- tests/auth.test.js
 ```
 ## 👤 Usuarios de Prueba
 
@@ -133,8 +135,13 @@ Use this interface to explore, test, and understand all available endpoints in r
 - `GET /categories/{id}` - Get categories by ID
 - `POST /categories` - Create a new category
 - `PUT /categories/{id}` - Update a category fully
-- `PATCH /categories/{id}` - Update a category
 - `DELETE /categories/{id}` - Delete a category
+
+**Profiles**
+- `GET /profiles` - List all profiles
+- `GET /profiles/{id}` - Get profiles by ID
+- `POST /profiles` - Create a new profile
+- `DELETE /profiles/{id}` - Delete a profile
 
 ## 🟢 Default Category Assignment in Transactions / Asignación automática de categoría por defecto
 
@@ -202,6 +209,8 @@ tests/
   budgets.test.js
   categories.test.js
   savings.test.js
+  profiles.test.js
+  auth.test.js
 ```
 ## 🛡️ Security
 
@@ -227,4 +236,4 @@ Sigue las instrucciones anteriores para instalar, configurar y ejecutar el proye
 ---
 
 Created for MoneyShield by Juan Carlos Sandomingo version © 2025
-Current date: Friday, June 20, 2025, 10:30 AM
+Current date: Friday, June 20, 2025, 12:00 PM

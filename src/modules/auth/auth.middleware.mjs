@@ -26,7 +26,7 @@ export function authenticate(req, res, next) {
 }
 
 
-// Para roles| For role-based authorization, we can use a middleware that checks if the user has the required role to access a specific route.
+// Para roles| For role-based authorization
 export function authorize(allowedRoles) {
   return (req, res, next) => {
     if (!req.user || !allowedRoles.includes(req.user.profile_id)) {
