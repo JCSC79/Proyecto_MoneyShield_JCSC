@@ -2,8 +2,6 @@
 
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
 export function authenticate(req, res, next) {
   const authHeader = req.header('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
@@ -11,19 +9,22 @@ export function authenticate(req, res, next) {
   }
   const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Adjuntamos el payload COMPLETO al request
+    req.user = {
+      id: decoded.id,
+      email: decoded.email,
+      profile_id: decoded.profile_id
+    };
     next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
       return res.status(401).json({ error: 'Token expired' });
     }
-    if (err.name === 'JsonWebTokenError') {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
-    res.status(401).json({ error: 'Invalid or expired token' });
+    res.status(401).json({ error: 'Invalid token' });
   }
 }
+
 
 // Para roles| For role-based authorization, we can use a middleware that checks if the user has the required role to access a specific route.
 export function authorize(allowedRoles) {
