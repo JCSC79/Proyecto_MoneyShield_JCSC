@@ -119,13 +119,11 @@ router.get('/:id', async (req, res) => {
  *         description: Invalid request | Solicitud inválida
  */
 router.post('/', async (req, res) => {
-  try {
-    // Nota: Si no se envía category_id, el service asignará automáticamente la categoría "Others"
-    // Note: If category_id is not sent, the service will automatically assign the "Others" category
-    const transaction = await transactionService.createTransaction(req.body);
-    res.status(201).json(transaction);
-  } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+  const result = await transactionService.createTransaction(req.body);
+  if (result.success) {
+    res.status(201).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -169,11 +167,11 @@ router.post('/', async (req, res) => {
  *         description: Transaction not found | Transacción no encontrada
  */
 router.put('/:id', async (req, res) => {
-  try {
-    await transactionService.updateTransaction(req.params.id, req.body);
-    res.json({ message: 'Transaction updated' });
-  } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+  const result = await transactionService.updateTransaction(req.params.id, req.body);
+  if (result.success) {
+    res.status(200).json({ message: 'Transaction updated' });
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -216,11 +214,11 @@ router.put('/:id', async (req, res) => {
  *         description: Transaction not found | Transacción no encontrada
  */
 router.patch('/:id', async (req, res) => {
-  try {
-    await transactionService.updateTransaction(req.params.id, req.body);
-    res.json({ message: 'Transaction patched' });
-  } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+  const result = await transactionService.updateTransaction(req.params.id, req.body);
+  if (result.success) {
+    res.status(200).json({ message: 'Transaction patched' });
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -243,11 +241,11 @@ router.patch('/:id', async (req, res) => {
  *         description: Transaction not found | Transacción no encontrada
  */
 router.delete('/:id', async (req, res) => {
-  try {
-    await transactionService.deleteTransaction(req.params.id);
-    res.json({ message: 'Transaction deleted' });
-  } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+  const result = await transactionService.deleteTransaction(req.params.id);
+  if (result.success) {
+    res.status(200).json({ message: 'Transaction deleted' });
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -271,15 +269,11 @@ router.delete('/:id', async (req, res) => {
  *         description: User balance | Balance del usuario
  */
 router.get('/report/balance', async (req, res) => {
-  try {
-    const user_id = Number(req.query.user_id);
-    if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
-    }
-    const balance = await transactionService.getUserBalance(user_id);
-    res.json({ balance });
-  } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+  const result = await transactionService.getUserBalance(req.query.user_id);
+  if (result.success) {
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -301,15 +295,11 @@ router.get('/report/balance', async (req, res) => {
  *         description: Expenses grouped by category | Gastos agrupados por categoría
  */
 router.get('/report/expenses-by-category', async (req, res) => {
-  try {
-    const user_id = Number(req.query.user_id);
-    if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
-    }
-    const data = await transactionService.getExpensesByCategory(user_id);
-    res.json(data);
-  } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+  const result = await transactionService.getExpensesByCategory(req.query.user_id);
+  if (result.success) { 
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -331,15 +321,11 @@ router.get('/report/expenses-by-category', async (req, res) => {
  *         description: Monthly expenses evolution | Evolución mensual de gastos
  */
 router.get('/report/monthly-expenses', async (req, res) => {
-  try {
-    const user_id = Number(req.query.user_id);
-    if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
-    }
-    const data = await transactionService.getMonthlyExpenses(user_id);
-    res.json(data);
-  } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+  const result = await transactionService.getMonthlyExpenses(req.query.user_id);
+  if (result.success) {
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -387,16 +373,14 @@ router.get('/report/monthly-expenses', async (req, res) => {
  *                     example: 400.00
  */
 router.get('/report/periodic-balance', async (req, res) => {
-  try {
-    const user_id = Number(req.query.user_id);
-    const period = req.query.period || 'week';
-    if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
-    }
-    const data = await transactionService.getPeriodicBalance(user_id, period);
-    res.json(data);
-  } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+  const result = await transactionService.getPeriodicBalance(
+    req.query.user_id,
+    req.query.period || 'week'
+  );
+  if (result.success) {
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -445,18 +429,19 @@ router.get('/report/periodic-balance', async (req, res) => {
  *                     example: 250.00
  */
 router.get('/report/top-categories', async (req, res) => {
-  try {
-    const user_id = Number(req.query.user_id);
-    const year = req.query.year ? Number(req.query.year) : undefined;
-    const month = req.query.month ? Number(req.query.month) : undefined;
-    const limit = req.query.limit ? Number(req.query.limit) : undefined;
-    if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
+  const { user_id, year, month, limit } = req.query;
+  const result = await transactionService.getTopCategories(
+    user_id,
+    {
+      year: year ? Number(year) : undefined,
+      month: month ? Number(month) : undefined,
+      limit: limit ? Number(limit) : 3
     }
-    const data = await transactionService.getTopCategories(user_id, { year, month, limit });
-    res.json(data);
-  } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+  );
+  if (result.success) {
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -505,18 +490,19 @@ router.get('/report/top-categories', async (req, res) => {
  *                     example: 120.00
  */
 router.get('/report/spending-patterns', async (req, res) => {
-  try {
-    const user_id = Number(req.query.user_id);
-    const year = req.query.year ? Number(req.query.year) : undefined;
-    const month = req.query.month ? Number(req.query.month) : undefined;
-    const mode = req.query.mode || 'week';
-    if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
+  const { user_id, year, month, mode } = req.query;
+  const result = await transactionService.getSpendingPatterns(
+    user_id,
+    {
+      year: year ? Number(year) : undefined,
+      month: month ? Number(month) : undefined,
+      mode: mode || 'week'
     }
-    const data = await transactionService.getSpendingPatterns(user_id, { year, month, mode });
-    res.json(data);
-  } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+  );
+  if (result.success) {
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 
@@ -554,15 +540,11 @@ router.get('/report/spending-patterns', async (req, res) => {
  *                   example: 7200.00
  */
 router.get('/report/forecast', async (req, res) => {
-  try {
-    const user_id = Number(req.query.user_id);
-    if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
-    }
-    const data = await transactionService.getMonthlyForecast(user_id);
-    res.json(data);
-  } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+  const result = await transactionService.getMonthlyForecast(req.query.user_id);
+  if (result.success) {
+    res.status(200).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
   }
 });
 

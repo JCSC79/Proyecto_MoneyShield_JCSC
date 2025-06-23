@@ -15,12 +15,21 @@ describe('Transactions API (full integration, extended)', () => {
   let createdTransactionId2;
   let othersCategoryId;
 
-  // Antes de los tests, obtenemos el id real de "Others"
+
   beforeAll(async () => {
-    const [rows] = await db.query('SELECT id FROM categories WHERE name = "Others" LIMIT 1');
-    if (!rows.length) throw new Error('Category "Others" must exist in the database for tests');
-    othersCategoryId = rows[0].id;
-  });
+  // Crear categoría "Others" si no existe
+  await db.query(`
+    INSERT INTO categories (name)
+    SELECT 'Others' FROM DUAL
+    WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name = 'Others')
+  `);
+
+  // Obtener el ID de la categoría "Others"
+  const [rows] = await db.query('SELECT id FROM categories WHERE name = "Others" LIMIT 1');
+  if (!rows.length) throw new Error('Category "Others" must exist in the database for tests');
+  othersCategoryId = rows[0].id;
+});
+
 
   // 1. Crear transacción válida con category_id
   it('should create a valid transaction with category_id', async () => {
