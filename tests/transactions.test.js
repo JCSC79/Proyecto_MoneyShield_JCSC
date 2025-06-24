@@ -359,6 +359,120 @@ describe('Transactions API (full integration, extended)', () => {
     expect(res.body).toHaveProperty('error');
   });
 
+  //=========================Test para funcionalidades especiales=========================
+
+// 31. Balance general después de transacciones
+it('should return correct user balance after income and expense transactions', async () => {
+  // Limpia transacciones previas del usuario de prueba
+  await db.query('DELETE FROM transactions WHERE user_id = ?', [validUserId]);
+
+  // 1. Crea ingreso
+  await request(app)
+    .post('/transactions')
+    .send({ user_id: validUserId, type_id: 1, category_id: validCategoryId, amount: 500, description: 'Ingreso' });
+
+  // 2. Crea gasto
+  await request(app)
+    .post('/transactions')
+    .send({ user_id: validUserId, type_id: 2, category_id: validCategoryId, amount: 200, description: 'Gasto' });
+
+  // 3. Consulta balance
+  const res = await request(app)
+    .get('/transactions/report/balance')
+    .query({ user_id: validUserId });
+
+  expect(res.statusCode).toBe(200);
+  expect(Number(res.body)).toBe(300); // Convertido a número para comparación
+});
+
+// 32. Gastos por categoría
+it('should return expenses grouped by category', async () => {
+  // Limpia transacciones previas
+  await db.query('DELETE FROM transactions WHERE user_id = ?', [validUserId]);
+
+  // Crea gastos
+  await request(app)
+    .post('/transactions')
+    .send({ user_id: validUserId, type_id: 2, category_id: validCategoryId, amount: 150 });
+  
+  await request(app)
+    .post('/transactions')
+    .send({ user_id: validUserId, type_id: 2, category_id: othersCategoryId, amount: 300 });
+
+  // Obtiene nombres reales de las categorías
+  const [cat1] = await db.query('SELECT name FROM categories WHERE id = ?', [validCategoryId]);
+  const [cat2] = await db.query('SELECT name FROM categories WHERE id = ?', [othersCategoryId]);
+  const cat1Name = cat1[0].name;
+  const cat2Name = cat2[0].name;
+
+  // Consulta reporte
+  const res = await request(app)
+    .get('/transactions/report/expenses-by-category')
+    .query({ user_id: validUserId });
+
+  expect(res.statusCode).toBe(200);
+  
+  // Filtra y normaliza
+  const testCategories = res.body.filter(item => 
+    [cat1Name, cat2Name].includes(item.category)
+  ).map(item => ({
+    category: item.category,
+    total: Number(item.total)
+  }));
+
+  // Verifica
+  expect(testCategories).toEqual(
+    expect.arrayContaining([
+      { category: cat1Name, total: 150 },
+      { category: cat2Name, total: 300 }
+    ])
+  );
+});
+
+// 33. Evolución mensual de gastos
+it('should return monthly expenses evolution', async () => {
+  // Limpia transacciones previas del usuario de prueba
+  await db.query('DELETE FROM transactions WHERE user_id = ?', [validUserId]);
+
+  const now = new Date();
+  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 15);
+
+  // Gasto en el mes pasado
+  await db.query(
+    `INSERT INTO transactions (user_id, type_id, category_id, amount, description, created_at)
+     VALUES (?, 2, ?, 100, 'Gasto mes pasado', ?)`,
+    [validUserId, validCategoryId, lastMonth]
+  );
+
+  // Gasto en el mes actual
+  await request(app)
+    .post('/transactions')
+    .send({ 
+      user_id: validUserId, 
+      type_id: 2, 
+      category_id: validCategoryId, 
+      amount: 200,
+      description: 'Gasto mes actual'
+    });
+
+  // Consulta reporte
+  const res = await request(app)
+    .get('/transactions/report/monthly-expenses')
+    .query({ user_id: validUserId });
+
+  expect(res.statusCode).toBe(200);
+
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+  const currentData = res.body.find(item => 
+    item.month === currentMonth && item.year === currentYear
+  );
+
+  expect(Number(currentData.total)).toBe(200); // Convertido a número
+});
+
+
+
   // Cierra el pool de la base de datos al final de todos los tests
   afterAll(async () => {
     await db.end();

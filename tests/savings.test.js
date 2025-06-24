@@ -185,4 +185,98 @@ describe('Savings API', () => {
     const res = await request(app).delete('/savings/999999');
     expect(res.statusCode).toBe(404);
   });
+
+//================Tests para funciones adicionales=================
+  // 14. Progreso de ahorros (con meta)
+it('should return savings progress with target', async () => {
+  // Crear ahorro con meta
+  const savingRes = await request(app)
+    .post('/savings')
+    .send({
+      user_id: testUserId,
+      type_id: testSavingType,
+      name: 'Ahorro con progreso',
+      amount: 500,
+      target_amount: 2000,
+      target_date: '2025-12-31'
+    });
+  const savingId = savingRes.body.id;
+
+  // Consulta progreso
+  const res = await request(app)
+    .get('/savings/report/progress')
+    .query({ user_id: testUserId });
+
+  expect(res.statusCode).toBe(200);
+  
+  // Busca el ahorro creado
+  const savingProgress = res.body.find(item => item.id === savingId);
+  expect(savingProgress).toBeDefined();
+  expect(Number(savingProgress.progress_percent)).toBe(25); // (500/2000)*100
+  expect(savingProgress.days_left).toBeGreaterThan(0);
+});
+
+// 15. Progreso de ahorros (sin meta)
+it('should return savings progress without target', async () => {
+  // Crea ahorro sin meta
+  const savingRes = await request(app)
+    .post('/savings')
+    .send({
+      user_id: testUserId,
+      type_id: testSavingType,
+      name: 'Ahorro sin meta',
+      amount: 300,
+      target_amount: null,
+      target_date: null
+    });
+  const savingId = savingRes.body.id;
+
+  // Consulta progreso
+  const res = await request(app)
+    .get('/savings/report/progress')
+    .query({ user_id: testUserId });
+
+  expect(res.statusCode).toBe(200);
+  
+  // Busca el ahorro creado
+  const savingProgress = res.body.find(item => item.id === savingId);
+  expect(savingProgress).toBeDefined();
+  expect(savingProgress.progress_percent).toBeNull();
+  expect(savingProgress.days_left).toBeNull();
+});
+
+// 16. Progreso de ahorros (actualización)
+it('should update progress after adding to savings', async () => {
+  // Crea ahorro
+  const savingRes = await request(app)
+    .post('/savings')
+    .send({
+      user_id: testUserId,
+      type_id: testSavingType,
+      name: 'Ahorro para actualizar',
+      amount: 1000,
+      target_amount: 5000,
+      target_date: '2026-06-01'
+    });
+  const savingId = savingRes.body.id;
+
+  // Actualiza monto
+  await request(app)
+    .patch(`/savings/${savingId}`)
+    .send({ amount: 2500 });
+
+  // Consulta progreso
+  const res = await request(app)
+    .get('/savings/report/progress')
+    .query({ user_id: testUserId });
+
+  expect(res.statusCode).toBe(200);
+  
+  // Verifica progreso actualizado
+  const savingProgress = res.body.find(item => item.id === savingId);
+  expect(Number(savingProgress.progress_percent)).toBe(50); // (2500/5000)*100
+
+
+});
+
 });

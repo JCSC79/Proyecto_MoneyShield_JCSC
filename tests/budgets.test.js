@@ -162,6 +162,86 @@ describe('Budgets API', () => {
     expect(res.body).toHaveProperty('error');
   });
 
+//=================Tests para funciones adicionales=================
+  // 13. Presupuesto restante por categoría
+it('should return correct remaining budget after expenses', async () => {
+  // Limpia transacciones y presupuestos previos
+  await db.query('DELETE FROM transactions WHERE user_id = ?', [validUserId]);
+  await db.query('DELETE FROM budgets WHERE user_id = ? AND category_id = ? AND year = ? AND month = ?', 
+    [validUserId, validCategoryId, 2025, 6]);
+
+  // Crea presupuesto mensual de 1000
+  await request(app)
+    .post('/budgets')
+    .send({
+      user_id: validUserId,
+      category_id: validCategoryId,
+      budget_type: 'monthly',
+      year: 2025,
+      month: 6,
+      amount: 1000
+    });
+
+  // Crea gasto de 300 en la misma categoría y mes
+  await db.query(
+    `INSERT INTO transactions (user_id, type_id, category_id, amount, description, created_at)
+     VALUES (?, 2, ?, 300, 'Gasto test', '2025-06-15')`,
+    [validUserId, validCategoryId]
+  );
+
+  // Consulta presupuesto restante
+  const res = await request(app)
+    .get('/budgets/report/remaining')
+    .query({ user_id: validUserId });
+
+  expect(res.statusCode).toBe(200);
+
+  // Busca la categoría de prueba
+  const cat = res.body.find(item => item.category_id === validCategoryId);
+  expect(cat).toBeDefined();
+  expect(Number(cat.budget)).toBe(1000);
+  expect(Number(cat.spent)).toBe(300);
+  expect(Number(cat.remaining)).toBe(700);
+});
+
+// 14. Alertas de presupuesto (threshold 25%)
+it('should return budget alerts when spent exceeds threshold', async () => {
+  // Limpia transacciones y presupuestos previos
+  await db.query('DELETE FROM transactions WHERE user_id = ?', [validUserId]);
+  await db.query('DELETE FROM budgets WHERE user_id = ? AND category_id = ? AND year = ? AND month = ?', 
+    [validUserId, validCategoryId, 2025, 6]);
+
+  // Crea presupuesto mensual de 400
+  await request(app)
+    .post('/budgets')
+    .send({
+      user_id: validUserId,
+      category_id: validCategoryId,
+      budget_type: 'monthly',
+      year: 2025,
+      month: 6,
+      amount: 400
+    });
+
+  // Crea gasto de 200 en la misma categoría y mes (50% del presupuesto)
+  await db.query(
+    `INSERT INTO transactions (user_id, type_id, category_id, amount, description, created_at)
+     VALUES (?, 2, ?, 200, 'Gasto test', '2025-06-10')`,
+    [validUserId, validCategoryId]
+  );
+
+  // Consulta alertas con threshold 25%
+  const res = await request(app)
+    .get('/budgets/report/alerts')
+    .query({ user_id: validUserId, threshold: 25 });
+
+  expect(res.statusCode).toBe(200);
+  // Debe aparecer la categoría en las alertas
+  const cat = res.body.find(item => item.category_id === validCategoryId);
+  expect(cat).toBeDefined();
+  expect(Number(cat.percentage_spent)).toBeGreaterThanOrEqual(50);
+});
+
 afterAll(async () => {
   // Limpieza final del presupuesto de prueba
   if (createdBudgetId) {

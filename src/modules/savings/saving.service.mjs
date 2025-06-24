@@ -179,7 +179,7 @@ export async function deleteSaving(id) {
  * Obtener progreso de ahorros de un usuario | Get savings progress for a user
  */
 export async function getSavingsProgress(user_id) {
-  const idValidation = validateId(id, 'user ID');
+  const idValidation = validateId(user_id, 'user ID');
   if (!idValidation.success) {
     return idValidation;
   }
