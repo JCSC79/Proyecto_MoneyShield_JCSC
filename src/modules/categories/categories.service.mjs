@@ -22,8 +22,9 @@ export async function getAllCategories() {
  */
 export async function getCategoryById(id) {
   const idValidation = validateId(id, 'category ID');
-  if (!idValidation.success) return idValidation;
-
+  if (!idValidation.success) {
+    return idValidation;
+  }
   try {
     const category = await categoryDao.getCategoryById(id);
     return category
@@ -59,8 +60,9 @@ export async function createCategory({ name }) {
  */
 export async function updateCategory(id, { name }) {
   const idValidation = validateId(id, 'category ID');
-  if (!idValidation.success) return idValidation;
-
+  if (!idValidation.success) {
+    return idValidation;
+  }
   if (!isNonEmptyString(name)) {
     return Result.Fail('Category name is required', 400);
   }
@@ -80,8 +82,9 @@ export async function updateCategory(id, { name }) {
  */
 export async function deleteCategory(id) {
   const idValidation = validateId(id, 'category ID');
-  if (!idValidation.success) return idValidation;
-
+  if (!idValidation.success) {
+    return idValidation;
+  }
   try {
     const deleted = await categoryDao.deleteCategory(id);
     return deleted

@@ -68,11 +68,15 @@ export async function createBudget(data, connection = db) {
 
 export async function updateBudget(id, fields, connection = db) {
   const numId = Number(id);
-  if (!Number.isInteger(numId) || numId <= 0) return false;
+  if (!Number.isInteger(numId) || numId <= 0) {
+    return false;
+  }
   const validFields = Object.keys(fields)
     .filter(key => ALLOWED_UPDATE_FIELDS.has(key))
     .reduce((obj, key) => { obj[key] = fields[key]; return obj; }, {});
-  if (Object.keys(validFields).length === 0) return false;
+  if (Object.keys(validFields).length === 0) {
+    return false;
+  }
   const setClause = Object.keys(validFields).map(key => `${key} = ?`).join(', ');
   const values = [...Object.values(validFields), numId];
   const [result] = await connection.query(
@@ -84,7 +88,9 @@ export async function updateBudget(id, fields, connection = db) {
 
 export async function deleteBudget(id, connection = db) {
   const numId = Number(id);
-  if (!Number.isInteger(numId) || numId <= 0) return false;
+  if (!Number.isInteger(numId) || numId <= 0) {
+    return false;
+  }
   const [result] = await connection.query('DELETE FROM budgets WHERE id = ?', [numId]);
   return result.affectedRows > 0;
 }
@@ -94,6 +100,7 @@ export async function userExists(user_id, connection = db) {
   const [rows] = await connection.query('SELECT id FROM users WHERE id = ?', [user_id]);
   return rows.length > 0;
 }
+
 export async function categoryExists(category_id, connection = db) {
   const [rows] = await connection.query('SELECT id FROM categories WHERE id = ?', [category_id]);
   return rows.length > 0;

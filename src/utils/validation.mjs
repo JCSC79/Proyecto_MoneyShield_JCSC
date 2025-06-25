@@ -3,6 +3,7 @@
 // This module provides utility functions for validating various types of input.
 // Este módulo proporciona funciones utilitarias para validar varios tipos de entrada.
 import { Result } from '../utils/result.mjs'; // Importamos la clase Result para manejar resultados de operaciones | Import Result class to handle operation results
+import { MAX_AMOUNT, DECIMAL_PRECISION } from '../constants/financial.mjs'; // Importamos constantes financieras para validaciones | Import financial constants for validations
 
 // Validamos si el ID es un número entero positivo | Validate if the ID is a positive integer
 export function isValidId(id) {
@@ -95,4 +96,41 @@ export function validateSavingData(data, isUpdate = false) {
   return Result.Success(true);
 }
 
+// Validación genérica de user_id
+export function validateUserId(user_id) {
+  if (!user_id || isNaN(user_id) || user_id <= 0) {
+    return Result.Fail('Invalid user ID', 400);
+  }
+  return Result.Success(Number(user_id));
+}
+
+export async function validateTransactionData(data, transactionDao) {
+  // Validar relaciones
+  if (data.user_id) {
+    const userExists = await transactionDao.userExists(data.user_id);
+    if (!userExists) return Result.Fail('User does not exist', 400);
+  }
+
+  if (data.type_id) {
+    const typeExists = await transactionDao.typeExists(data.type_id);
+    if (!typeExists) return Result.Fail('Transaction type does not exist', 400);
+  }
+
+  if (data.category_id) {
+    const categoryExists = await transactionDao.categoryExists(data.category_id);
+    if (!categoryExists) return Result.Fail('Category does not exist', 400);
+  }
+
+  // Validar monto
+  if (data.amount) {
+    if (!isAmountInRange(data.amount, MAX_AMOUNT, DECIMAL_PRECISION)) {
+      return Result.Fail(
+        `Amount must be positive, up to $${MAX_AMOUNT} with ${DECIMAL_PRECISION} decimals`,
+        400
+      );
+    }
+  }
+
+  return Result.Success(true);
+}
 

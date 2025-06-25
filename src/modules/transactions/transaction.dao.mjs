@@ -100,7 +100,7 @@ export async function updateTransaction(id, fields, connection = db) {
     return false;
   }
   
-  // Filtrar campos permitidos | Filter allowed fields
+  // Filtra campos permitidos | Filter allowed fields
   const validFields = Object.keys(fields)
     .filter(key => ALLOWED_UPDATE_FIELDS.has(key))
     .reduce((obj, key) => {
