@@ -66,3 +66,33 @@ export function isValidEnumValue(value, allowedValues) {
   return Array.isArray(allowedValues) && allowedValues.includes(value);
 }
 
+// Validación específica para datos de ahorro | Specific validation for savings data
+export function validateSavingData(data, isUpdate = false) {
+  const REQUIRED_FIELDS = ['user_id', 'type_id', 'name', 'amount'];
+  if (!isUpdate) {
+    const missingField = checkRequiredFields(data, REQUIRED_FIELDS);
+    if (missingField) {
+      return Result.Fail(`Missing required field: ${missingField}`, 400);
+    }
+  }
+  if (data.amount !== undefined && !isPositiveNumber(data.amount)) {
+    return Result.Fail('Amount must be a positive number', 400);
+  }
+  if (data.target_amount !== undefined && data.target_amount !== null && !isPositiveNumber(data.target_amount)) {
+    return Result.Fail('Target amount must be a positive number', 400);
+  }
+  if (data.target_date && !isValidDate(data.target_date)) {
+    return Result.Fail('Invalid target date', 400);
+  }
+  if (
+    data.target_amount !== undefined &&
+    data.target_amount !== null &&
+    data.amount !== undefined &&
+    data.target_amount <= data.amount
+  ) {
+    return Result.Fail('Target amount must be greater than current amount', 400);
+  }
+  return Result.Success(true);
+}
+
+

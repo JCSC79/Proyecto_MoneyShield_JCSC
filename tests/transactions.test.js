@@ -413,7 +413,7 @@ it('should return expenses grouped by category', async () => {
   expect(res.statusCode).toBe(200);
   
   // Filtra y normaliza
-  const testCategories = res.body.filter(item => 
+  const testCategories = res.body.filter(item =>
     [cat1Name, cat2Name].includes(item.category)
   ).map(item => ({
     category: item.category,
@@ -447,10 +447,10 @@ it('should return monthly expenses evolution', async () => {
   // Gasto en el mes actual
   await request(app)
     .post('/transactions')
-    .send({ 
-      user_id: validUserId, 
-      type_id: 2, 
-      category_id: validCategoryId, 
+    .send({
+      user_id: validUserId,
+      type_id: 2,
+      category_id: validCategoryId,
       amount: 200,
       description: 'Gasto mes actual'
     });
@@ -464,7 +464,7 @@ it('should return monthly expenses evolution', async () => {
 
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
-  const currentData = res.body.find(item => 
+  const currentData = res.body.find(item =>
     item.month === currentMonth && item.year === currentYear
   );
 

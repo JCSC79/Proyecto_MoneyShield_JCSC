@@ -1,42 +1,8 @@
 // src/modules/savings/saving.service.mjs
 
 import * as savingsDao from './saving.dao.mjs';
-import { validateId, checkRequiredFields, isPositiveNumber, isValidDate } from '../../utils/validation.mjs';
+import { validateId, validateSavingData, isPositiveNumber, isValidDate } from '../../utils/validation.mjs';
 import { Result } from '../../utils/result.mjs';
-
-
-// Campos requeridos para creación | Required fields for creation
-const REQUIRED_FIELDS = ['user_id', 'type_id', 'name', 'amount'];
-
-/**
- * Validar datos de ahorro | Validate saving data
- */
-export function validateSavingData(data, isUpdate = false) {
-  if (!isUpdate) {
-    const missingField = checkRequiredFields(data, REQUIRED_FIELDS);
-    if (missingField) {
-      return Result.Fail(`Missing required field: ${missingField}`, 400);
-    }
-  }
-  if (data.amount !== undefined && !isPositiveNumber(data.amount)) {
-    return Result.Fail('Amount must be a positive number', 400);
-  }
-  if (data.target_amount !== undefined && data.target_amount !== null && !isPositiveNumber(data.target_amount)) {
-    return Result.Fail('Target amount must be a positive number', 400);
-  }
-  if (data.target_date && !isValidDate(data.target_date)) {
-    return Result.Fail('Invalid target date', 400);
-  }
-  if (
-    data.target_amount !== undefined &&
-    data.target_amount !== null &&
-    data.amount !== undefined &&
-    data.target_amount <= data.amount
-  ) {
-    return Result.Fail('Target amount must be greater than current amount', 400);
-  }
-  return Result.Success(true);
-}
 
 /**
  * Obtener todos los ahorros de un usuario | Get all savings for a user
