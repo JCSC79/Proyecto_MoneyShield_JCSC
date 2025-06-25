@@ -2,9 +2,9 @@
 
 import express from 'express';
 import * as budgetService from './budget.service.mjs';
+import { validateIdParam } from '../../middlewares/validateParams.middleware.mjs';
 
 const router = express.Router();
-
 
 /**
  * @swagger
@@ -49,7 +49,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-
 /**
  * @swagger
  * /budgets/{id}:
@@ -67,7 +66,7 @@ router.get('/', async (req, res) => {
  *       404:
  *         description: Budget not found | Presupuesto no encontrado
  */
-router.get('/:id', async (req, res) => {
+router.get('/:id', validateIdParam, async (req, res) => {
   const result = await budgetService.getBudgetById(req.params.id);
   if (result.success) {
     res.status(200).json(result.data);
@@ -75,7 +74,6 @@ router.get('/:id', async (req, res) => {
     res.status(result.error.code).json({ error: result.error.message });
   }
 });
-
 
 /**
  * @swagger
@@ -113,7 +111,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-
 /**
  * @swagger
  * /budgets/{id}:
@@ -145,7 +142,7 @@ router.post('/', async (req, res) => {
  *       404:
  *         description: Budget not found | Presupuesto no encontrado
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id', validateIdParam, async (req, res) => {
   const result = await budgetService.updateBudget(req.params.id, req.body);
   if (result.success) {
     res.status(200).json({ message: 'Budget updated' });
@@ -184,7 +181,7 @@ router.put('/:id', async (req, res) => {
  *       404:
  *         description: Budget not found | Presupuesto no encontrado
  */
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', validateIdParam, async (req, res) => {
   const result = await budgetService.updateBudget(req.params.id, req.body);
   if (result.success) {
     res.status(200).json({ message: 'Budget patched' });
@@ -210,7 +207,7 @@ router.patch('/:id', async (req, res) => {
  *       404:
  *         description: Budget not found | Presupuesto no encontrado
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', validateIdParam, async (req, res) => {
   const result = await budgetService.deleteBudget(req.params.id);
   if (result.success) {
     res.status(200).json({ message: 'Budget deleted' });
@@ -270,7 +267,6 @@ router.get('/report/remaining', async (req, res) => {
   }
 });
 
-
 /**
  * @swagger
  * /budgets/report/alerts:
@@ -327,6 +323,5 @@ router.get('/report/alerts', async (req, res) => {
     res.status(result.error.code).json({ error: result.error.message });
   }
 });
-
 
 export default router;

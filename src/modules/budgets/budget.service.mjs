@@ -5,7 +5,6 @@ import db from '../../db/DBHelper.mjs';
 import { Result } from '../../utils/result.mjs';
 import { checkRequiredFields, isValidId, isPositiveNumber } from '../../utils/validation.mjs';
 
-
 export async function getAllBudgets(filter) {
   try {
     const budgets = await budgetDao.getAllBudgets(filter);
@@ -17,9 +16,6 @@ export async function getAllBudgets(filter) {
 }
 
 export async function getBudgetById(id) {
-  if (!isValidId(id)) {
-    return Result.Fail('Invalid budget ID', 400);
-  }
   const budget = await budgetDao.getBudgetById(Number(id));
   return budget
     ? Result.Success(budget)
@@ -75,9 +71,6 @@ export async function createBudget(data) {
 }
 
 export async function updateBudget(id, fields) {
-  if (!isValidId(id)) {
-    return Result.Fail('Invalid budget ID', 400);
-  }
   if (fields.amount && !isPositiveNumber(fields.amount)) {
     return Result.Fail('Amount must be a positive number', 400);
   }
@@ -109,9 +102,6 @@ export async function updateBudget(id, fields) {
 }
 
 export async function deleteBudget(id) {
-  if (!isValidId(id)) {
-    return Result.Fail('Invalid budget ID', 400);
-  }
   try {
     const deleted = await budgetDao.deleteBudget(Number(id));
     return deleted

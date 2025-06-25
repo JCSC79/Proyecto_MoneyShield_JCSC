@@ -3,6 +3,7 @@
 import express from 'express';
 import * as profileService from './profile.service.mjs';
 import { authenticate, authorize } from '../auth/auth.middleware.mjs';
+import { validateIdParam } from '../../middlewares/validateParams.middleware.mjs';
 
 const router = express.Router();
 
@@ -183,7 +184,7 @@ router.post('/', authenticate, authorize([1]), async (req, res) => {
  *                   type: string
  *                   example: "Forbidden"
  */
-router.get('/:id', authenticate, authorize([1]), async (req, res) => {
+router.get('/:id', validateIdParam, authenticate, authorize([1]), async (req, res) => {
   const result = await profileService.getProfileById(req.params.id);
   if (result.success) {
     res.status(200).json(result.data);
@@ -250,7 +251,7 @@ router.get('/:id', authenticate, authorize([1]), async (req, res) => {
  *                   type: string
  *                   example: "Forbidden"
  */
-router.delete('/:id', authenticate, authorize([1]), async (req, res) => {
+router.delete('/:id', validateIdParam, authenticate, authorize([1]), async (req, res) => {
   const result = await profileService.deleteProfile(req.params.id);
   if (result.success) {
     res.status(200).json({ message: 'Profile deleted' });

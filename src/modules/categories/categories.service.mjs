@@ -2,7 +2,7 @@
 
 import * as categoryDao from './categories.dao.mjs';
 import { Result } from '../../utils/result.mjs';
-import { validateId, isNonEmptyString } from '../../utils/validation.mjs';
+import { isNonEmptyString } from '../../utils/validation.mjs';
 
 /**
  * Obtener todas las categorías | Get all categories
@@ -21,10 +21,6 @@ export async function getAllCategories() {
  * Obtener categoría por ID | Get category by ID
  */
 export async function getCategoryById(id) {
-  const idValidation = validateId(id, 'category ID');
-  if (!idValidation.success) {
-    return idValidation;
-  }
   try {
     const category = await categoryDao.getCategoryById(id);
     return category
@@ -59,10 +55,6 @@ export async function createCategory({ name }) {
  * Actualizar categoría | Update category
  */
 export async function updateCategory(id, { name }) {
-  const idValidation = validateId(id, 'category ID');
-  if (!idValidation.success) {
-    return idValidation;
-  }
   if (!isNonEmptyString(name)) {
     return Result.Fail('Category name is required', 400);
   }
@@ -81,10 +73,6 @@ export async function updateCategory(id, { name }) {
  * Eliminar categoría | Delete category
  */
 export async function deleteCategory(id) {
-  const idValidation = validateId(id, 'category ID');
-  if (!idValidation.success) {
-    return idValidation;
-  }
   try {
     const deleted = await categoryDao.deleteCategory(id);
     return deleted

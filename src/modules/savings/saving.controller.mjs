@@ -2,6 +2,7 @@
 
 import express from 'express';
 import * as savingsService from './saving.service.mjs';
+import { validateIdParam } from '../../middlewares/validateParams.middleware.mjs';
 
 const router = express.Router();
 
@@ -11,7 +12,6 @@ const router = express.Router();
  *   name: Savings
  *   description: Savings management | Gestión de ahorros
  */
-
 
 /**
  * @swagger
@@ -57,7 +57,7 @@ router.get('/', async (req, res) => {
  *       404:
  *         description: Saving not found | Ahorro no encontrado
  */
-router.get('/:id', async (req, res) => {
+router.get('/:id', validateIdParam, async (req, res) => {
   const result = await savingsService.getSavingById(req.params.id);
   if (result.success) {
     res.status(200).json(result.data);
@@ -156,7 +156,7 @@ router.post('/', async (req, res) => {
  *       404:
  *         description: Saving not found | Ahorro no encontrado
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id', validateIdParam, async (req, res) => {
   const result = await savingsService.updateSaving(req.params.id, req.body);
   if (result.success) {
     res.status(200).json({ message: 'Saving updated' });
@@ -196,7 +196,7 @@ router.put('/:id', async (req, res) => {
  *       400:
  *         description: Invalid request | Solicitud inválida
  */
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', validateIdParam, async (req, res) => {
   const result = await savingsService.patchSaving(req.params.id, req.body);
   if (result.success) {
     res.status(200).json({ message: 'Saving patched' });
@@ -223,7 +223,7 @@ router.patch('/:id', async (req, res) => {
  *       404:
  *         description: Saving not found | Ahorro no encontrado
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', validateIdParam, async (req, res) => {
   const result = await savingsService.deleteSaving(req.params.id);
   if (result.success) {
     res.status(200).json({ message: 'Saving deleted' });

@@ -25,10 +25,6 @@ export async function getAllSavings(user_id) {
  * Obtener ahorro por ID | Get saving by ID
  */
 export async function getSavingById(id) {
-  const idValidation = validateId(id, 'saving ID');
-  if (!idValidation.success) {
-    return idValidation;
-  }
   try {
     const saving = await savingsDao.getSavingById(id);
     return saving
@@ -61,10 +57,6 @@ export async function createSaving(data) {
  * Actualizar completamente un ahorro | Fully update a saving
  */
 export async function updateSaving(id, data) {
-  const idValidation = validateId(id, 'saving ID');
-  if (!idValidation.success) {
-    return idValidation;
-  }
   const validation = validateSavingData(data, true);
   if (!validation.success) {
     return validation;
@@ -84,10 +76,6 @@ export async function updateSaving(id, data) {
  * Actualizar parcialmente un ahorro | Partially update a saving
  */
 export async function patchSaving(id, fields) {
-  const idValidation = validateId(id, 'saving ID');
-  if (!idValidation.success) {
-    return idValidation;
-  }
   const allowedFields = ['type_id', 'name', 'amount', 'target_amount', 'target_date'];
   const keys = Object.keys(fields).filter(k => allowedFields.includes(k));
   if (keys.length === 0) {
@@ -126,10 +114,6 @@ export async function patchSaving(id, fields) {
  * Eliminar un ahorro | Delete a saving
  */
 export async function deleteSaving(id) {
-  const idValidation = validateId(id, 'saving ID');
-  if (!idValidation.success) {
-    return idValidation;
-  }
   try {
     const deleted = await savingsDao.deleteSaving(id);
     return deleted

@@ -2,6 +2,7 @@
 
 import express from 'express';
 import * as categoryService from './categories.service.mjs';
+import { validateIdParam } from '../../middlewares/validateParams.middleware.mjs';
 
 const router = express.Router();
 
@@ -48,7 +49,7 @@ router.get('/', async (req, res) => {
  *       404:
  *         description: Category not found | Categoría no encontrada
  */
-router.get('/:id', async (req, res) => {
+router.get('/:id', validateIdParam, async (req, res) => {
   const result = await categoryService.getCategoryById(req.params.id);
   if (result.success) {
     res.status(200).json(result.data);
@@ -115,7 +116,7 @@ router.post('/', async (req, res) => {
  *       404:
  *         description: Category not found | Categoría no encontrada
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id', validateIdParam, async (req, res) => {
   const result = await categoryService.updateCategory(req.params.id, req.body);
   if (result.success) {
     res.status(200).json({ message: 'Category updated' });
@@ -141,7 +142,7 @@ router.put('/:id', async (req, res) => {
  *       404:
  *         description: Category not found | Categoría no encontrada
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', validateIdParam, async (req, res) => {
   const result = await categoryService.deleteCategory(req.params.id);
   if (result.success) {
     res.status(200).json({ message: 'Category deleted' });

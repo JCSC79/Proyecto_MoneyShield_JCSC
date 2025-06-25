@@ -3,11 +3,10 @@
 import * as transactionDao from './transaction.dao.mjs';
 import db from '../../db/DBHelper.mjs';
 import { Result } from '../../utils/result.mjs';
-import { validateId, validateUserId, validateTransactionData, checkRequiredFields } from '../../utils/validation.mjs';
+import { validateUserId, validateTransactionData, checkRequiredFields } from '../../utils/validation.mjs';
 import { DEFAULT_CATEGORY_NAME } from '../../constants/financial.mjs';
 
 let othersCategoryId = null;
-
 
 // Helper: Obtener ID de categoría "Others"
 async function getOthersCategoryId() {
@@ -50,10 +49,6 @@ export async function getAllTransactions(filter) {
 }
 
 export async function getTransactionById(id) {
-  const idValidation = validateId(id, 'transaction ID');
-  if (!idValidation.success) {
-    return idValidation;
-  }
   try {
     const transaction = await transactionDao.getTransactionById(Number(id));
     return transaction
@@ -98,10 +93,6 @@ export async function createTransaction(data) {
 }
 
 export async function updateTransaction(id, fields) {
-  const idValidation = validateId(id, 'transaction ID');
-  if (!idValidation.success) {
-    return idValidation;
-  }
   const ALLOWED_FIELDS = ['user_id', 'type_id', 'category_id', 'amount', 'description'];
   const validKeys = Object.keys(fields).filter(k => ALLOWED_FIELDS.includes(k));
   if (validKeys.length === 0) {
@@ -124,10 +115,6 @@ export async function updateTransaction(id, fields) {
 }
 
 export async function deleteTransaction(id) {
-  const idValidation = validateId(id, 'transaction ID');
-  if (!idValidation.success) {
-    return idValidation;
-  }
   try {
     const deleted = await transactionDao.deleteTransaction(Number(id));
     return deleted

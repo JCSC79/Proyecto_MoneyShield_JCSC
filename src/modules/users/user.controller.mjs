@@ -1,8 +1,9 @@
 // src/modules/users/user.controller.mjs
 
-import express from 'express'; // Importar express | Importar el servicio de usuario
-import * as userService from './user.service.mjs'; // Importar el servicio de usuario | Import user service
-import { authenticate, authorize } from '../auth/auth.middleware.mjs'; // Importar middleware de autenticación y autorización | Import authentication and authorization middleware
+import express from 'express'; // Importamos express | Import el servicio de usuario
+import * as userService from './user.service.mjs'; // Importamos el servicio de usuario | Import user service
+import { authenticate, authorize } from '../auth/auth.middleware.mjs'; // Importamos middleware de autenticación y autorización | Import authentication and authorization middleware
+import { validateIdParam } from '../../middlewares/validateParams.middleware.mjs'; // Importamos middleware de validación de parámetros | Import parameter validation middleware
 
 const router = express.Router(); // Crear un router de Express | Create an Express router
 
@@ -59,7 +60,7 @@ router.get('/', authenticate, authorize([1]), async (req, res) => {
  *       404:
  *         description: User not found | Usuario no encontrado
  */
-router.get('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
+router.get('/:id', validateIdParam, authenticate, allowSelfOrAdmin, async (req, res) => {
   const result = await userService.getUserById(req.params.id);
   result.success
     ? res.status(200).json(result.data)
@@ -148,7 +149,7 @@ router.post('/', async (req, res) => {
  *       409:
  *         description: Email already exists | El email ya existe
  */
-router.put('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
+router.put('/:id', validateIdParam, authenticate, allowSelfOrAdmin, async (req, res) => {
   const result = await userService.editUser(req.params.id, req.body);
   result.success
     ? res.status(200).json({ message: 'User updated' })
@@ -196,7 +197,7 @@ router.put('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
  *       409:
  *         description: Email already exists | El email ya existe
  */
-router.patch('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
+router.patch('/:id', validateIdParam, authenticate, allowSelfOrAdmin, async (req, res) => {
   const result = await userService.patchUser(req.params.id, req.body);
   result.success
     ? res.status(200).json({ message: 'User patched' })
@@ -221,7 +222,7 @@ router.patch('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
  *       404:
  *         description: User not found | Usuario no encontrado
  */
-router.delete('/:id', authenticate, allowSelfOrAdmin, async (req, res) => {
+router.delete('/:id', validateIdParam, authenticate, allowSelfOrAdmin, async (req, res) => {
   const result = await userService.deleteUser(req.params.id);
   result.success
     ? res.status(200).json({ message: 'User deleted' })
