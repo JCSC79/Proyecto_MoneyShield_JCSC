@@ -5,6 +5,7 @@ import db from '../../db/DBHelper.mjs';
 import { Result } from '../../utils/result.mjs';
 import { validateUserId, validateTransactionData, checkRequiredFields } from '../../utils/validation.mjs';
 import { DEFAULT_CATEGORY_NAME } from '../../constants/financial.mjs';
+import { Errors } from '../../constants/errorMessages.mjs'; // Importamos los mensajes centralizados | Import centralized error messages
 
 let othersCategoryId = null;
 
@@ -30,7 +31,7 @@ async function getOthersCategoryId() {
       return Result.Success(othersCategoryId);
     } catch (error) {
       console.error('Error en getOthersCategoryId:', error);
-      return Result.Fail('Error fetching Others category', 500);
+      return Result.Fail(Errors.INTERNAL, 500); // Usamos el mensaje de error centralizado 26 de junio
     }
   }
   return Result.Success(othersCategoryId);
@@ -44,7 +45,7 @@ export async function getAllTransactions(filter) {
     return Result.Success(transactions);
   } catch (error) {
     console.error('Error en getAllTransactions:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Usamos el mensaje de error centralizado 26 de junio
   }
 }
 
@@ -53,10 +54,10 @@ export async function getTransactionById(id) {
     const transaction = await transactionDao.getTransactionById(Number(id));
     return transaction
       ? Result.Success(transaction)
-      : Result.Fail('Transaction not found', 404);
+      : Result.Fail(Errors.NOT_FOUND('Transaction'), 404); // Usamos el mensaje de error centralizado 26 de junio
   } catch (error) {
     console.error('Error en getTransactionById:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Usamos el mensaje de error centralizado 26 de junio
   }
 }
 
@@ -65,7 +66,7 @@ export async function createTransaction(data) {
   const requiredFields = ['user_id', 'type_id', 'amount'];
   const missingField = checkRequiredFields(data, requiredFields);
   if (missingField) {
-    return Result.Fail(`Missing required field: ${missingField}`, 400);
+    return Result.Fail(Errors.MISSING_FIELD(missingField), 400); // Usamos el mensaje de error centralizado 26 de junio
   }
 
   // Asigna categoría 'Others' si es necesario
@@ -88,7 +89,7 @@ export async function createTransaction(data) {
     return Result.Success(transaction);
   } catch (error) {
     console.error('Error en createTransaction:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Usamos el mensaje de error centralizado 26 de junio
   }
 }
 
@@ -96,7 +97,7 @@ export async function updateTransaction(id, fields) {
   const ALLOWED_FIELDS = ['user_id', 'type_id', 'category_id', 'amount', 'description'];
   const validKeys = Object.keys(fields).filter(k => ALLOWED_FIELDS.includes(k));
   if (validKeys.length === 0) {
-    return Result.Fail('No valid fields to update', 400);
+    return Result.Fail(Errors.INVALID_UPDATE, 400); // Usamos el mensaje de error centralizado 26 de junio
   }
   // Valida datos actualizados
   const validationResult = await validateTransactionData(fields, transactionDao);
@@ -107,10 +108,10 @@ export async function updateTransaction(id, fields) {
     const updated = await transactionDao.updateTransaction(Number(id), fields);
     return updated
       ? Result.Success(true)
-      : Result.Fail('Transaction not found', 404);
+      : Result.Fail(Errors.NOT_FOUND('Transaction'), 404); // Usamos el mensaje de error centralizado 26 de junio
   } catch (error) {
     console.error('Error en updateTransaction:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Usamos el mensaje de error centralizado 26 de junio
   }
 }
 
@@ -119,10 +120,10 @@ export async function deleteTransaction(id) {
     const deleted = await transactionDao.deleteTransaction(Number(id));
     return deleted
       ? Result.Success(true)
-      : Result.Fail('Transaction not found', 404);
+      : Result.Fail(Errors.NOT_FOUND('Transaction'), 404); // Usamos el mensaje de error centralizado 26 de junio
   } catch (error) {
     console.error('Error en deleteTransaction:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Usamos el mensaje de error centralizado 26 de junio
   }
 }
 
@@ -138,7 +139,7 @@ export async function getUserBalance(user_id) {
     return Result.Success(balance);
   } catch (error) {
     console.error('Error en getUserBalance:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Usamos el mensaje de error centralizado 26 de junio
   }
 }
 
@@ -152,7 +153,7 @@ export async function getExpensesByCategory(user_id) {
     return Result.Success(data);
   } catch (error) {
     console.error('Error en getExpensesByCategory:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Usamos el mensaje de error centralizado 26 de junio
   }
 }
 
@@ -166,7 +167,7 @@ export async function getMonthlyExpenses(user_id) {
     return Result.Success(data);
   } catch (error) {
     console.error('Error en getMonthlyExpenses:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Usamos el mensaje de error centralizado 26 de junio
   }
 }
 
@@ -176,14 +177,14 @@ export async function getPeriodicBalance(user_id, period = 'week') {
     return idValidation;
   }
   if (!['week', 'month'].includes(period)) {
-    return Result.Fail('Invalid period (must be "week" or "month")', 400);
+    return Result.Fail(Errors.INVALID_PERIOD, 400); // Usamos el mensaje de error centralizado 26 de junio
   }
   try {
     const data = await transactionDao.getPeriodicBalance(idValidation.data, period);
     return Result.Success(data);
   } catch (error) {
     console.error('Error en getPeriodicBalance:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Usamos el mensaje de error centralizado 26 de junio
   }
 }
 
@@ -193,20 +194,20 @@ export async function getTopCategories(user_id, { year, month, limit } = {}) {
     return idValidation;
   }
   if (year && (isNaN(year) || year < 2000 || year > 2100)) {
-    return Result.Fail('Invalid year', 400);
+    return Result.Fail(Errors.INVALID_YEAR, 400); // Usamos el mensaje de error centralizado 26 de junio
   }
   if (month && (isNaN(month) || month < 1 || month > 12)) {
-    return Result.Fail('Invalid month', 400);
+    return Result.Fail(Errors.INVALID_MONTH, 400); // Usamos el mensaje de error centralizado 26 de junio
   }
   if (limit && (isNaN(limit) || limit < 1 || limit > 20)) {
-    return Result.Fail('Invalid limit', 400);
+    return Result.Fail(Errors.INVALID_LIMIT, 400); // Usamos el mensaje de error centralizado 26 de junio
   }
   try {
     const data = await transactionDao.getTopCategories(idValidation.data, { year, month, limit });
     return Result.Success(data);
   } catch (error) {
     console.error('Error en getTopCategories:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Usamos el mensaje de error centralizado 26 de junio
   }
 }
 
@@ -216,20 +217,20 @@ export async function getSpendingPatterns(user_id, { year, month, mode } = {}) {
     return idValidation;
   }
   if (year && (isNaN(year) || year < 2000 || year > 2100)) {
-    return Result.Fail('Invalid year', 400);
+    return Result.Fail(Errors.INVALID_YEAR, 400); // Usamos el mensaje de error centralizado 26 de junio
   }
   if (month && (isNaN(month) || month < 1 || month > 12)) {
-    return Result.Fail('Invalid month', 400);
+    return Result.Fail(Errors.INVALID_MONTH, 400); // Usamos el mensaje de error centralizado 26 de junio
   }
   if (mode && !['week', 'month'].includes(mode)) {
-    return Result.Fail('Invalid mode (must be "week" or "month")', 400);
+    return Result.Fail(Errors.INVALID_MODE, 400); // Usamos el mensaje de error centralizado 26 de junio
   }
   try {
     const data = await transactionDao.getSpendingPatterns(idValidation.data, { year, month, mode });
     return Result.Success(data);
   } catch (error) {
     console.error('Error en getSpendingPatterns:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Usamos el mensaje de error centralizado 26 de junio
   }
 }
 
@@ -243,6 +244,6 @@ export async function getMonthlyForecast(user_id) {
     return Result.Success(data);
   } catch (error) {
     console.error('Error en getMonthlyForecast:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Usamos el mensaje de error centralizado 26 de junio
   }
 }

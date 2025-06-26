@@ -114,7 +114,7 @@ describe('Users API (con autenticación JWT)', () => {
       .get('/users/999999')
       .set('Authorization', `Bearer ${adminToken}`);
     expect(res.statusCode).toBe(404);
-    expect(res.body.error).toMatch(/not found/i);
+    expect(res.body.error).toMatch('User not found');
   });
 
   // 9. PUT: full update (admin)
@@ -156,6 +156,7 @@ describe('Users API (con autenticación JWT)', () => {
       .delete('/users/999999')
       .set('Authorization', `Bearer ${adminToken}`);
     expect(res.statusCode).toBe(404);
+    expect(res.body.error).toBe('User not found');
   });
 
   afterAll(async () => {

@@ -5,8 +5,7 @@ import db from '../../db/DBHelper.mjs';
 import bcrypt from 'bcryptjs'; // Librería para encriptar contraseñas | Library for password hashing
 import { Result } from '../../utils/result.mjs'; // Importa clase Result para manejar resultados de operaciones | Import Result class to handle operation results
 import { isValidEmail, isStrongPassword, checkRequiredFields } from '../../utils/validation.mjs'; // Importa funciones de validación | Import validation functions
-
-
+import { Errors } from '../../constants/errorMessages.mjs'; // Importa los mensajes centralizados | Import centralized error messages
 
 // Campos permitidos para actualización parcial | Allowed fields for partial update
 const ALLOWED_PATCH_FIELDS = new Set([
@@ -31,7 +30,7 @@ export async function getAllUsers() {
     return Result.Success(users.map(omitPassword));
   } catch (error) {
     console.error("Error en getAllUsers:", error); // Log interno para depuración | Internal log for debugging
-    return Result.Fail('Internal server error', 500); // Mensaje y código HTTP de error | Error message and HTTP code
+    return Result.Fail('Internal server error', 500); // Mensaje centralizado 25 de junio
   }
 }
 
@@ -41,10 +40,10 @@ export async function getUserById(id) {
     const user = await userDao.getUserById(Number(id));
     return user
       ? Result.Success(omitPassword(user))
-      : Result.Fail('User not found', 404);
+      : Result.Fail(Errors.NOT_FOUND('User'), 404); // Mensaje centralizado (25 de junio)
   } catch (error) {
     console.error("Error en getUserById:", error); // Log interno para depuración | Internal log for debugging
-    return Result.Fail('Internal server error', 500); // Mensaje y código HTTP de error | Error message and HTTP code
+    return Result.Fail('Internal server error', 500); // Mensaje centralizado 25 de junio
   }
 }
 
@@ -54,32 +53,29 @@ export async function createUser(userData) {
   const requiredFields = ['first_name', 'last_name', 'email', 'password_hash', 'profile_id'];
   const missingField = checkRequiredFields(userData, requiredFields);
   if (missingField) {
-    return Result.Fail(`Missing required field: ${missingField}`, 400);
+    return Result.Fail(Errors.MISSING_FIELD(missingField), 400); // Mensaje centralizado 25 de junio
   }
 
   // Validar formato y fortaleza de contraseña | Validate password format and strength
   if (!isStrongPassword(userData.password_hash)) {
-    return Result.Fail(
-      'Password must be at least 8 characters long and contain uppercase, lowercase, and numbers',
-      400
-    );
+    return Result.Fail(Errors.INVALID_PASSWORD, 400); // Mensaje centralizado 25 de junio
   }
 
   // Validar email | Validate email format
   if (!isValidEmail(userData.email)) {
-    return Result.Fail('Invalid email format', 400);
+    return Result.Fail(Errors.INVALID_EMAIL, 400); // Mensaje centralizado 25 de junio
   }
 
   // Validar unicidad de email | Validate email uniqueness
   const existing = await userDao.getUserByEmail(userData.email);
   if (existing) {
-    return Result.Fail('Email already exists', 409);
+    return Result.Fail(Errors.EMAIL_EXISTS, 409); // Mensaje centralizado 25 de junio
   }
 
   // Validar perfil existente | Validate existing profile
   const profileExists = await userDao.profileExists(userData.profile_id);
   if (!profileExists) {
-    return Result.Fail('Profile does not exist', 400);
+    return Result.Fail(Errors.NOT_FOUND('Profile'), 400); // Mensaje centralizado 25 de junio
   }
 
   // Hashear la contraseña antes de guardar | Hash the password before saving
@@ -99,7 +95,7 @@ export async function createUser(userData) {
   } catch (error) {
     if (connection) await connection.rollback();
     console.error("Error en createUser:", error);
-    return Result.Fail('Error creating user', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Mensaje centralizado 25 de junio
   } finally {
     if (connection) connection.release();
   }
@@ -111,7 +107,7 @@ export async function editUser(id, userData) {
   const requiredFields = ['first_name', 'last_name', 'email', 'password_hash', 'profile_id'];
   const missingField = checkRequiredFields(userData, requiredFields);
   if (missingField) {
-    return Result.Fail(`Missing required field: ${missingField}`, 400);
+    return Result.Fail(Errors.MISSING_FIELD(missingField), 400); // Mensaje centralizado 25 de junio
   }
   // Validaciones comunes | Common validations
   const commonResult = await commonValidations(id, userData);
@@ -128,11 +124,10 @@ export async function editUser(id, userData) {
     const updated = await userDao.updateUser(id, userData);
     return updated
       ? Result.Success(true)
-      : Result.Fail('User not found', 404);
+      : Result.Fail(Errors.NOT_FOUND('User'), 404); // Mensaje centralizado 25 de junio
   } catch (error) {
-    // Mejora clave: mensaje controlado y código 500 | Controlled message and 500 code
     console.error("Error en editUser:", error); // Log interno
-    return Result.Fail('Error updating user', 500); //  Mensaje seguro
+    return Result.Fail(Errors.INTERNAL, 500); //  Mensaje centralizado 25 de junio
   }
 }
 
@@ -140,7 +135,7 @@ export async function editUser(id, userData) {
 export async function patchUser(id, fields) {
   const invalidFields = Object.keys(fields).filter(f => !ALLOWED_PATCH_FIELDS.has(f));
   if (invalidFields.length > 0) {
-    return Result.Fail(`Invalid fields: ${invalidFields.join(', ')}`, 400);
+    return Result.Fail(Errors.INVALID_FIELDS(invalidFields.join(', ')), 400); // Mensaje centralizado 25 de junio
   }
 
   const commonResult = await commonValidations(id, fields);
@@ -156,10 +151,10 @@ export async function patchUser(id, fields) {
     const updated = await userDao.patchUser(id, fields);
     return updated
       ? Result.Success(true)
-      : Result.Fail('User not found or no valid fields to update', 404);
+      : Result.Fail(Errors.NOT_FOUND('User'), 404); // Mensaje centralizado 25 de junio
   } catch (error) {
     console.error("Error en patchUser:", error); // Log interno para depuración | Internal log for debugging
-    return Result.Fail('Error patching user', 500); // Mensaje seguro | Safe message
+    return Result.Fail(Errors.INTERNAL, 500); // Mensaje centralizado 25 de junio
   }
 }
 
@@ -168,15 +163,15 @@ export async function deleteUser(id) {
   try {
     const userExists = await userDao.getUserById(id);
     if (!userExists) {
-      return Result.Fail('User not found', 404);
+      return Result.Fail(Errors.NOT_FOUND('User'), 404); // Mensaje centralizado 25 de junio
     }
     const deleted = await userDao.deleteUser(id);
     return deleted
       ? Result.Success(true)
-      : Result.Fail('Delete operation failed', 500);
+      : Result.Fail(Errors.OPERATION_FAILED('Delete'), 500); // Mensaje centralizado 25 de junio
   } catch (error) {
     console.error("Error en deleteUser:", error); // Log interno para depuración | Internal log for debugging
-    return Result.Fail('Error deleting user', 500); // Mensaje seguro | Safe message
+    return Result.Fail(Errors.INTERNAL, 500); // Mensaje centralizado 25 de junio
   }
 }
 
@@ -184,21 +179,21 @@ export async function deleteUser(id) {
 async function commonValidations(id, data) {
   if (data.email) {
     if (!isValidEmail(data.email)) {
-      return Result.Fail('Invalid email format', 400);
+      return Result.Fail(Errors.INVALID_EMAIL, 400); // Mensaje centralizado 25 de junio
     }
     const existing = await userDao.getUserByEmail(data.email);
     if (existing && existing.id !== id) {
-      return Result.Fail('Email already exists', 409);
+      return Result.Fail(Errors.EMAIL_EXISTS, 409); // Mensaje centralizado 25 de junio
     }
   }
   if (data.profile_id) {
     const profileExists = await userDao.profileExists(data.profile_id);
     if (!profileExists) {
-      return Result.Fail('Profile does not exist', 400);
+      return Result.Fail(Errors.NOT_FOUND('Profile'), 400); // Mensaje centralizado 25 de junio
     }
   }
   if (data.password_hash && !isStrongPassword(data.password_hash)) {
-    return Result.Fail('Password must be at least 8 characters long and contain uppercase, lowercase, and numbers', 400);
+    return Result.Fail(Errors.INVALID_PASSWORD, 400); // Mensaje centralizado 25 de junio
   }
   return Result.Success(true);
 }

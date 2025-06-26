@@ -3,6 +3,7 @@
 import * as savingsDao from './saving.dao.mjs';
 import { validateId, validateSavingData, isPositiveNumber, isValidDate } from '../../utils/validation.mjs';
 import { Result } from '../../utils/result.mjs';
+import { Errors } from '../../constants/errorMessages.mjs'; // Importamos los mensajes de error
 
 /**
  * Obtener todos los ahorros de un usuario | Get all savings for a user
@@ -17,7 +18,7 @@ export async function getAllSavings(user_id) {
     return Result.Success(savings);
   } catch (error) {
     console.error('Error en getAllSavings:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
 
@@ -29,10 +30,10 @@ export async function getSavingById(id) {
     const saving = await savingsDao.getSavingById(id);
     return saving
       ? Result.Success(saving)
-      : Result.Fail('Saving not found', 404);
+      : Result.Fail(Errors.NOT_FOUND('Saving'), 404); // Mensaje de error centralizado 26 de junio
   } catch (error) {
     console.error('Error en getSavingById:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
 
@@ -49,7 +50,7 @@ export async function createSaving(data) {
     return Result.Success(saving);
   } catch (error) {
     console.error('Error en createSaving:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
 
@@ -65,10 +66,10 @@ export async function updateSaving(id, data) {
     const updated = await savingsDao.updateSaving(id, data);
     return updated
       ? Result.Success(true)
-      : Result.Fail('Saving not found or no valid fields to update', 404);
+      : Result.Fail(Errors.NOT_FOUND('Saving'), 404); // Mensaje de error centralizado 26 de junio
   } catch (error) {
     console.error('Error en updateSaving:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
 
@@ -79,17 +80,17 @@ export async function patchSaving(id, fields) {
   const allowedFields = ['type_id', 'name', 'amount', 'target_amount', 'target_date'];
   const keys = Object.keys(fields).filter(k => allowedFields.includes(k));
   if (keys.length === 0) {
-    return Result.Fail('No valid fields to update', 400);
+    return Result.Fail(Errors.INVALID_UPDATE, 400); // Mensaje de error centralizado 26 de junio
   }
   // Validaciones parciales usando helpers
   if (fields.amount !== undefined && !isPositiveNumber(fields.amount)) {
-    return Result.Fail('Amount must be a positive number', 400);
+    return Result.Fail(Errors.AMOUNT_POSITIVE, 400); // Mensaje de error centralizado 26 de junio
   }
   if (fields.target_amount !== undefined && fields.target_amount !== null && !isPositiveNumber(fields.target_amount)) {
-    return Result.Fail('Target amount must be a positive number', 400);
+    return Result.Fail(Errors.TARGET_AMOUNT_POSITIVE, 400); // Mensaje de error centralizado 26 de junio
   }
   if (fields.target_date && !isValidDate(fields.target_date)) {
-    return Result.Fail('Invalid target date', 400);
+    return Result.Fail(Errors.INVALID_DATE, 400); // Mensaje de error centralizado 26 de junio
   }
   if (
     fields.amount !== undefined &&
@@ -97,16 +98,16 @@ export async function patchSaving(id, fields) {
     fields.target_amount !== null &&
     fields.target_amount <= fields.amount
   ) {
-    return Result.Fail('Target amount must be greater than amount', 400);
+    return Result.Fail(Errors.TARGET_AMOUNT_GREATER, 400); // Mensaje de error centralizado 26 de junio
   }
   try {
     const updated = await savingsDao.patchSaving(id, fields);
     return updated
       ? Result.Success(true)
-      : Result.Fail('Saving not found or no valid fields to update', 404);
+      : Result.Fail(Errors.NOT_FOUND('Saving'), 404); // Mensaje de error centralizado 26 de junio
   } catch (error) {
     console.error('Error en patchSaving:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
 
@@ -118,10 +119,10 @@ export async function deleteSaving(id) {
     const deleted = await savingsDao.deleteSaving(id);
     return deleted
       ? Result.Success(true)
-      : Result.Fail('Saving not found', 404);
+      : Result.Fail(Errors.NOT_FOUND('Saving'), 404); // Mensaje de error centralizado 26 de junio
   } catch (error) {
     console.error('Error en deleteSaving:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
 
@@ -138,6 +139,6 @@ export async function getSavingsProgress(user_id) {
     return Result.Success(data);
   } catch (error) {
     console.error('Error en getSavingsProgress:', error);
-    return Result.Fail('Internal server error', 500);
+    return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
