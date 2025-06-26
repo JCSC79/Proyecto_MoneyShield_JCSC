@@ -4,6 +4,7 @@
 // Este módulo proporciona funciones utilitarias para validar varios tipos de entrada.
 import { Result } from '../utils/result.mjs'; // Importamos la clase Result para manejar resultados de operaciones | Import Result class to handle operation results
 import { MAX_AMOUNT, DECIMAL_PRECISION } from '../constants/financial.mjs'; // Importamos constantes financieras para validaciones | Import financial constants for validations
+import { Errors } from '../constants/errorMessages.mjs'; // Importamos mensajes de error centralizados | Import centralized error messages
 
 // Validamos si el ID es un número entero positivo | Validate if the ID is a positive integer
 export function isValidId(id) {
@@ -28,10 +29,10 @@ export function isStrongPassword(password) {
 }
 
 // Validamos ID usando Result | Validate ID using Result
-export function validateId(id) {
+export function validateId(id, entity = 'ID') {
   return isValidId(id)
     ? Result.Success(id)
-    : Result.Fail('Invalid user ID', 400);
+    : Result.Fail(Errors.INVALID_ID(entity), 400); // Mensaje centralizado 26 de junio
 }
 
 export function checkRequiredFields(obj, fields) {
@@ -73,17 +74,17 @@ export function validateSavingData(data, isUpdate = false) {
   if (!isUpdate) {
     const missingField = checkRequiredFields(data, REQUIRED_FIELDS);
     if (missingField) {
-      return Result.Fail(`Missing required field: ${missingField}`, 400);
+      return Result.Fail(Errors.MISSING_FIELD(missingField), 400); // Mensaje centralizado 26 de junio
     }
   }
   if (data.amount !== undefined && !isPositiveNumber(data.amount)) {
-    return Result.Fail('Amount must be a positive number', 400);
-  }
+    return Result.Fail(Errors.AMOUNT_POSITIVE, 400); // Mensaje centralizado 26 de junio
+  } 
   if (data.target_amount !== undefined && data.target_amount !== null && !isPositiveNumber(data.target_amount)) {
-    return Result.Fail('Target amount must be a positive number', 400);
+    return Result.Fail(Errors.AMOUNT_POSITIVE, 400); // Mensaje centralizado 26 de junio
   }
   if (data.target_date && !isValidDate(data.target_date)) {
-    return Result.Fail('Invalid target date', 400);
+    return Result.Fail(Errors.INVALID_DATE, 400); // Mensaje centralizado 26 de junio
   }
   if (
     data.target_amount !== undefined &&
@@ -91,7 +92,7 @@ export function validateSavingData(data, isUpdate = false) {
     data.amount !== undefined &&
     data.target_amount <= data.amount
   ) {
-    return Result.Fail('Target amount must be greater than current amount', 400);
+    return Result.Fail(Errors.TARGET_AMOUNT_GREATER, 400); // Mensaje centralizado 26 de junio
   }
   return Result.Success(true);
 }
@@ -99,7 +100,7 @@ export function validateSavingData(data, isUpdate = false) {
 // Validación genérica de user_id
 export function validateUserId(user_id) {
   if (!user_id || isNaN(user_id) || user_id <= 0) {
-    return Result.Fail('Invalid user ID', 400);
+    return Result.Fail(Errors.INVALID_ID('user ID'), 400); // Mensaje centralizado 26 de junio
   }
   return Result.Success(Number(user_id));
 }
@@ -108,29 +109,54 @@ export async function validateTransactionData(data, transactionDao) {
   // Validar relaciones
   if (data.user_id) {
     const userExists = await transactionDao.userExists(data.user_id);
-    if (!userExists) return Result.Fail('User does not exist', 400);
+    if (!userExists) {
+      return Result.Fail(Errors.NOT_FOUND('User'), 400); // Mensaje centralizado 26 de junio
+    }
   }
 
   if (data.type_id) {
     const typeExists = await transactionDao.typeExists(data.type_id);
-    if (!typeExists) return Result.Fail('Transaction type does not exist', 400);
+    if (!typeExists) {
+      return Result.Fail(Errors.NOT_FOUND('Transaction Type'), 400); // Mensaje centralizado 26 de junio
+    }
   }
 
   if (data.category_id) {
     const categoryExists = await transactionDao.categoryExists(data.category_id);
-    if (!categoryExists) return Result.Fail('Category does not exist', 400);
+    if (!categoryExists) {
+      return Result.Fail(Errors.NOT_FOUND('Category'), 400); // Mensaje centralizado 26 de junio
+    }
   }
 
   // Validar monto
   if (data.amount) {
     if (!isAmountInRange(data.amount, MAX_AMOUNT, DECIMAL_PRECISION)) {
-      return Result.Fail(
-        `Amount must be positive, up to $${MAX_AMOUNT} with ${DECIMAL_PRECISION} decimals`,
-        400
-      );
+      return Result.Fail(Errors.AMOUNT_RANGE(MAX_AMOUNT, DECIMAL_PRECISION),400); // Mensaje centralizado 26 de junio
     }
   }
 
   return Result.Success(true);
 }
 
+// Validaciones comunes para usuarios (email, perfil, contraseña)
+export async function commonUserValidations(id, data, userDao, Errors) {
+  if (data.email) {
+    if (!isValidEmail(data.email)) {
+      return Result.Fail(Errors.INVALID_EMAIL, 400); // Mensaje centralizado 25 de junio
+    }
+    const existing = await userDao.getUserByEmail(data.email);
+    if (existing && existing.id !== id) {
+      return Result.Fail(Errors.EMAIL_EXISTS, 409); // Mensaje centralizado 25 de junio
+    }
+  }
+  if (data.profile_id) {
+    const profileExists = await userDao.profileExists(data.profile_id);
+    if (!profileExists) {
+      return Result.Fail(Errors.NOT_FOUND('Profile'), 400); // Mensaje centralizado 25 de junio
+    }
+  }
+  if (data.password_hash && !isStrongPassword(data.password_hash)) {
+    return Result.Fail(Errors.INVALID_PASSWORD, 400); // Mensaje centralizado 25 de junio
+  }
+  return Result.Success(true);
+}

@@ -1,10 +1,10 @@
 // src/modules/budgets/budget.service.mjs
 
 import * as budgetDao from './budget.dao.mjs';
-import db from '../../db/DBHelper.mjs';
 import { Result } from '../../utils/result.mjs';
 import { checkRequiredFields, isValidId, isPositiveNumber } from '../../utils/validation.mjs';
 import { Errors } from '../../constants/errorMessages.mjs'; // Importamos los mensajes de error
+import { withTransaction } from '../../db/withTransaction.mjs'; // Importamos la función withTransaction
 
 export async function getAllBudgets(filter) {
   try {
@@ -50,25 +50,19 @@ export async function createBudget(data) {
     return Result.Fail(Errors.ALREADY_EXISTS('Budget'), 409); // Mensaje de error centralizado 26 de junio
   }
 
-  let connection;
-  try {
-    connection = await db.getConnection();
-    await connection.beginTransaction();
-    const budget = await budgetDao.createBudget(data, connection);
-    await connection.commit();
-    return Result.Success(budget);
-  } catch (error) {
-    await connection?.rollback();
-
-    if (error.code === 'ER_DUP_ENTRY') {
-      return Result.Fail(Errors.ALREADY_EXISTS('Budget'), 409); // Mensaje de error centralizado 26 de junio
+  const result = await withTransaction(async (connection) => {
+    try {
+      const budget = await budgetDao.createBudget(data, connection);
+      return Result.Success(budget);
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        return Result.Fail(Errors.ALREADY_EXISTS('Budget'), 409); // Mensaje de error centralizado 26 de junio
+      }
+      console.error('Error en createBudget:', error);
+      return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
     }
-
-    console.error('Error en createBudget:', error);
-    return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
-  } finally {
-    connection?.release();
-  }
+  });
+  return result;
 }
 
 export async function updateBudget(id, fields) {
@@ -82,24 +76,20 @@ export async function updateBudget(id, fields) {
     return Result.Fail(Errors.NOT_FOUND('Category'), 400); // Mensaje de error centralizado 26 de junio
   }
 
-  let connection;
-  try {
-    connection = await db.getConnection();
-    await connection.beginTransaction();
-    const updated = await budgetDao.updateBudget(Number(id), fields, connection);
-    if (!updated) {
-      await connection.rollback();
-      return Result.Fail(Errors.NOT_FOUND('Budget'), 404); // Mensaje de error centralizado 26 de junio
+  const result = await withTransaction(async (connection) => {
+    try {
+      const updated = await budgetDao.updateBudget(Number(id), fields, connection);
+      if (!updated) {
+        return Result.Fail(Errors.NOT_FOUND('Budget'), 404); // Mensaje de error centralizado 26 de junio
+      }
+      return Result.Success(true);
+    } catch (error) {
+      console.error('Error en updateBudget:', error);
+      return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
     }
-    await connection.commit();
-    return Result.Success(true);
-  } catch (error) {
-    await connection?.rollback();
-    console.error('Error en updateBudget:', error);
-    return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
-  } finally {
-    connection?.release();
-  }
+  });
+  return result;
+
 }
 
 export async function deleteBudget(id) {

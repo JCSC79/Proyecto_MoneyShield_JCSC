@@ -21,7 +21,7 @@ export const Errors = {
   INVALID_MODE: 'Invalisd mode (must be "week" or "month")',
   TARGET_AMOUNT_POSITIVE: 'Target amount must be a positive number',
   TARGET_AMOUNT_GREATER: 'Target amount must be greater than amount',
-  MIN_LENGTH: (field, min) => `${field} must be at least ${min} characters long`
-
+  MIN_LENGTH: (field, min) => `${field} must be at least ${min} characters long`,
+  AMOUNT_RANGE: (max, precision) => `Amount must be positive, up to $${max} with ${precision} decimals`
   // ...agregamos aquí otros mensajes comunes de ser necesarios
 };
