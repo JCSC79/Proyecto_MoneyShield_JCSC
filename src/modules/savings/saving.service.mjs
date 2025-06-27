@@ -4,6 +4,7 @@ import * as savingsDao from './saving.dao.mjs';
 import { validateId, validateSavingData, isPositiveNumber, isValidDate } from '../../utils/validation.mjs';
 import { Result } from '../../utils/result.mjs';
 import { Errors } from '../../constants/errorMessages.mjs'; // Importamos los mensajes de error
+import { logger } from '../../utils/logger.mjs';  // Importamos el logger para registrar errores
 
 /**
  * Obtener todos los ahorros de un usuario | Get all savings for a user
@@ -17,7 +18,7 @@ export async function getAllSavings(user_id) {
     const savings = await savingsDao.getAllSavings(user_id);
     return Result.Success(savings);
   } catch (error) {
-    console.error('Error en getAllSavings:', error);
+    logger.error(`[Savings] Error en getAllSavings: ${error.message}`, { error }); //Cambio 27 de junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
@@ -32,7 +33,7 @@ export async function getSavingById(id) {
       ? Result.Success(saving)
       : Result.Fail(Errors.NOT_FOUND('Saving'), 404); // Mensaje de error centralizado 26 de junio
   } catch (error) {
-    console.error('Error en getSavingById:', error);
+    logger.error(`[Savings] Error en getSavingById: ${error.message}`, { error }); // Cambio 27 de junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
@@ -49,7 +50,7 @@ export async function createSaving(data) {
     const saving = await savingsDao.createSaving(data);
     return Result.Success(saving);
   } catch (error) {
-    console.error('Error en createSaving:', error);
+    logger.error(`[Savings] Error en createSaving: ${error.message}`, { error }); // Cambio 27 de junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
@@ -64,13 +65,16 @@ export async function updateSaving(id, data) {
   }
   try {
     const updated = await savingsDao.updateSaving(id, data);
-    return updated
-      ? Result.Success(true)
-      : Result.Fail(Errors.NOT_FOUND('Saving'), 404); // Mensaje de error centralizado 26 de junio
+    if (!updated) {
+      return Result.Fail(Errors.NOT_FOUND('Saving'), 404);
+    }
+    const updatedSaving = await savingsDao.getSavingById(id);
+    return Result.Success(updatedSaving);
   } catch (error) {
-    console.error('Error en updateSaving:', error);
-    return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
-  }
+    logger.error(`[Savings] Error en updateSaving: ${error.message}`, { error }); // Cambio 27 de junio
+    return Result.Fail(Errors.INTERNAL, 500);
+}
+
 }
 
 /**
@@ -101,14 +105,17 @@ export async function patchSaving(id, fields) {
     return Result.Fail(Errors.TARGET_AMOUNT_GREATER, 400); // Mensaje de error centralizado 26 de junio
   }
   try {
-    const updated = await savingsDao.patchSaving(id, fields);
-    return updated
-      ? Result.Success(true)
-      : Result.Fail(Errors.NOT_FOUND('Saving'), 404); // Mensaje de error centralizado 26 de junio
-  } catch (error) {
-    console.error('Error en patchSaving:', error);
-    return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
+  const updated = await savingsDao.patchSaving(id, fields);
+  if (!updated) {
+    return Result.Fail(Errors.NOT_FOUND('Saving'), 404);
   }
+  const updatedSaving = await savingsDao.getSavingById(id);
+  return Result.Success(updatedSaving);
+} catch (error) {
+  logger.error(`[Savings] Error en patchSaving: ${error.message}`, { error }); // Cambio 27 de junio
+  return Result.Fail(Errors.INTERNAL, 500);
+}
+
 }
 
 /**
@@ -121,7 +128,7 @@ export async function deleteSaving(id) {
       ? Result.Success(true)
       : Result.Fail(Errors.NOT_FOUND('Saving'), 404); // Mensaje de error centralizado 26 de junio
   } catch (error) {
-    console.error('Error en deleteSaving:', error);
+    logger.error(`[Savings] Error en deleteSaving: ${error.message}`, { error }); // Cambio 27 de junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
@@ -138,7 +145,7 @@ export async function getSavingsProgress(user_id) {
     const data = await savingsDao.getSavingsProgress(user_id);
     return Result.Success(data);
   } catch (error) {
-    console.error('Error en getSavingsProgress:', error);
+    logger.error(`[Savings] Error en getSavingsProgress: ${error.message}`, { error }); // Cambio 27 de junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
