@@ -262,7 +262,10 @@ describe('Transactions API (full integration, extended)', () => {
         description: 'Actualización completa'
       });
     expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty('message');
+    expect(res.body).toHaveProperty('id');
+    expect(Number(res.body.amount)).toBeCloseTo(300.00, 2);
+    expect(res.body.description).toBe('Actualización completa');
+
   });
 
   // 21. Actualizar transacción (PATCH) válido
@@ -273,7 +276,10 @@ describe('Transactions API (full integration, extended)', () => {
         amount: 350.00
       });
     expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty('message');
+    expect(res.body).toHaveProperty('id');
+    expect(Number(res.body.amount)).toBeCloseTo(350.00, 2);
+
+
   });
 
   // 22. Actualizar transacción con category_id inválido
@@ -324,7 +330,10 @@ describe('Transactions API (full integration, extended)', () => {
   it('should delete a transaction', async () => {
     const res = await request(app).delete(`/transactions/${createdTransactionId}`);
     expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty('message');
+    expect(res.body).toEqual({
+      success: true,
+      id: createdTransactionId
+    });
   });
 
   // 27. Eliminar transacción inexistente
