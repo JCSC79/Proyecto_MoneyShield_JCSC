@@ -4,18 +4,9 @@ import express from 'express'; // Importamos express | Import el servicio de usu
 import * as userService from './user.service.mjs'; // Importamos el servicio de usuario | Import user service
 import { authenticate, authorize } from '../auth/auth.middleware.mjs'; // Importamos middleware de autenticación y autorización | Import authentication and authorization middleware
 import { validateIdParam } from '../../middlewares/validateParams.middleware.mjs'; // Importamos middleware de validación de parámetros | Import parameter validation middleware
+import { allowSelfOrAdmin } from '../../middlewares/accessControl.middleware.mjs'; // Importamos middleware de control de acceso | Import access control middleware
 
 const router = express.Router(); // Crear un router de Express | Create an Express router
-
-/**
- * Middleware: Permite solo admin o el propio usuario
- */
-function allowSelfOrAdmin(req, res, next) {
-  if (req.user.profile_id === 1 || req.user.id === Number(req.params.id)) {
-    return next();
-  }
-  return res.status(403).json({ error: 'Forbidden' });
-}
 
 /**
  * @swagger
@@ -23,7 +14,6 @@ function allowSelfOrAdmin(req, res, next) {
  *   name: Users
  *   description: User management | Gestión de usuarios
  */
-
 
 /**
  * @swagger
@@ -152,7 +142,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', validateIdParam, authenticate, allowSelfOrAdmin, async (req, res) => {
   const result = await userService.editUser(req.params.id, req.body);
   result.success
-    ? res.status(200).json({ message: 'User updated' })
+    ? res.status(200).json(result.data) //Cambio 27 de junio para devolver datos actualizados
     : res.status(result.error.code).json({ error: result.error.message });
 });
 
@@ -200,7 +190,7 @@ router.put('/:id', validateIdParam, authenticate, allowSelfOrAdmin, async (req, 
 router.patch('/:id', validateIdParam, authenticate, allowSelfOrAdmin, async (req, res) => {
   const result = await userService.patchUser(req.params.id, req.body);
   result.success
-    ? res.status(200).json({ message: 'User patched' })
+    ? res.status(200).json(result.data) // Cambio 27 de junio para devolver datos actualizados
     : res.status(result.error.code).json({ error: result.error.message });
 });
 
@@ -225,7 +215,7 @@ router.patch('/:id', validateIdParam, authenticate, allowSelfOrAdmin, async (req
 router.delete('/:id', validateIdParam, authenticate, allowSelfOrAdmin, async (req, res) => {
   const result = await userService.deleteUser(req.params.id);
   result.success
-    ? res.status(200).json({ message: 'User deleted' })
+    ? res.status(200).json({ success: true, id: Number(req.params.id) }) // Cambio 27 de junio para devolver ID eliminado
     : res.status(result.error.code).json({ error: result.error.message });
 });
 
