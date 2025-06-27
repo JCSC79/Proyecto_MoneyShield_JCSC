@@ -129,7 +129,8 @@ describe('Budgets API', () => {
         notes: 'Updated budget'
       });
     expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty('message');
+    expect(res.body).toHaveProperty('id');
+    expect(typeof res.body).toBe('object');
   });
 
   // 9. PATCH: partial update
@@ -138,14 +139,16 @@ describe('Budgets API', () => {
       .patch(`/budgets/${createdBudgetId}`)
       .send({ amount: 2000 });
     expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty('message');
+    expect(res.body).toHaveProperty('id');
+    expect(typeof res.body).toBe('object');
   });
 
   // 10. DELETE: success
   it('should delete a budget', async () => {
     const res = await request(app).delete(`/budgets/${createdBudgetId}`);
     expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty('message');
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toMatchObject({ success: true, id: expect.any(Number) });
   });
 
   // 11. DELETE: fail

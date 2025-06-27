@@ -145,7 +145,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', validateIdParam, async (req, res) => {
   const result = await budgetService.updateBudget(req.params.id, req.body);
   if (result.success) {
-    res.status(200).json({ message: 'Budget updated' });
+    res.status(200).json(result.data); // Cambio 27 junio
   } else {
     res.status(result.error.code).json({ error: result.error.message });
   }
@@ -184,7 +184,7 @@ router.put('/:id', validateIdParam, async (req, res) => {
 router.patch('/:id', validateIdParam, async (req, res) => {
   const result = await budgetService.updateBudget(req.params.id, req.body);
   if (result.success) {
-    res.status(200).json({ message: 'Budget patched' });
+    res.status(200).json(result.data); // Cambio 27 junio
   } else {
     res.status(result.error.code).json({ error: result.error.message });
   }
@@ -210,7 +210,7 @@ router.patch('/:id', validateIdParam, async (req, res) => {
 router.delete('/:id', validateIdParam, async (req, res) => {
   const result = await budgetService.deleteBudget(req.params.id);
   if (result.success) {
-    res.status(200).json({ message: 'Budget deleted' });
+    res.status(200).json({ success: true, id: Number(req.params.id) }); // Cambio 27 junio
   } else {
     res.status(result.error.code).json({ error: result.error.message });
   }

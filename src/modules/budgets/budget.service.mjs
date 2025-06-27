@@ -5,22 +5,28 @@ import { Result } from '../../utils/result.mjs';
 import { checkRequiredFields, isValidId, isPositiveNumber } from '../../utils/validation.mjs';
 import { Errors } from '../../constants/errorMessages.mjs'; // Importamos los mensajes de error
 import { withTransaction } from '../../db/withTransaction.mjs'; // Importamos la función withTransaction
+import { logger } from '../../utils/logger.mjs'; // Importamos el logger
 
 export async function getAllBudgets(filter) {
   try {
     const budgets = await budgetDao.getAllBudgets(filter);
     return Result.Success(budgets);
   } catch (error) {
-    console.error('Error en getAllBudgets:', error);
+    logger.error(`[Budgets] Error en getAllBudgets: ${error.message}`, { error }); // Cambio 27 junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
 
 export async function getBudgetById(id) {
-  const budget = await budgetDao.getBudgetById(Number(id));
-  return budget
-    ? Result.Success(budget)
-    : Result.Fail(Errors.NOT_FOUND('Budget'), 404); // Mensaje de error centralizado 26 de junio
+  try {
+    const budget = await budgetDao.getBudgetById(Number(id));
+    return budget
+      ? Result.Success(budget)
+      : Result.Fail(Errors.NOT_FOUND('Budget'), 404);
+  } catch (error) {
+    logger.error(`[Budgets] Error en getBudgetById: ${error.message}`, { error }); // Cambio 27 junio
+    return Result.Fail(Errors.INTERNAL, 500);
+  }
 }
 
 export async function createBudget(data) {
@@ -58,7 +64,7 @@ export async function createBudget(data) {
       if (error.code === 'ER_DUP_ENTRY') {
         return Result.Fail(Errors.ALREADY_EXISTS('Budget'), 409); // Mensaje de error centralizado 26 de junio
       }
-      console.error('Error en createBudget:', error);
+      logger.error(`[Budgets] Error en createBudget: ${error.message}`, { error }); // Cambio 27 junio
       return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
     }
   });
@@ -70,7 +76,7 @@ export async function updateBudget(id, fields) {
     return Result.Fail(Errors.AMOUNT_POSITIVE, 400); // Mensaje de error centralizado 26 de junio
   }
   if (fields.user_id && (!isValidId(fields.user_id) || !(await budgetDao.userExists(fields.user_id)))) {
-  return Result.Fail(Errors.NOT_FOUND, 400); // Mensaje de error centralizado 26 de junio
+  return Result.Fail(Errors.NOT_FOUND('User'), 400); // Mensaje de error centralizado 26 de junio
   }
   if (fields.category_id && (!isValidId(fields.category_id) || !(await budgetDao.categoryExists(fields.category_id)))) {
     return Result.Fail(Errors.NOT_FOUND('Category'), 400); // Mensaje de error centralizado 26 de junio
@@ -82,9 +88,10 @@ export async function updateBudget(id, fields) {
       if (!updated) {
         return Result.Fail(Errors.NOT_FOUND('Budget'), 404); // Mensaje de error centralizado 26 de junio
       }
-      return Result.Success(true);
+      const updatedBudget = await budgetDao.getBudgetById(Number(id), connection);
+      return Result.Success(updatedBudget);
     } catch (error) {
-      console.error('Error en updateBudget:', error);
+      logger.error(`[Budgets] Error en updateBudget: ${error.message}`, { error }); // Cambio 27 junio
       return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
     }
   });
@@ -99,7 +106,7 @@ export async function deleteBudget(id) {
       ? Result.Success(true)
       : Result.Fail(Errors.NOT_FOUND('Budget'), 404); // Mensaje de error centralizado 26 de junio
   } catch (error) {
-    console.error('Error en deleteBudget:', error);
+    logger.error(`[Budgets] Error en deleteBudget: ${error.message}`, { error });
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
@@ -112,7 +119,7 @@ export async function getRemainingBudget(user_id) {
     const data = await budgetDao.getRemainingBudget(user_id);
     return Result.Success(data);
   } catch (error) {
-    console.error('Error en getRemainingBudget:', error);
+    logger.error(`[Budgets] Error en getRemainingBudget: ${error.message}`, { error }); // Cambio 27 junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
@@ -128,7 +135,7 @@ export async function getBudgetAlerts(user_id, threshold = 80) {
     const data = await budgetDao.getBudgetAlerts(user_id, threshold);
     return Result.Success(data);
   } catch (error) {
-    console.error('Error en getBudgetAlerts:', error);
+    logger.error(`[Budgets] Error en getBudgetAlerts: ${error.message}`, { error }); // Cambio 27 junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
