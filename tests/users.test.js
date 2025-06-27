@@ -8,11 +8,14 @@ describe('Users API (con autenticación JWT)', () => {
   const testEmail = `testuser${Date.now()}@example.com`;
   const strongPassword = 'SecurePass123!';
 
+  const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL || 'admin@money.com';
+  const ADMIN_PASSWORD = process.env.TEST_ADMIN_PASSWORD || '3lManduc0.56';
+
   // Login como admin antes de todos los tests
   beforeAll(async () => {
     const loginRes = await request(app)
       .post('/auth/login')
-      .send({ email: 'admin@money.com', password: '3lManduc0.56' });
+      .send({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD });
     adminToken = loginRes.body.token;
   });
 
@@ -81,6 +84,14 @@ describe('Users API (con autenticación JWT)', () => {
       });
     expect(res.statusCode).toBe(201);
     createdUserId = res.body.id;
+    expect(res.body).toMatchObject({
+      id: expect.any(Number),
+      first_name: 'Test',
+      last_name: 'User',
+      email: testEmail,
+      profile_id: 2
+    });
+    expect(res.body).not.toHaveProperty('password_hash');
   });
 
   // 6. POST: fail duplicate email
@@ -131,6 +142,10 @@ describe('Users API (con autenticación JWT)', () => {
         profile_id: 2
       });
     expect(res.statusCode).toBe(200);
+    const getRes = await request(app)
+      .get(`/users/${createdUserId}`)
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(getRes.body.email).toBe(newEmail);
   });
 
   // 10. PATCH: partial update (admin)
@@ -140,6 +155,10 @@ describe('Users API (con autenticación JWT)', () => {
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ first_name: 'Patched' });
     expect(res.statusCode).toBe(200);
+    const getRes = await request(app)
+      .get(`/users/${createdUserId}`)
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(getRes.body.first_name).toBe('Patched');
   });
 
   // 11. DELETE: success (admin)

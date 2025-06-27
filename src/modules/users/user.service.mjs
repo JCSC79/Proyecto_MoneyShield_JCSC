@@ -7,6 +7,11 @@ import { isValidEmail, isStrongPassword, checkRequiredFields, commonUserValidati
 import { Errors } from '../../constants/errorMessages.mjs'; // Importa los mensajes centralizados | Import centralized error messages
 import { withTransaction } from '../../db/withTransaction.mjs';
 import { omitPassword } from '../../utils/omitFields.mjs';
+import { logger } from '../../utils/logger.mjs'; // Importa el logger para registrar errores y eventos | Import logger to log errors and events
+
+// Prueba de log manual | Manual log test
+logger.error('Prueba de log manual');
+logger.info('Prueba de log info');
 
 // Campos permitidos para actualización parcial | Allowed fields for partial update
 const ALLOWED_PATCH_FIELDS = new Set([
@@ -21,7 +26,7 @@ export async function getAllUsers() {
     const users = await userDao.getAllUsers();
     return Result.Success(users.map(omitPassword));
   } catch (error) {
-    console.error("Error en getAllUsers:", error); // Log interno para depuración | Internal log for debugging
+    logger.error(`[Users] Error en getAllUsers: ${error.message}`, { error }); // Nuevo logger 27 de junio
     return Result.Fail('Internal server error', 500); // Mensaje centralizado 25 de junio
   }
 }
@@ -34,7 +39,7 @@ export async function getUserById(id) {
       ? Result.Success(omitPassword(user))
       : Result.Fail(Errors.NOT_FOUND('User'), 404); // Mensaje centralizado (25 de junio)
   } catch (error) {
-    console.error("Error en getUserById:", error); // Log interno para depuración | Internal log for debugging
+    logger.error(`[Users] Error en getUserById: ${error.message}`, { error }); // Nuevo logger 27 de junio
     return Result.Fail('Internal server error', 500); // Mensaje centralizado 25 de junio
   }
 }
@@ -83,7 +88,7 @@ export async function createUser(userData) {
       if (error.code === 'ER_DUP_ENTRY') {
         return Result.Fail(Errors.EMAIL_EXISTS, 409); // Mensaje centralizado 25 de junio
       }
-      console.error("Error en createUser (transaction):", error);
+      logger.error(`[Users] Error en createUser (transaction): ${error.message}`, { error }); // Nuevo logger 27 de junio
       return Result.Fail(Errors.INTERNAL, 500); // Mensaje centralizado 25 de junio
     }
   });
@@ -116,7 +121,7 @@ export async function editUser(id, userData) {
       ? Result.Success(true)
       : Result.Fail(Errors.NOT_FOUND('User'), 404); // Mensaje centralizado 25 de junio
   } catch (error) {
-    console.error("Error en editUser:", error); // Log interno
+    logger.error(`[Users] Error en editUser: ${error.message}`, { error }); // Nuevo logger 27 de junio
     return Result.Fail(Errors.INTERNAL, 500); //  Mensaje centralizado 25 de junio
   }
 }
@@ -143,7 +148,7 @@ export async function patchUser(id, fields) {
       ? Result.Success(true)
       : Result.Fail(Errors.NOT_FOUND('User'), 404); // Mensaje centralizado 25 de junio
   } catch (error) {
-    console.error("Error en patchUser:", error); // Log interno para depuración | Internal log for debugging
+    logger.error(`[Users] Error en patchUser: ${error.message}`, { error }); // Nuevo logger 27 de junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje centralizado 25 de junio
   }
 }
@@ -160,7 +165,7 @@ export async function deleteUser(id) {
       ? Result.Success(true)
       : Result.Fail(Errors.OPERATION_FAILED('Delete'), 500); // Mensaje centralizado 25 de junio
   } catch (error) {
-    console.error("Error en deleteUser:", error); // Log interno para depuración | Internal log for debugging
+    logger.error(`[Users] Error en deleteUser: ${error.message}`, { error }); // Nuevo logger 27 de junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje centralizado 25 de junio
   }
 }
