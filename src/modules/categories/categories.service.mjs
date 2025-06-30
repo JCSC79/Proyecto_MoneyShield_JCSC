@@ -4,6 +4,7 @@ import * as categoryDao from './categories.dao.mjs';
 import { Result } from '../../utils/result.mjs';
 import { isNonEmptyString } from '../../utils/validation.mjs';
 import { Errors } from '../../constants/errorMessages.mjs'; // Importamos los mensajes de error
+import { logger } from '../../utils/logger.mjs'; // Importamos el logger para registrar errores
 
 /**
  * Obtener todas las categorías | Get all categories
@@ -13,7 +14,7 @@ export async function getAllCategories() {
     const categories = await categoryDao.getAllCategories();
     return Result.Success(categories);
   } catch (error) {
-    console.error('Error in getAllCategories:', error);
+    logger.error(`[Categories] Error en getAllCategories: ${error.message}`, { error }); // Cambio 30 de junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
@@ -28,7 +29,7 @@ export async function getCategoryById(id) {
       ? Result.Success(category)
       : Result.Fail(Errors.NOT_FOUND('Category'), 404); // Mensaje de error centralizado 26 de junio
   } catch (error) {
-    console.error('Error in getCategoryById:', error);
+    logger.error(`[Categories] Error en getCategoryById: ${error.message}`, { error }); // Cambio 30 de junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
@@ -47,7 +48,7 @@ export async function createCategory({ name }) {
     const category = await categoryDao.createCategory({ name: name.trim() });
     return Result.Success(category);
   } catch (error) {
-    console.error('Error in createCategory:', error);
+    logger.error(`[Categories] Error en createCategory: ${error.message}`, { error }); // Cambio 30 de junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
@@ -65,7 +66,7 @@ export async function updateCategory(id, { name }) {
       ? Result.Success(true)
       : Result.Fail(Errors.NOT_FOUND('Category'), 404); // Mensaje de error centralizado 26 de junio
   } catch (error) {
-    console.error('Error in updateCategory:', error);
+    logger.error(`[Categories] Error en updateCategory: ${error.message}`, { error }); // Cambio 30 de junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
@@ -80,7 +81,7 @@ export async function deleteCategory(id) {
       ? Result.Success(true)
       : Result.Fail(Errors.NOT_FOUND('Category'), 404); // Mensaje de error centralizado 26 de junio
   } catch (error) {
-    console.error('Error in deleteCategory:', error);
+    logger.error(`[Categories] Error en deleteCategory: ${error.message}`, { error }); // Cambio 30 de junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
