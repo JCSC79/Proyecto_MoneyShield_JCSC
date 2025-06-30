@@ -480,8 +480,6 @@ it('should return monthly expenses evolution', async () => {
   expect(Number(currentData.total)).toBe(200); // Convertido a número
 });
 
-
-
   // Cierra el pool de la base de datos al final de todos los tests
   afterAll(async () => {
     await db.end();

@@ -10,9 +10,19 @@ import categoryRoutes from './modules/categories/categories.controller.mjs';
 import profileRoutes from './modules/profiles/profile.controller.mjs';
 import authRoutes from './modules/auth/auth.controller.mjs';
 import setupSwagger from '../docs/swagger.mjs'; // OJO: Ajustar la ruta si la carpeta docs se mueve a otro lugar
+import rateLimit from 'express-rate-limit'; // Importa rateLimit para limitar las peticiones
 
 const app = express();
 app.use(express.json()); // Permite recibir y procesar JSON | Allows receiving and processing JSON
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 10, // Limita a 10 peticiones por IP por ventana de tiempo
+  message: { error: 'Too many login attempts, please try again later.' }, // Mensaje de error personalizado
+  statusCode: 429 // Código de estado para demasiadas peticiones
+});
+
+app.use('/auth/login', authLimiter); // Aplica el limitador de peticiones a las rutas de autenticación
 
 // Monta las rutas de usuarios, transacciones, budgets y savings | Mount users, transactions, budgets and savings routes
 app.use('/users', userRoutes);
