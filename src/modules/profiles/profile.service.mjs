@@ -4,6 +4,7 @@ import * as profileDao from './profile.dao.mjs';
 import { Result } from '../../utils/result.mjs';
 import { isNonEmptyString } from '../../utils/validation.mjs';
 import { Errors } from '../../constants/errorMessages.mjs'; // Importamos los mensajes de error
+import { logger } from '../../utils/logger.mjs';  // Importamos el logger para registrar errores
 
 /**
  * Obtiene todos los perfiles | Get all profiles
@@ -13,7 +14,7 @@ export async function getAllProfiles() {
     const profiles = await profileDao.getAllProfiles();
     return Result.Success(profiles);
   } catch (error) {
-    console.error('Error en getAllProfiles:', error);
+    logger.error(`[Profiles] Error en getAllProfiles: ${error.message}`, { error }); // Cambio 30 de junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
@@ -32,7 +33,7 @@ export async function createProfile(name) {
     if (error.code === 'ER_DUP_ENTRY') {
       return Result.Fail(Errors.ALREADY_EXISTS('Profile'), 409); // Mensaje de error centralizado 26 de junio
     }
-    console.error('Error en createProfile:', error);
+    logger.error(`[Profiles] Error en createProfile: ${error.message}`, { error }); // Cambio 30 de junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
@@ -45,7 +46,7 @@ export async function getProfileById(id) {
       ? Result.Success(profile)
       : Result.Fail(Errors.NOT_FOUND('Profile'), 404); // Mensaje de error centralizado 26 de junio
   } catch (error) {
-    console.error('Error en getProfileById:', error);
+    logger.error(`[Profiles] Error en getProfileById: ${error.message}`, { error }); // Cambio 30 de junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
@@ -57,7 +58,7 @@ export async function deleteProfile(id) {
       ? Result.Success(true)
       : Result.Fail(Errors.NOT_FOUND('Profile'), 404); // Mensaje de error centralizado 26 de junio
   } catch (error) {
-    console.error('Error en deleteProfile:', error);
+    logger.error(`[Profiles] Error en deleteProfile: ${error.message}`, { error }); // Cambio 30 de junio
     return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
   }
 }
