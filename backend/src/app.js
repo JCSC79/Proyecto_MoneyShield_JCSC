@@ -11,16 +11,22 @@ import profileRoutes from './modules/profiles/profile.controller.mjs';
 import authRoutes from './modules/auth/auth.controller.mjs';
 import setupSwagger from '../docs/swagger.mjs'; // OJO: Ajustar la ruta si la carpeta docs se mueve a otro lugar
 import rateLimit from 'express-rate-limit'; // Importa rateLimit para limitar las peticiones
+import cors from 'cors'; // Importa CORS para permitir peticiones desde otros dominios
 
 const app = express();
 app.use(express.json()); // Permite recibir y procesar JSON | Allows receiving and processing JSON
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 10, // Limita a 10 peticiones por IP por ventana de tiempo
-  message: { error: 'Too many login attempts, please try again later.' }, // Mensaje de error personalizado
-  statusCode: 429 // Código de estado para demasiadas peticiones
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 10, // Limita a 10 peticiones por IP por ventana de tiempo
+    message: { error: 'Too many login attempts, please try again later.' }, // Mensaje de error personalizado
+    statusCode: 429 // Código de estado para demasiadas peticiones
 });
+
+app.use(cors({
+  origin: 'http://localhost:5173', // Puerto por defecto de Vite
+  credentials: true
+}));
 
 app.use('/auth/login', authLimiter); // Aplica el limitador de peticiones a las rutas de autenticación
 
