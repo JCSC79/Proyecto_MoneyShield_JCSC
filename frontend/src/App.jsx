@@ -1,7 +1,7 @@
 // src/App.jsx
 
 import { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import NuevoGasto from './pages/NuevoGasto';
@@ -44,13 +44,3 @@ function App() {
 
 export default App;
 
-
-// Solo para pruebas, descomentamos el siguiente código para ver si React está funcionando correctamente
-// function App() {
-//   return (
-//     <div>
-//       <h1>Test de React</h1>
-//     </div>
-//   );
-// }
-// export default App;
