@@ -3,6 +3,11 @@ import app from '../src/app.js';
 import db from '../src/db/DBHelper.mjs';
 
 describe('Budgets API', () => {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1; // Los meses van de 0 a 11
+  const fechaTransaccion = `${currentYear}-${String(currentMonth).padStart(2,'0')}-15`; // Fecha de transacción para pruebas
+  const fechaTransaccion2 = `${currentYear}-${String(currentMonth).padStart(2,'0')}-10`; // Otra fecha de transacción para pruebas
   let createdBudgetId;
   // Ajustar estos IDs según datos de prueba
   const validUserId = 1;
@@ -13,7 +18,7 @@ describe('Budgets API', () => {
   // Solo borra presupuestos que NO sean el creado en los tests
   await db.query(
     'DELETE FROM budgets WHERE id != ? AND user_id = ? AND category_id = ? AND year = ? AND month = ? AND budget_type = ?',
-    [createdBudgetId || -1, validUserId, validCategoryId, 2025, 6, 'monthly']
+    [createdBudgetId || -1, validUserId, validCategoryId, currentYear, currentMonth, 'monthly']
   );
 });
 
@@ -42,8 +47,8 @@ describe('Budgets API', () => {
         user_id: validUserId,
         category_id: validCategoryId,
         budget_type: 'monthly',
-        year: 2025,
-        month: 6,
+        year: currentYear,
+        month: currentMonth,
         amount: -100
       });
     expect(res.statusCode).toBe(400);
@@ -58,8 +63,8 @@ describe('Budgets API', () => {
         user_id: 99999,
         category_id: validCategoryId,
         budget_type: 'monthly',
-        year: 2025,
-        month: 6,
+        year: currentYear,
+        month: currentMonth,
         amount: 500
       });
     expect(res.statusCode).toBe(400);
@@ -73,8 +78,8 @@ describe('Budgets API', () => {
         user_id: validUserId,
         category_id: 99999,
         budget_type: 'monthly',
-        year: 2025,
-        month: 6,
+        year: currentYear,
+        month: currentMonth,
         amount: 500
       });
     expect(res.statusCode).toBe(400);
@@ -89,8 +94,8 @@ describe('Budgets API', () => {
         user_id: validUserId,
         category_id: validCategoryId,
         budget_type: 'monthly',
-        year: 2025,
-        month: 6,
+        year: currentYear,
+        month: currentMonth,
         amount: 1000,
         notes: 'Test budget'
       });
@@ -123,8 +128,8 @@ describe('Budgets API', () => {
         user_id: validUserId,
         category_id: anotherCategoryId,
         budget_type: 'monthly',
-        year: 2025,
-        month: 7,
+        year: currentYear,
+        month: currentMonth,
         amount: 1500,
         notes: 'Updated budget'
       });
@@ -146,7 +151,6 @@ describe('Budgets API', () => {
   // 10. DELETE: success
   it('should delete a budget', async () => {
     const res = await request(app).delete(`/budgets/${createdBudgetId}`);
-    expect(res.statusCode).toBe(200);
     expect(res.statusCode).toBe(200);
     expect(res.body).toMatchObject({ success: true, id: expect.any(Number) });
   });
@@ -171,7 +175,7 @@ it('should return correct remaining budget after expenses', async () => {
   // Limpia transacciones y presupuestos previos
   await db.query('DELETE FROM transactions WHERE user_id = ?', [validUserId]);
   await db.query('DELETE FROM budgets WHERE user_id = ? AND category_id = ? AND year = ? AND month = ?', 
-    [validUserId, validCategoryId, 2025, 6]);
+    [validUserId, validCategoryId, currentYear, currentMonth]);
 
   // Crea presupuesto mensual de 1000
   await request(app)
@@ -180,16 +184,16 @@ it('should return correct remaining budget after expenses', async () => {
       user_id: validUserId,
       category_id: validCategoryId,
       budget_type: 'monthly',
-      year: 2025,
-      month: 6,
+      year: currentYear,
+      month: currentMonth,
       amount: 1000
     });
 
   // Crea gasto de 300 en la misma categoría y mes
   await db.query(
     `INSERT INTO transactions (user_id, type_id, category_id, amount, description, created_at)
-     VALUES (?, 2, ?, 300, 'Gasto test', '2025-06-15')`,
-    [validUserId, validCategoryId]
+     VALUES (?, 2, ?, 300, 'Gasto test', ?)`,
+    [validUserId, validCategoryId, fechaTransaccion]
   );
 
   // Consulta presupuesto restante
@@ -212,7 +216,7 @@ it('should return budget alerts when spent exceeds threshold', async () => {
   // Limpia transacciones y presupuestos previos
   await db.query('DELETE FROM transactions WHERE user_id = ?', [validUserId]);
   await db.query('DELETE FROM budgets WHERE user_id = ? AND category_id = ? AND year = ? AND month = ?', 
-    [validUserId, validCategoryId, 2025, 6]);
+    [validUserId, validCategoryId, currentYear, currentMonth]);
 
   // Crea presupuesto mensual de 400
   await request(app)
@@ -221,16 +225,16 @@ it('should return budget alerts when spent exceeds threshold', async () => {
       user_id: validUserId,
       category_id: validCategoryId,
       budget_type: 'monthly',
-      year: 2025,
-      month: 6,
+      year: currentYear,
+      month: currentMonth,
       amount: 400
     });
 
   // Crea gasto de 200 en la misma categoría y mes (50% del presupuesto)
   await db.query(
     `INSERT INTO transactions (user_id, type_id, category_id, amount, description, created_at)
-     VALUES (?, 2, ?, 200, 'Gasto test', '2025-06-10')`,
-    [validUserId, validCategoryId]
+     VALUES (?, 2, ?, 200, 'Gasto test', ?)`,
+    [validUserId, validCategoryId, fechaTransaccion2]
   );
 
   // Consulta alertas con threshold 25%
