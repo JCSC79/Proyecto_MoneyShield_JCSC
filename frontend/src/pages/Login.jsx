@@ -3,13 +3,13 @@
 import { useState } from 'react';
 import { login } from '../services/auth.api';
 
-
+// Componente de inicio de sesión
 function Login({ onLogin }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState(''); // Inicializamos el email vacío
+  const [password, setPassword] = useState(''); // Inicializamos la contraseña vacía
+  const [error, setError] = useState(''); // Inicializamos el error vacío
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => { // Maneja el envío del formulario
     e.preventDefault();
     setError('');
     try {
