@@ -3,6 +3,7 @@ import app from '../src/app.js';
 import db from '../src/db/DBHelper.mjs';
 
 describe('Transactions API (full integration, extended)', () => {
+  let adminToken;
   // IDs de prueba - AJUSTAR según datos reales
   const validUserId = 1;
   const validTypeId = 1;
@@ -17,6 +18,10 @@ describe('Transactions API (full integration, extended)', () => {
 
 
   beforeAll(async () => {
+  const loginRes = await request(app)
+    .post('/auth/login')
+    .send({ email: 'admin@money.com', password: '3lManduc0.56' });
+  adminToken = loginRes.body.token;
   // Crear categoría "Others" si no existe
   await db.query(`
     INSERT INTO categories (name)
@@ -189,7 +194,9 @@ describe('Transactions API (full integration, extended)', () => {
 
   // 11. Obtener todas las transacciones
   it('should get all transactions', async () => {
-    const res = await request(app).get('/transactions');
+    const res = await request(app)
+      .get('/transactions')
+      .set('authorization', `Bearer ${adminToken}`);
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
@@ -217,35 +224,45 @@ describe('Transactions API (full integration, extended)', () => {
 
   // 15. Filtro por user_id
   it('should filter transactions by user_id', async () => {
-    const res = await request(app).get(`/transactions?user_id=${validUserId}`);
+    const res = await request(app)
+      .get(`/transactions?user_id=${validUserId}`)
+      .set('authorization', `Bearer ${adminToken}`);
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
 
   // 16. Filtro por type_id
   it('should filter transactions by type_id', async () => {
-    const res = await request(app).get(`/transactions?type_id=${validTypeId}`);
+    const res = await request(app)
+      .get(`/transactions?type_id=${validTypeId}`)
+      .set('authorization', `Bearer ${adminToken}`);
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
 
   // 17. Filtro por rango de fechas (from)
   it('should filter transactions from a date', async () => {
-    const res = await request(app).get('/transactions?from=2020-01-01T00:00:00.000Z');
+    const res = await request(app)
+      .get('/transactions?from=2020-01-01T00:00:00.000Z')
+      .set('authorization', `Bearer ${adminToken}`);
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
 
   // 18. Filtro por rango de fechas (to)
   it('should filter transactions to a date', async () => {
-    const res = await request(app).get('/transactions?to=2100-01-01T00:00:00.000Z');
+    const res = await request(app)
+      .get('/transactions?to=2100-01-01T00:00:00.000Z')
+      .set('authorization', `Bearer ${adminToken}`);
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
 
   // 19. Filtro combinado
   it('should filter transactions by multiple filters', async () => {
-    const res = await request(app).get(`/transactions?user_id=${validUserId}&type_id=${validTypeId}&from=2020-01-01T00:00:00.000Z&to=2100-01-01T00:00:00.000Z`);
+    const res = await request(app)
+      .get(`/transactions?user_id=${validUserId}&type_id=${validTypeId}&from=2020-01-01T00:00:00.000Z&to=2100-01-01T00:00:00.000Z`)
+      .set('authorization', `Bearer ${adminToken}`);
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });

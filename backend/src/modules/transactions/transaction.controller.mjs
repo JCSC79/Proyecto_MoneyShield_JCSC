@@ -3,7 +3,8 @@
 import express from 'express';
 import * as transactionService from './transaction.service.mjs';
 import { validateIdParam } from '../../middlewares/validateParams.middleware.mjs';
-
+import { authenticate } from '../auth/auth.middleware.mjs';
+//import { filterBySelfOrAdmin } from '../../middlewares/accessControl.middleware.mjs';
 
 const router = express.Router();
 
@@ -47,15 +48,40 @@ const router = express.Router();
  *       200:
  *         description: List of transactions | Lista de transacciones
  */
-router.get('/', async (req, res) => {
-  const result = await transactionService.getAllTransactions(req.query);
-  if (result.success) {
-    res.status(200).json(result.data);
-  } else {
-    res.status(result.error.code).json({ error: result.error.message });
+// router.get('/', async (req, res) => {
+//   const result = await transactionService.getAllTransactions(req.query);
+//   if (result.success) {
+//     res.status(200).json(result.data);
+//   } else {
+//     res.status(result.error.code).json({ error: result.error.message });
+//   }
+// });
+
+router.get('/', authenticate, async (req, res) => {
+  try {
+    let filter = { ...req.query };
+
+    if (req.user.profile_id !== 1) {
+      // Usuario normal: solo puede ver sus propias transacciones
+      filter.user_id = req.user.id;
+    } else {
+      // Admin: si no filtra por user_id, ve todas
+      if (filter.user_id) {
+        filter.user_id = Number(filter.user_id);
+      }
+    }
+
+    const result = await transactionService.getAllTransactions(filter);
+    if (result.success) {
+      res.status(200).json(result.data);
+    } else {
+      res.status(result.error.code).json({ error: result.error.message });
+    }
+  } catch (error) {
+    logger.error(`[Transactions] Error en GET /transactions: ${error.message}`, { error });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 
 /**
  * @swagger

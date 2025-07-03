@@ -32,7 +32,7 @@ function App() {
           </button>
         </nav>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<Dashboard token={token} />} />
           <Route path="/nuevo-gasto" element={<NuevoGasto />} />
           <Route path="/perfil" element={<Perfil />} />
           <Route path="*" element={<Navigate to="/" />} />

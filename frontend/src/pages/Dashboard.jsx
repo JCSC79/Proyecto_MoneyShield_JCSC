@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { getGastos } from '../services/gastos.api';
 
-function Dashboard() {
+function Dashboard({ token }) {
   const [gastos, setGastos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -11,7 +11,7 @@ function Dashboard() {
   useEffect(() => {
     async function fetchGastos() {
       try {
-        const data = await getGastos();
+        const data = await getGastos(token);
         setGastos(data);
       } catch (err) {
         console.error('Error al cargar los gastos:', err);
@@ -21,14 +21,10 @@ function Dashboard() {
       }
     }
     fetchGastos();
-  }, []);
+  }, [token]);
 
-  if (loading) {
-    return <p>Cargando gastos...</p>;
-  }
-  if (error) {
-    return <p style={{ color: 'red' }}>{error}</p>;
-}
+  if (loading) return <p>Cargando gastos...</p>;
+  if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
   return (
     <div>
