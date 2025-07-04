@@ -4,7 +4,7 @@ import express from 'express';
 import * as transactionService from './transaction.service.mjs';
 import { validateIdParam } from '../../middlewares/validateParams.middleware.mjs';
 import { authenticate } from '../auth/auth.middleware.mjs';
-//import { filterBySelfOrAdmin } from '../../middlewares/accessControl.middleware.mjs';
+import { forceSelfFilter, allowSelfOrAdminTransaction } from '../../middlewares/accessControl.middleware.mjs';
 
 const router = express.Router();
 
@@ -48,39 +48,11 @@ const router = express.Router();
  *       200:
  *         description: List of transactions | Lista de transacciones
  */
-// router.get('/', async (req, res) => {
-//   const result = await transactionService.getAllTransactions(req.query);
-//   if (result.success) {
-//     res.status(200).json(result.data);
-//   } else {
-//     res.status(result.error.code).json({ error: result.error.message });
-//   }
-// });
-
-router.get('/', authenticate, async (req, res) => {
-  try {
-    let filter = { ...req.query };
-
-    if (req.user.profile_id !== 1) {
-      // Usuario normal: solo puede ver sus propias transacciones
-      filter.user_id = req.user.id;
-    } else {
-      // Admin: si no filtra por user_id, ve todas
-      if (filter.user_id) {
-        filter.user_id = Number(filter.user_id);
-      }
-    }
-
-    const result = await transactionService.getAllTransactions(filter);
-    if (result.success) {
-      res.status(200).json(result.data);
-    } else {
-      res.status(result.error.code).json({ error: result.error.message });
-    }
-  } catch (error) {
-    logger.error(`[Transactions] Error en GET /transactions: ${error.message}`, { error });
-    res.status(500).json({ error: 'Internal server error' });
-  }
+router.get('/', authenticate, forceSelfFilter, async (req, res) => {
+  const result = await transactionService.getAllTransactions(req.filtroForzado);
+  result.success
+    ? res.status(200).json(result.data)
+    : res.status(result.error.code).json({ error: result.error.message });
 });
 
 /**
@@ -101,14 +73,12 @@ router.get('/', authenticate, async (req, res) => {
  *       404:
  *         description: Transaction not found | Transacción no encontrada
  */
-router.get('/:id', validateIdParam, async (req, res) => {
+router.get('/:id', validateIdParam, authenticate, allowSelfOrAdminTransaction, async (req,res) => {
   const result = await transactionService.getTransactionById(req.params.id);
-  if (result.success) {
-    res.status(200).json(result.data);
-  } else {
-    res.status(result.error.code).json({ error: result.error.message });
-  }
-});
+  result.success
+    ? res.status(200).json(result.data)
+    : res.status(result.error.code).json({ error: result.error.message });
+ });
 
 
 /**
@@ -296,13 +266,11 @@ router.delete('/:id', validateIdParam, async (req, res) => {
  *       200:
  *         description: User balance | Balance del usuario
  */
-router.get('/report/balance', async (req, res) => {
-  const result = await transactionService.getUserBalance(req.query.user_id);
-  if (result.success) {
-    res.status(200).json(result.data);
-  } else {
-    res.status(result.error.code).json({ error: result.error.message });
-  }
+router.get('/report/balance', authenticate, forceSelfFilter, async (req, res) => {
+  const result = await transactionService.getUserBalance(req.filtroForzado.user_id);
+  result.success
+    ? res.status(200).json(result.data)
+    : res.status(result.error.code).json({ error: result.error.message });
 });
 
 /**
@@ -322,13 +290,11 @@ router.get('/report/balance', async (req, res) => {
  *       200:
  *         description: Expenses grouped by category | Gastos agrupados por categoría
  */
-router.get('/report/expenses-by-category', async (req, res) => {
-  const result = await transactionService.getExpensesByCategory(req.query.user_id);
-  if (result.success) { 
-    res.status(200).json(result.data);
-  } else {
-    res.status(result.error.code).json({ error: result.error.message });
-  }
+router.get('/report/expenses-by-category', authenticate, forceSelfFilter, async (req, res) => {
+  const result = await transactionService.getExpensesByCategory(req.filtroForzado.user_id);
+  result.success
+    ? res.status(200).json(result.data)
+    : res.status(result.error.code).json({ error: result.error.message });
 });
 
 /**
@@ -348,13 +314,11 @@ router.get('/report/expenses-by-category', async (req, res) => {
  *       200:
  *         description: Monthly expenses evolution | Evolución mensual de gastos
  */
-router.get('/report/monthly-expenses', async (req, res) => {
-  const result = await transactionService.getMonthlyExpenses(req.query.user_id);
-  if (result.success) {
-    res.status(200).json(result.data);
-  } else {
-    res.status(result.error.code).json({ error: result.error.message });
-  }
+router.get('/report/monthly-expenses', authenticate, forceSelfFilter, async (req, res) => {
+  const result = await transactionService.getMonthlyExpenses(req.filtroForzado.user_id);
+  result.success
+    ? res.status(200).json(result.data)
+    : res.status(result.error.code).json({ error: result.error.message });
 });
 
 /**
@@ -400,16 +364,12 @@ router.get('/report/monthly-expenses', async (req, res) => {
  *                     type: number
  *                     example: 400.00
  */
-router.get('/report/periodic-balance', async (req, res) => {
-  const result = await transactionService.getPeriodicBalance(
-    req.query.user_id,
-    req.query.period || 'week'
-  );
-  if (result.success) {
-    res.status(200).json(result.data);
-  } else {
-    res.status(result.error.code).json({ error: result.error.message });
-  }
+router.get('/report/periodic-balance', authenticate, forceSelfFilter, async (req, res) => {
+  const period = req.query.period || 'week';
+  const result = await transactionService.getPeriodicBalance(req.filtroForzado.user_id, period);
+  result.success
+    ? res.status(200).json(result.data)
+    : res.status(result.error.code).json({ error: result.error.message });
 });
 
 /**
@@ -456,21 +416,17 @@ router.get('/report/periodic-balance', async (req, res) => {
  *                     type: number
  *                     example: 250.00
  */
-router.get('/report/top-categories', async (req, res) => {
-  const { user_id, year, month, limit } = req.query;
-  const result = await transactionService.getTopCategories(
-    user_id,
-    {
-      year: year ? Number(year) : undefined,
-      month: month ? Number(month) : undefined,
-      limit: limit ? Number(limit) : 3
+router.get('/report/top-categories', authenticate, forceSelfFilter, async (req, res) => {
+  const { year, month, limit } = req.query;
+  const result = await transactionService.getTopCategories(req.filtroForzado.user_id, {
+    year: year ? Number(year) : undefined,
+    month: month ? Number(month) : undefined,
+    limit: limit ? Number(limit) : 3
     }
   );
-  if (result.success) {
-    res.status(200).json(result.data);
-  } else {
-    res.status(result.error.code).json({ error: result.error.message });
-  }
+  result.success
+    ? res.status(200).json(result.data)
+    : res.status(result.error.code).json({ error: result.error.message });
 });
 
 /**
@@ -517,21 +473,16 @@ router.get('/report/top-categories', async (req, res) => {
  *                     type: number
  *                     example: 120.00
  */
-router.get('/report/spending-patterns', async (req, res) => {
-  const { user_id, year, month, mode } = req.query;
-  const result = await transactionService.getSpendingPatterns(
-    user_id,
-    {
-      year: year ? Number(year) : undefined,
-      month: month ? Number(month) : undefined,
-      mode: mode || 'week'
-    }
-  );
-  if (result.success) {
-    res.status(200).json(result.data);
-  } else {
-    res.status(result.error.code).json({ error: result.error.message });
-  }
+router.get('/report/spending-patterns', authenticate, forceSelfFilter, async (req, res) => {
+  const { year, month, mode } = req.query;
+  const result = await transactionService.getSpendingPatterns(req.filtroForzado.user_id, {
+    year: year ? Number(year) : undefined,
+    month: month ? Number(month) : undefined,
+    mode: mode || 'week'
+  });
+  result.success
+    ? res.status(200).json(result.data)
+    : res.status(result.error.code).json({ error: result.error.message });
 });
 
 /**
@@ -567,13 +518,11 @@ router.get('/report/spending-patterns', async (req, res) => {
  *                   type: number
  *                   example: 7200.00
  */
-router.get('/report/forecast', async (req, res) => {
-  const result = await transactionService.getMonthlyForecast(req.query.user_id);
-  if (result.success) {
-    res.status(200).json(result.data);
-  } else {
-    res.status(result.error.code).json({ error: result.error.message });
-  }
+router.get('/report/forecast', authenticate, forceSelfFilter, async (req, res) => {
+  const result = await transactionService.getMonthlyForecast(req.filtroForzado.user_id);
+  result.success
+    ? res.status(200).json(result.data)
+    : res.status(result.error.code).json({ error: result.error.message });
 });
 
 export default router;
