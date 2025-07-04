@@ -94,12 +94,9 @@ router.get('/:id', validateIdParam, authenticate, allowSelfOrAdminTransaction, a
  *           schema:
  *             type: object
  *             required:
- *               - user_id
  *               - type_id
  *               - amount
  *             properties:
- *               user_id:
- *                 type: integer
  *               type_id:
  *                 type: integer
  *               category_id:
@@ -116,8 +113,9 @@ router.get('/:id', validateIdParam, authenticate, allowSelfOrAdminTransaction, a
  *       400:
  *         description: Invalid request | Solicitud inválida
  */
-router.post('/', async (req, res) => {
-  const result = await transactionService.createTransaction(req.body);
+router.post('/', authenticate, async (req, res) => {
+  const data = { ...req.body, user_id: req.user.id }; // Asignar user_id del token
+  const result = await transactionService.createTransaction(data);
   if (result.success) {
     res.status(201).json(result.data);
   } else {

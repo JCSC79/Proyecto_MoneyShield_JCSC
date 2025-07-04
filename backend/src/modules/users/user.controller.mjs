@@ -10,6 +10,26 @@ const router = express.Router(); // Crear un router de Express | Create an Expre
 
 /**
  * @swagger
+ * /users/me:
+ *   get:
+ *     tags: [Users]
+ *     summary: Get current user profile | Obtener perfil de usuario actual
+ *     responses:
+ *       200:
+ *         description: User profile | Perfil de usuario
+ *       404:
+ *         description: User not found | Usuario no encontrado
+ */
+router.get('/me', authenticate, async (req, res) => {
+  const result = await userService.getUserById(req.user.id);
+  result.success
+    ? res.status(200).json(result.data)
+    : res.status(result.error.code).json({ error: result.error.message });
+});
+
+
+/**
+ * @swagger
  * tags:
  *   name: Users
  *   description: User management | Gestión de usuarios

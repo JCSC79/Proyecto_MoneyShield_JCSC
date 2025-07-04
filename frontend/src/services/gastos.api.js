@@ -17,3 +17,12 @@ export async function getGastos(token) {
   });
   return res.data; // Devuelve la lista de gastos
 }
+
+export async function createGasto( token, data ) {
+  const res = await api.post('/transactions', data, {
+    headers: {
+      Authorization: `Bearer ${token}` // Envía el token en la cabecera de autorización
+    }
+  });
+  return res.data; // Devuelve el gasto creado
+}

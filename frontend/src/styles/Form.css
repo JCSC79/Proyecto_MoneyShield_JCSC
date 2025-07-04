@@ -1,0 +1,47 @@
+.form-base {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 24px 20px;
+  max-width: 400px;
+  margin: 32px auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-base input,
+.form-base select {
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+  font-size: 1em;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-base button {
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  background: #1976d2;
+  color: #fff;
+  font-size: 1.05em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.form-base button:disabled {
+  background: #90caf9;
+  cursor: not-allowed;
+}
+
+.form-base .success {
+  color: #388e3c;
+  font-weight: bold;
+}
+
+.form-base .error {
+  color: #d32f2f;
+  font-weight: bold;
+}
