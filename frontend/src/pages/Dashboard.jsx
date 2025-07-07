@@ -1,8 +1,8 @@
 // src/pages/Dashboard.jsx
 
 import { useEffect, useState } from 'react';
-import { getGastos } from '../services/movimientos.api';
-import './Dashboard.css';
+import { getMovement } from '../services/movimientos.api';
+import '../styles/Form.css';
 
 function Dashboard({ token }) {
   const [gastos, setGastos] = useState([]);
@@ -12,7 +12,7 @@ function Dashboard({ token }) {
   useEffect(() => {
     async function fetchGastos() {
       try {
-        const data = await getGastos(token);
+        const data = await getMovement(token);
         setGastos(data);
       } catch (err) {
         console.error('Error al cargar los movimientos:', err);
@@ -28,7 +28,7 @@ function Dashboard({ token }) {
     return <p>Cargando movimientos...</p>;
   }
   if (error) {
-    return <p style={{ color: 'red' }}>{error}</p>;
+    return <p className="error">{error}</p>;
   }
 
   return (

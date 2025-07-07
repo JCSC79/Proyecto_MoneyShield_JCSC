@@ -8,7 +8,6 @@
   border-radius: 0 0 12px 12px;
   margin-bottom: 32px;
 }
-
 .navbar a {
   color: #fff;
   text-decoration: none;
@@ -18,15 +17,10 @@
   border-radius: 4px;
   transition: background 0.2s;
 }
-
-.navbar a.active {
-  background: #1565c0;
-}
-
+.navbar a.active,
 .navbar a:hover {
   background: #1565c0;
 }
-
 .navbar button {
   background: #f44336;
   color: #fff;
@@ -39,7 +33,6 @@
   transition: background 0.2s;
   margin-left: 12px;
 }
-
 .navbar button:hover {
   background: #b71c1c;
 }

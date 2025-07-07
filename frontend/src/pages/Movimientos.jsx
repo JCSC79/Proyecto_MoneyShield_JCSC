@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createMovement } from '../services/movimientos.api';
 import { getCategories } from '../services/categories.api';
-import './Movimientos.css';
+import '../styles/Form.css';
 
 function NuevoMovimiento({ token }) {
   const [form, setForm] = useState({
@@ -53,7 +53,7 @@ function NuevoMovimiento({ token }) {
   return (
     <div>
       <h1 style={{ textAlign: 'center' }}>Registrar ingreso o gasto</h1>
-      <form className="nuevo-movimiento-form" onSubmit={handleSubmit}>
+      <form className="form-base" onSubmit={handleSubmit}>
         <select
           name="type_id"
           value={form.type_id}

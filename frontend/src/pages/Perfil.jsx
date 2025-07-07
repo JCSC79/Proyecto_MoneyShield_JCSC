@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getPerfil } from '../services/users.api';
-import '../styles/Form.css';
+import '../styles/Form.css'
 
 function Perfil({ token }) {
   const [usuario, setUsuario] = useState(null);
