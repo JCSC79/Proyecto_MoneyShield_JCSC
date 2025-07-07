@@ -1,7 +1,7 @@
 // src/pages/Dashboard.jsx
 
 import { useEffect, useState } from 'react';
-import { getGastos } from '../services/gastos.api';
+import { getGastos } from '../services/movimientos.api';
 import './Dashboard.css';
 
 function Dashboard({ token }) {

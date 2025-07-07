@@ -1,15 +1,9 @@
-// src/services/gastos.api.js
+// src/services/movimientos.api.js
 
 import api from './axios';
 
-// Llama al backend para obtener la lista de gastos (transacciones)
-// export async function getGastos() {
-//   const res = await api.get('/transactions');
-//   return res.data; // Devuelve la lista de gastos
-// }
-
-
-export async function getGastos(token) {
+// Funciones para interactuar con la API de gastos
+export async function getMovement(token) {
   const res = await api.get('/transactions', {
     headers: {
       Authorization: `Bearer ${token}` // Envía el token en la cabecera de autorización
@@ -18,7 +12,7 @@ export async function getGastos(token) {
   return res.data; // Devuelve la lista de gastos
 }
 
-export async function createGasto( token, data ) {
+export async function createMovement( token, data ) {
   const res = await api.post('/transactions', data, {
     headers: {
       Authorization: `Bearer ${token}` // Envía el token en la cabecera de autorización

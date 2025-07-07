@@ -1,11 +1,11 @@
-// src/pages/NuevoGasto.jsx
+// src/pages/Movimientos.jsx
 
 import { useState, useEffect } from 'react';
-import { createGasto } from '../services/gastos.api';
+import { createMovement } from '../services/movimientos.api';
 import { getCategories } from '../services/categories.api';
-import './NuevoGasto.css';
+import './Movimientos.css';
 
-function NuevoGasto({ token }) {
+function NuevoMovimiento({ token }) {
   const [form, setForm] = useState({
     amount: '',
     category_id: '',
@@ -39,7 +39,7 @@ function NuevoGasto({ token }) {
         category_id: Number(form.category_id),
         type_id: Number(form.type_id)
       };
-      await createGasto(token, data);
+      await createMovement(token, data);
       setSuccess('¡Registro exitoso!');
       setForm({ amount: '', category_id: '', description: '', type_id: 2 });
     } catch (err) {
@@ -53,7 +53,7 @@ function NuevoGasto({ token }) {
   return (
     <div>
       <h1 style={{ textAlign: 'center' }}>Registrar ingreso o gasto</h1>
-      <form className="nuevo-gasto-form" onSubmit={handleSubmit}>
+      <form className="nuevo-movimiento-form" onSubmit={handleSubmit}>
         <select
           name="type_id"
           value={form.type_id}
@@ -101,4 +101,4 @@ function NuevoGasto({ token }) {
   );
 }
 
-export default NuevoGasto;
+export default NuevoMovimiento;
