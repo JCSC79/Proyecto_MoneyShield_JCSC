@@ -23,8 +23,21 @@ function NuevoMovimiento({ token }) {
       .catch(() => setError('Error al cargar categorías'));
   }, []);
 
+  // Cambio aquí: resetea category_id si cambia type_id (8 de julio 2025)
   const handleChange = e => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === "type_id") {
+      setForm(prev => ({
+        ...prev,
+        type_id: value,
+        category_id: '' // Resetea la categoría al cambiar tipo
+      }));
+    } else {
+      setForm(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = async e => {
@@ -49,6 +62,13 @@ function NuevoMovimiento({ token }) {
       setLoading(false);
     }
   };
+
+  // Convierte form.type_id a número antes de filtrar
+  const typeId = Number(form.type_id);
+  const filteredCategories = categories.filter(cat =>
+    (typeId === 1 && (cat.type === 'income' || cat.type === 'both')) ||
+    (typeId === 2 && (cat.type === 'expense' || cat.type === 'both'))
+  );
 
   return (
     <div>
@@ -80,7 +100,7 @@ function NuevoMovimiento({ token }) {
           required
         >
           <option value="">Selecciona una categoría</option>
-          {categories.map(cat => (
+          {filteredCategories.map(cat => (
             <option key={cat.id} value={cat.id}>{cat.name}</option>
           ))}
         </select>

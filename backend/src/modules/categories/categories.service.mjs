@@ -37,37 +37,43 @@ export async function getCategoryById(id) {
 /**
  * Crear nueva categoría | Create new category
  */
-export async function createCategory({ name }) {
+export async function createCategory({ name, type }) { //Actualizado 8 de julio para inclui type como selector
   if (!isNonEmptyString(name)) {
-    return Result.Fail(Errors.MISSING_FIELD('name'), 400); //Mensaje de error centralizado 26 de junio
+    return Result.Fail(Errors.MISSING_FIELD('name'), 400);
+  }
+  if (!type || !['income', 'expense', 'both'].includes(type)) {
+    return Result.Fail(Errors.MISSING_FIELD('type'), 400);
   }
   try {
     if (await categoryDao.categoryExistsByName(name.trim())) {
-      return Result.Fail(Errors.ALREADY_EXISTS('Category'), 409); // Mensaje de error centralizado 26 de junio
+      return Result.Fail(Errors.ALREADY_EXISTS('Category'), 409);
     }
-    const category = await categoryDao.createCategory({ name: name.trim() });
+    const category = await categoryDao.createCategory({ name: name.trim(), type });
     return Result.Success(category);
   } catch (error) {
-    logger.error(`[Categories] Error en createCategory: ${error.message}`, { error }); // Cambio 30 de junio
-    return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
+    logger.error(`[Categories] Error en createCategory: ${error.message}`, { error });
+    return Result.Fail(Errors.INTERNAL, 500);
   }
 }
 
 /**
  * Actualizar categoría | Update category
  */
-export async function updateCategory(id, { name }) {
+export async function updateCategory(id, { name, type }) { //Actualizado 8 de julio para inclui type como selector
   if (!isNonEmptyString(name)) {
-    return Result.Fail(Errors.MISSING_FIELD('name'), 400); // Mensaje de error centralizado 26 de junio
+    return Result.Fail(Errors.MISSING_FIELD('name'), 400);
+  }
+  if (!type || !['income', 'expense', 'both'].includes(type)) {
+    return Result.Fail(Errors.MISSING_FIELD('type'), 400);
   }
   try {
-    const updated = await categoryDao.updateCategory(id, { name: name.trim() });
+    const updated = await categoryDao.updateCategory(id, { name: name.trim(), type });
     return updated
       ? Result.Success(true)
-      : Result.Fail(Errors.NOT_FOUND('Category'), 404); // Mensaje de error centralizado 26 de junio
+      : Result.Fail(Errors.NOT_FOUND('Category'), 404);
   } catch (error) {
-    logger.error(`[Categories] Error en updateCategory: ${error.message}`, { error }); // Cambio 30 de junio
-    return Result.Fail(Errors.INTERNAL, 500); // Mensaje de error centralizado 26 de junio
+    logger.error(`[Categories] Error en updateCategory: ${error.message}`, { error });
+    return Result.Fail(Errors.INTERNAL, 500);
   }
 }
 

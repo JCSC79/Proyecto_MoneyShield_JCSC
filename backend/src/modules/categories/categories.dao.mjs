@@ -7,7 +7,7 @@ import db from '../../db/DBHelper.mjs';
  */
 export async function getAllCategories() {
   const [rows] = await db.query(
-    `SELECT id, name FROM categories ORDER BY name`
+    `SELECT id, name, type FROM categories ORDER BY name` // Agregando type 8 de julio 2025
   );
   return rows;
 }
@@ -17,7 +17,7 @@ export async function getAllCategories() {
  */
 export async function getCategoryById(id) {
   const [rows] = await db.query(
-    `SELECT id, name FROM categories WHERE id = ?`,
+    `SELECT id, name, type FROM categories WHERE id = ?`, // Agregando type 8 de julio 2025
     [id]
   );
   return rows[0];
@@ -26,21 +26,21 @@ export async function getCategoryById(id) {
 /**
  * Crear nueva categoría | Create new category
  */
-export async function createCategory({ name }) {
+export async function createCategory({ name, type = 'expense' }) {
   const [result] = await db.query(
-    `INSERT INTO categories (name) VALUES (?)`,
-    [name]
+    `INSERT INTO categories (name, type) VALUES (?, ?)`, //Modificado 8 de julio 2025
+    [name, type]
   );
-  return { id: result.insertId, name };
+  return { id: result.insertId, name, type };
 }
 
 /**
  * Actualizar categoría | Update category
  */
-export async function updateCategory(id, { name }) {
+export async function updateCategory(id, { name, type }) {
   const [result] = await db.query(
-    `UPDATE categories SET name = ? WHERE id = ?`,
-    [name, id]
+    `UPDATE categories SET name = ?, type = ? WHERE id = ?`, //Modificado 8 de julio 2025
+    [name, type, id]
   );
   return result.affectedRows > 0;
 }
