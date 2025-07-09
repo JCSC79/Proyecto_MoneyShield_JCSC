@@ -1,8 +1,11 @@
 // src/pages/Login.jsx
 
 import { useState } from 'react';
-import { login } from '../services/auth.api';
 import '../styles/Form.css';
+import { login } from '../services/auth.api';
+import Input from '../components/Input';
+import Button from '../components/Button';
+import Alert from '../components/Alert';
 
 function Login({ onLogin }) {
   const [email, setEmail] = useState('');
@@ -26,22 +29,24 @@ function Login({ onLogin }) {
     <div>
       <h2 style={{ textAlign: 'center' }}>Iniciar sesión</h2>
       <form className="form-base" onSubmit={handleSubmit}>
-        <input
+        <Input
           type="email"
+          label="Correo electrónico"
           placeholder="Correo electrónico"
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
         />
-        <input
+        <Input
           type="password"
+          label="Contraseña"
           placeholder="Contraseña"
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
         />
-        <button type="submit">Entrar</button>
-        {error && <div className="error">{error}</div>}
+        <Button type="submit">Entrar</Button>
+        {error && <Alert type="error">{error}</Alert>}
       </form>
     </div>
   );

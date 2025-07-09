@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import '../styles/Form.css';
 import { registerUser } from '../services/users.api';
+import Input from '../components/Input';
+import Button from '../components/Button';
+import Alert from '../components/Alert';
 
 function Registro() {
   const [form, setForm] = useState({
@@ -10,7 +13,7 @@ function Registro() {
     last_name: '',
     email: '',
     password: '',
-    profile_id: 2, // usuario normal
+    profile_id: 2,
     base_budget: '',
     base_saving: ''
   });
@@ -32,7 +35,6 @@ function Registro() {
     setError('');
     setSuccess('');
     try {
-      // Envía base_budget y base_saving como número, o 0 si están vacíos
       const data = {
         ...form,
         base_budget: form.base_budget ? Number(form.base_budget) : 0,
@@ -61,57 +63,63 @@ function Registro() {
     <div>
       <h2 style={{ textAlign: 'center' }}>Registro de Usuario</h2>
       <form className="form-base" onSubmit={handleSubmit}>
-        <input
+        <Input
           name="first_name"
+          label="Nombre"
           placeholder="Nombre"
           value={form.first_name}
           onChange={handleChange}
           required
         />
-        <input
+        <Input
           name="last_name"
+          label="Apellido"
           placeholder="Apellido"
           value={form.last_name}
           onChange={handleChange}
           required
         />
-        <input
+        <Input
           name="email"
+          label="Correo electrónico"
           type="email"
           placeholder="Correo electrónico"
           value={form.email}
           onChange={handleChange}
           required
         />
-        <input
+        <Input
           name="password"
+          label="Contraseña"
           type="password"
           placeholder="Contraseña"
           value={form.password}
           onChange={handleChange}
           required
         />
-        <input
+        <Input
           name="base_budget"
+          label="Presupuesto base mensual (opcional)"
           type="number"
-          placeholder="Presupuesto base mensual (opcional)"
+          placeholder="Presupuesto base mensual"
           value={form.base_budget}
           onChange={handleChange}
           min="0"
         />
-        <input
+        <Input
           name="base_saving"
+          label="Ahorro base mensual (opcional)"
           type="number"
-          placeholder="Ahorro base mensual (opcional)"
+          placeholder="Ahorro base mensual"
           value={form.base_saving}
           onChange={handleChange}
           min="0"
         />
-        <button type="submit" disabled={loading}>
+        <Button type="submit" disabled={loading}>
           {loading ? 'Registrando...' : 'Registrarse'}
-        </button>
-        {success && <div className="success">{success}</div>}
-        {error && <div className="error">{error}</div>}
+        </Button>
+        {success && <Alert type="success">{success}</Alert>}
+        {error && <Alert type="error">{error}</Alert>}
       </form>
       <div style={{ marginTop: 12, fontSize: '0.98em', color: '#555' }}>
         <strong>¿Para qué sirve?</strong><br />

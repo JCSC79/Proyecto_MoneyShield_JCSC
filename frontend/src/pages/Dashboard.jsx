@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { getMovement } from '../services/movimientos.api';
 import '../styles/Form.css';
+import Alert from '../components/Alert';
 
 function Dashboard({ token }) {
   const [gastos, setGastos] = useState([]);
@@ -28,7 +29,7 @@ function Dashboard({ token }) {
     return <p>Cargando movimientos...</p>;
   }
   if (error) {
-    return <p className="error">{error}</p>;
+    return <Alert type="error">{error}</Alert>;
   }
 
   return (
@@ -57,4 +58,3 @@ function Dashboard({ token }) {
 }
 
 export default Dashboard;
-

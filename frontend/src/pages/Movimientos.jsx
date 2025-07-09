@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { createMovement } from '../services/movimientos.api';
 import { getCategories } from '../services/categories.api';
 import '../styles/Form.css';
+import Input from '../components/Input';
+import Button from '../components/Button';
+import Alert from '../components/Alert';
 
 function NuevoMovimiento({ token }) {
   const [form, setForm] = useState({
@@ -23,14 +26,13 @@ function NuevoMovimiento({ token }) {
       .catch(() => setError('Error al cargar categorías'));
   }, []);
 
-  // Cambio aquí: resetea category_id si cambia type_id (8 de julio 2025)
   const handleChange = e => {
     const { name, value } = e.target;
     if (name === "type_id") {
       setForm(prev => ({
         ...prev,
         type_id: value,
-        category_id: '' // Resetea la categoría al cambiar tipo
+        category_id: ''
       }));
     } else {
       setForm(prev => ({
@@ -56,14 +58,13 @@ function NuevoMovimiento({ token }) {
       setSuccess('¡Registro exitoso!');
       setForm({ amount: '', category_id: '', description: '', type_id: 2 });
     } catch (err) {
-      console.error('Error al registrar el movimiento:', err);
+      console.error('Error al registrar usuario:', err);
       setError('Error al registrar el movimiento');
     } finally {
       setLoading(false);
     }
   };
 
-  // Convierte form.type_id a número antes de filtrar
   const typeId = Number(form.type_id);
   const filteredCategories = categories.filter(cat =>
     (typeId === 1 && (cat.type === 'income' || cat.type === 'both')) ||
@@ -74,18 +75,23 @@ function NuevoMovimiento({ token }) {
     <div>
       <h1 style={{ textAlign: 'center' }}>Registrar ingreso o gasto</h1>
       <form className="form-base" onSubmit={handleSubmit}>
-        <select
-          name="type_id"
-          value={form.type_id}
-          onChange={handleChange}
-          required
-        >
-          <option value={2}>Gasto</option>
-          <option value={1}>Ingreso</option>
-        </select>
-        <input
+        <div style={{ marginBottom: 12 }}>
+          <label style={{ display: 'block', marginBottom: 4 }}>Tipo de movimiento</label>
+          <select
+            name="type_id"
+            value={form.type_id}
+            onChange={handleChange}
+            required
+            className="input"
+          >
+            <option value={2}>Gasto</option>
+            <option value={1}>Ingreso</option>
+          </select>
+        </div>
+        <Input
           type="number"
           name="amount"
+          label="Cantidad"
           placeholder="Cantidad"
           value={form.amount}
           onChange={handleChange}
@@ -93,29 +99,34 @@ function NuevoMovimiento({ token }) {
           min="0.01"
           step="0.01"
         />
-        <select
-          name="category_id"
-          value={form.category_id}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Selecciona una categoría</option>
-          {filteredCategories.map(cat => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
-          ))}
-        </select>
-        <input
+        <div style={{ marginBottom: 12 }}>
+          <label style={{ display: 'block', marginBottom: 4 }}>Categoría</label>
+          <select
+            name="category_id"
+            value={form.category_id}
+            onChange={handleChange}
+            required
+            className="input"
+          >
+            <option value="">Selecciona una categoría</option>
+            {filteredCategories.map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+        </div>
+        <Input
           type="text"
           name="description"
+          label="Descripción"
           placeholder="Descripción"
           value={form.description}
           onChange={handleChange}
         />
-        <button type="submit" disabled={loading}>
+        <Button type="submit" disabled={loading}>
           {loading ? 'Guardando...' : 'Registrar'}
-        </button>
-        {success && <div className="success">{success}</div>}
-        {error && <div className="error">{error}</div>}
+        </Button>
+        {success && <Alert type="success">{success}</Alert>}
+        {error && <Alert type="error">{error}</Alert>}
       </form>
     </div>
   );

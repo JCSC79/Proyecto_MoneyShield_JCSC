@@ -83,3 +83,26 @@
   font-size: 1.1em;
   font-weight: bold;
 }
+
+.input {
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+  font-size: 1em;
+  width: 100%;
+  box-sizing: border-box;
+}
+.button {
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  background: #1976d2;
+  color: #fff;
+  font-size: 1.05em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.button:disabled {
+  background: #90caf9;
+  cursor: not-allowed;
+}
