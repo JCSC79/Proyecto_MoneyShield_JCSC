@@ -9,10 +9,6 @@ import { withTransaction } from '../../db/withTransaction.mjs';
 import { omitPassword } from '../../utils/omitFields.mjs';
 import { logger } from '../../utils/logger.mjs'; // Importa el logger para registrar errores y eventos | Import logger to log errors and events
 
-// Prueba de log manual | Manual log test
-logger.error('Prueba de log manual');
-logger.info('Prueba de log info');
-
 // Campos permitidos para actualización parcial | Allowed fields for partial update
 const ALLOWED_PATCH_FIELDS = new Set([
   'first_name', 'last_name', 'email',
