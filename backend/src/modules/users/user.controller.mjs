@@ -2,7 +2,7 @@
 
 import express from 'express'; // Importamos express | Import el servicio de usuario
 import * as userService from './user.service.mjs'; // Importamos el servicio de usuario | Import user service
-import { authenticate, authorize } from '../auth/auth.middleware.mjs'; // Importamos middleware de autenticación y autorización | Import authentication and authorization middleware
+import { authenticate, authorize, authenticateOptional } from '../auth/auth.middleware.mjs'; // Importamos middleware de autenticación y autorización | Import authentication and authorization middleware
 import { validateIdParam } from '../../middlewares/validateParams.middleware.mjs'; // Importamos middleware de validación de parámetros | Import parameter validation middleware
 import { allowSelfOrAdmin } from '../../middlewares/accessControl.middleware.mjs'; // Importamos middleware de control de acceso | Import access control middleware
 
@@ -89,13 +89,12 @@ router.get('/:id', validateIdParam, authenticate, allowSelfOrAdmin, async (req, 
  *         application/json:
  *           schema:
  *             type: object
- *             required: [first_name, last_name, email, password_hash, profile_id]
+ *             required: [first_name, last_name, email, password]
  *             properties:
  *               first_name: {type: string}
  *               last_name: {type: string}
  *               email: {type: string, format: email}
- *               password_hash: {type: string}
- *               profile_id: {type: integer, enum: [1, 2]} # 1 = admin, 2 = user
+ *               password: {type: string, format: password}
  *               base_budget: {type: number, default: 0}
  *               base_saving: {type: number, default: 0}
  *     responses:
@@ -104,12 +103,39 @@ router.get('/:id', validateIdParam, authenticate, allowSelfOrAdmin, async (req, 
  *      400:
  *        description: Bad request | Solicitud incorrecta
  */
-router.post('/', async (req, res) => {
-  const userData = req.body;
-  const result = await userService.createUser(userData);
-  result.success
-    ? res.status(201).json(result.data)
-    : res.status(result.error.code).json({ error: result.error.message });
+router.post('/', authenticateOptional, async (req, res) => {
+  const {
+    first_name,
+    last_name,
+    email,
+    password, // Solo password ahora
+    base_budget = 0,
+    base_saving = 0
+  } = req.body;
+
+  // Decide el perfil:
+  // - Si es registro abierto o usuario normal autenticado: profile_id = 2
+  // - Si es admin autenticado y envía profile_id, se respeta
+  let profile_id = 2;
+  if (req.user && req.user.profile_id === 1 && req.body.profile_id) {
+    profile_id = req.body.profile_id;
+  }
+
+  const result = await userService.createUser({
+    first_name,
+    last_name,
+    email,
+    password,
+    profile_id,
+    base_budget,
+    base_saving
+  });
+
+  if (result.success) {
+    res.status(201).json(result.data);
+  } else {
+    res.status(result.error.code).json({ error: result.error.message });
+  }
 });
 
 /**

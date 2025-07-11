@@ -35,3 +35,23 @@ export function authorize(allowedRoles) {
     next();
   };
 }
+
+// Middleware de autenticación opcional
+export function authenticateOptional(req, res, next) {
+  const authHeader = req.header('Authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = {
+        id: decoded.id,
+        email: decoded.email,
+        profile_id: decoded.profile_id
+      };
+    } catch (err) {
+      // Si el token es inválido, ignoramos y seguimos como usuario anónimo
+    }
+  }
+  next();
+}
+

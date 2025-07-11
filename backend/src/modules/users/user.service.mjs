@@ -43,14 +43,14 @@ export async function getUserById(id) {
 // Crear un nuevo usuario | Create a new user
 export async function createUser(userData) {
   // Validar campos requeridos | Validate required fields
-  const requiredFields = ['first_name', 'last_name', 'email', 'password_hash', 'profile_id'];
+  const requiredFields = ['first_name', 'last_name', 'email', 'password', 'profile_id'];
   const missingField = checkRequiredFields(userData, requiredFields);
   if (missingField) {
     return Result.Fail(Errors.MISSING_FIELD(missingField), 400); // Mensaje centralizado 25 de junio
   }
 
   // Validar formato y fortaleza de contraseña | Validate password format and strength
-  if (!isStrongPassword(userData.password_hash)) {
+  if (!isStrongPassword(userData.password)) {
     return Result.Fail(Errors.INVALID_PASSWORD, 400); // Mensaje centralizado 25 de junio
   }
 
@@ -72,13 +72,18 @@ export async function createUser(userData) {
   }
 
   // Hashear la contraseña antes de guardar | Hash the password before saving
-  const hashedPassword = await bcrypt.hash(userData.password_hash, 10);
-  userData.password_hash = hashedPassword;
+  const password_hash = await bcrypt.hash(userData.password, 10);
+
+  const userForDao = {
+    ...userData,
+    password_hash
+  };
+  delete userForDao.password;
 
   // Refactor: Usando withTransaction 26 de junio
   const result = await withTransaction(async (connection) => {
     try {
-      const user = await userDao.createUser(userData, connection);
+      const user = await userDao.createUser(userForDao, connection);
       return Result.Success(omitPassword(user));
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
@@ -89,7 +94,7 @@ export async function createUser(userData) {
     }
   });
   return result;
-
+  
 }
 
 // Actualizar completamente un usuario | Fully update a user
