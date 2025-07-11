@@ -13,7 +13,7 @@ function Registro() {
     last_name: '',
     email: '',
     password: '',
-    profile_id: 2,
+    //profile_id: 2,
     base_budget: '',
     base_saving: ''
   });
@@ -36,7 +36,10 @@ function Registro() {
     setSuccess('');
     try {
       const data = {
-        ...form,
+        first_name: form.first_name,
+        last_name: form.last_name,
+        email: form.email,
+        password: form.password,
         base_budget: form.base_budget ? Number(form.base_budget) : 0,
         base_saving: form.base_saving ? Number(form.base_saving) : 0
       };
@@ -47,7 +50,7 @@ function Registro() {
         last_name: '',
         email: '',
         password: '',
-        profile_id: 2,
+        //profile_id: 2,
         base_budget: '',
         base_saving: ''
       });

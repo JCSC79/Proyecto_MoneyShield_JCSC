@@ -16,12 +16,12 @@ export function authenticate(req, res, next) {
       email: decoded.email,
       profile_id: decoded.profile_id
     };
-    next();
+    return next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
       return res.status(401).json({ error: 'Token expired' });
     }
-    res.status(401).json({ error: 'Invalid token' });
+    return res.status(401).json({ error: 'Invalid token' });
   }
 }
 

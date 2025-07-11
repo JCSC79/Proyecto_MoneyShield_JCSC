@@ -7,6 +7,9 @@
 
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
+import { logger } from '../utils/logger.mjs';
+import { Result } from '../utils/result.mjs';
+import { Errors } from '../constants/errorMessages.mjs';
 dotenv.config();
 
 // Comprobación de variables de entorno requeridas | Required env check
@@ -49,6 +52,24 @@ export async function end() {
   return pool.end();
 }
 
+// Ensayo para sustituir withTransaction 11 de julio
+export const transactionQuery = async (sql, params) => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+    const [result] = await connection.query(sql, params);
+    await connection.commit();
+    return result;
+  } catch (error) {
+    logger.error(`[DB] Error en transactionQuery: ${error.message}`, { error });
+    if (connection) await connection.rollback();
+    return Result.Fail(Errors.INTERNAL, 500);
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
 // Exporta el pool y los helpers
 // Export pool and helpers
 export default {
@@ -56,4 +77,5 @@ export default {
   query,
   getConnection,
   end,
+  transactionQuery,
 };

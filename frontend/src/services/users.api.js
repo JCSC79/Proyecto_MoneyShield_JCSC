@@ -4,8 +4,8 @@ import api from './axios';
 
 // Registrar un nuevo usuario
 export async function registerUser(data) {
-  const payload = { ...data, password_hash: data.password };
-  delete payload.password;
+  // const payload = { ...data, password_hash: data.password };
+  // delete payload.password;
   const res = await api.post('/users', payload);
   return res.data;
 }
