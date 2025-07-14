@@ -7,7 +7,6 @@ import { isValidEmail, isStrongPassword, checkRequiredFields, commonUserValidati
 import { Errors } from '../../constants/errorMessages.mjs'; // Importa los mensajes centralizados | Import centralized error messages
 import { omitPassword } from '../../utils/omitFields.mjs';
 import { logger } from '../../utils/logger.mjs'; // Importa el logger para registrar errores y eventos | Import logger to log errors and events
-import db from '../../db/DBHelper.mjs'; // Importa la conexión a la base de datos | Import database connection
 
 // Campos permitidos para actualización parcial | Allowed fields for partial update
 const ALLOWED_PATCH_FIELDS = new Set([
@@ -74,34 +73,21 @@ export async function createUser(userData) {
   // Hashear la contraseña antes de guardar | Hash the password before saving
   const password_hash = await bcrypt.hash(userData.password, 10);
 
-  // Prepara los datos para el insert
-  const params = [
-    userData.first_name,
-    userData.last_name,
-    userData.email,
-    password_hash,
-    userData.profile_id,
-    userData.base_budget || 0,
-    userData.base_saving || 0
-  ];
+  // Prepara el objeto para el DAO
+  const userForDao = {
+    ...userData,
+    password_hash
+  };
+  delete userForDao.password;
 
-  // Ejecuta el insert en transacción
-  const result = await db.transactionQuery(
-    `INSERT INTO users (first_name, last_name, email, password_hash, profile_id, base_budget, base_saving)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    params
-  );
-
-  // Maneja errores de duplicado
-  if (result.code === 'ER_DUP_ENTRY') {
-    return Result.Fail(Errors.EMAIL_EXISTS, 409);
-  }
-
-  // Si el insert fue exitoso, busca y devuelve el usuario creado (sin password)
-  if (result.insertId) {
-    const createdUser = await userDao.getUserById(result.insertId);
+  try {
+    const createdUser = await userDao.createUser(userForDao);
     return Result.Success(omitPassword(createdUser));
-  } else {
+  } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY') {
+      return Result.Fail(Errors.EMAIL_EXISTS, 409);
+    }
+    logger.error(`[Users] Error en createUser: ${error.message}`, { error });
     return Result.Fail(Errors.INTERNAL, 500);
   }
 
