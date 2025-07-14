@@ -5,7 +5,6 @@ import bcrypt from 'bcryptjs'; // Librería para encriptar contraseñas | Librar
 import { Result } from '../../utils/result.mjs'; // Importa clase Result para manejar resultados de operaciones | Import Result class to handle operation results
 import { isValidEmail, isStrongPassword, checkRequiredFields, commonUserValidations } from '../../utils/validation.mjs'; // Importa funciones de validación | Import validation functions
 import { Errors } from '../../constants/errorMessages.mjs'; // Importa los mensajes centralizados | Import centralized error messages
-//import { withTransaction } from '../../db/withTransaction.mjs';
 import { omitPassword } from '../../utils/omitFields.mjs';
 import { logger } from '../../utils/logger.mjs'; // Importa el logger para registrar errores y eventos | Import logger to log errors and events
 import db from '../../db/DBHelper.mjs'; // Importa la conexión a la base de datos | Import database connection
@@ -74,27 +73,6 @@ export async function createUser(userData) {
 
   // Hashear la contraseña antes de guardar | Hash the password before saving
   const password_hash = await bcrypt.hash(userData.password, 10);
-
-  // const userForDao = {
-  //   ...userData,
-  //   password_hash
-  // };
-  // delete userForDao.password;
-
-  // // Refactor: Usando withTransaction 26 de junio
-  // const result = await withTransaction(async (connection) => {
-  //   try {
-  //     const user = await userDao.createUser(userForDao, connection);
-  //     return Result.Success(omitPassword(user));
-  //   } catch (error) {
-  //     if (error.code === 'ER_DUP_ENTRY') {
-  //       return Result.Fail(Errors.EMAIL_EXISTS, 409); // Mensaje centralizado 25 de junio
-  //     }
-  //     logger.error(`[Users] Error en createUser (transaction): ${error.message}`, { error }); // Nuevo logger 27 de junio
-  //     return Result.Fail(Errors.INTERNAL, 500); // Mensaje centralizado 25 de junio
-  //   }
-  // });
-  // return result;
 
   // Prepara los datos para el insert
   const params = [
