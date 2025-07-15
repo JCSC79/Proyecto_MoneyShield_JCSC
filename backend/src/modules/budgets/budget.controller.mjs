@@ -3,6 +3,8 @@
 import express from 'express';
 import * as budgetService from './budget.service.mjs';
 import { validateIdParam } from '../../middlewares/validateParams.middleware.mjs';
+import { authenticate } from '../auth/auth.middleware.mjs';
+import { allowSelfOrAdminBudget, forceSelfFilter } from '../../middlewares/accessControl.middleware.mjs';
 
 const router = express.Router();
 
@@ -40,7 +42,7 @@ const router = express.Router();
  *       200:
  *         description: List of budgets | Lista de presupuestos
  */
-router.get('/', async (req, res) => {
+router.get('/', authenticate, forceSelfFilter, async (req, res) => {
   const result = await budgetService.getAllBudgets(req.query);
   if (result.success) {
     res.status(200).json(result.data);
@@ -66,7 +68,7 @@ router.get('/', async (req, res) => {
  *       404:
  *         description: Budget not found | Presupuesto no encontrado
  */
-router.get('/:id', validateIdParam, async (req, res) => {
+router.get('/:id', validateIdParam, authenticate, allowSelfOrAdminBudget, async (req, res) => {
   const result = await budgetService.getBudgetById(req.params.id);
   if (result.success) {
     res.status(200).json(result.data);
@@ -87,9 +89,8 @@ router.get('/:id', validateIdParam, async (req, res) => {
  *         application/json:
  *           schema:
  *             type: object
- *             required: [user_id, category_id, budget_type, year, amount]
+ *             required: [category_id, budget_type, year, amount]
  *             properties:
- *               user_id: { type: integer }
  *               category_id: { type: integer }
  *               budget_type: { type: string, enum: [monthly, annual] }
  *               year: { type: integer }
@@ -102,8 +103,9 @@ router.get('/:id', validateIdParam, async (req, res) => {
  *       400:
  *         description: Invalid request | Solicitud inválida
  */
-router.post('/', async (req, res) => {
-  const result = await budgetService.createBudget(req.body);
+router.post('/', authenticate, async (req, res) => {
+  const data = { ...req.body, user_id: req.user.id }; // Aseguramos que el user_id sea del usuario autenticado
+  const result = await budgetService.createBudget(data);
   if (result.success) {
     res.status(201).json(result.data);
   } else {
@@ -142,7 +144,7 @@ router.post('/', async (req, res) => {
  *       404:
  *         description: Budget not found | Presupuesto no encontrado
  */
-router.put('/:id', validateIdParam, async (req, res) => {
+router.put('/:id', validateIdParam, authenticate, allowSelfOrAdminBudget, async (req, res) => {
   const result = await budgetService.updateBudget(req.params.id, req.body);
   if (result.success) {
     res.status(200).json(result.data); // Cambio 27 junio
@@ -181,7 +183,7 @@ router.put('/:id', validateIdParam, async (req, res) => {
  *       404:
  *         description: Budget not found | Presupuesto no encontrado
  */
-router.patch('/:id', validateIdParam, async (req, res) => {
+router.patch('/:id', validateIdParam, authenticate, allowSelfOrAdminBudget, async (req, res) => {
   const result = await budgetService.updateBudget(req.params.id, req.body);
   if (result.success) {
     res.status(200).json(result.data); // Cambio 27 junio
@@ -207,7 +209,7 @@ router.patch('/:id', validateIdParam, async (req, res) => {
  *       404:
  *         description: Budget not found | Presupuesto no encontrado
  */
-router.delete('/:id', validateIdParam, async (req, res) => {
+router.delete('/:id', validateIdParam, authenticate, allowSelfOrAdminBudget, async (req, res) => {
   const result = await budgetService.deleteBudget(req.params.id);
   if (result.success) {
     res.status(200).json({ success: true, id: Number(req.params.id) }); // Cambio 27 junio
@@ -254,12 +256,12 @@ router.delete('/:id', validateIdParam, async (req, res) => {
  *                     type: number
  *                     example: -450.00
  */
-router.get('/report/remaining', async (req, res) => {
+router.get('/report/remaining', authenticate, forceSelfFilter, async (req, res) => {
   const user_id = Number(req.query.user_id);
   if (!user_id) {
     return res.status(400).json({ error: 'user_id is required' });
   }
-  const result = await budgetService.getRemainingBudget(user_id);
+  const result = await budgetService.getRemainingBudget(req.filtroForzado.user_id);
   if (result.success) {
     res.status(200).json(result.data);
   } else {
@@ -310,7 +312,7 @@ router.get('/report/remaining', async (req, res) => {
  *                     type: number
  *                     example: 80.00
  */
-router.get('/report/alerts', async (req, res) => {
+router.get('/report/alerts', authenticate, forceSelfFilter, async (req, res) => {
   const user_id = Number(req.query.user_id);
   const threshold = req.query.threshold ? Number(req.query.threshold) : 80;
   if (!user_id) {

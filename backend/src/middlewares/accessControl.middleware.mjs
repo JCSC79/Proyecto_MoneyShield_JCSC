@@ -1,6 +1,7 @@
 // src/middlewares/accessControl.middleware.mjs
 
 import * as transactionService from '../modules/transactions/transaction.service.mjs';
+import * as budgetService from '../modules/budgets/budget.service.mjs';
 
 export function allowSelfOrAdmin(req, res, next) {
   if (req.user.profile_id === 1 || req.user.id === Number(req.params.id)) {
@@ -42,4 +43,16 @@ export function forceSelfFilter(req, res, next) {
   }
   req.filtroForzado = filtro; // Guarda el filtro forzado en req para uso posterior
   next();
+}
+
+export async function allowSelfOrAdminBudget(req, res, next) {
+  const result = await budgetService.getBudgetById(req.params.id);
+  if (!result.success) {
+    return res.status(404).json({ error: 'Budget not found' });
+  }
+  const budget = result.data;
+  if (req.user.profile_id === 1 || budget.user_id === req.user.id) {
+    return next();
+  }
+  return res.status(403).json({ error: 'Forbidden' });
 }
