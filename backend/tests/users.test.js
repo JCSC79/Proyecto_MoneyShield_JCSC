@@ -47,7 +47,7 @@ describe('Users API (con autenticación JWT)', () => {
         first_name: 'Test',
         last_name: 'User',
         email: 'invalid-email',
-        password_hash: strongPassword,
+        password: strongPassword,
         profile_id: 2
       });
     expect(res.statusCode).toBe(400);
@@ -63,7 +63,7 @@ describe('Users API (con autenticación JWT)', () => {
         first_name: 'Test',
         last_name: 'User',
         email: `nonexistent${Date.now()}@example.com`,
-        password_hash: strongPassword,
+        password: strongPassword,
         profile_id: 9999
       });
     expect(res.statusCode).toBe(400);
@@ -79,7 +79,7 @@ describe('Users API (con autenticación JWT)', () => {
         first_name: 'Test',
         last_name: 'User',
         email: testEmail,
-        password_hash: strongPassword,
+        password: strongPassword,
         profile_id: 2
       });
     expect(res.statusCode).toBe(201);
@@ -103,7 +103,7 @@ describe('Users API (con autenticación JWT)', () => {
         first_name: 'Duplicate',
         last_name: 'User',
         email: testEmail,
-        password_hash: strongPassword,
+        password: strongPassword,
         profile_id: 2
       });
     expect(res.statusCode).toBe(409);

@@ -162,7 +162,7 @@ router.post('/', authenticate, async (req, res) => {
  *       404:
  *         description: Transaction not found | Transacción no encontrada
  */
-router.put('/:id', validateIdParam, async (req, res) => {
+router.put('/:id', validateIdParam, authenticate, allowSelfOrAdminTransaction, async (req, res) => {
   const result = await transactionService.updateTransaction(req.params.id, req.body);
   if (result.success) {
     res.status(200).json(result.data); // Cambio 27 junio: Devolver datos actualizados
@@ -209,7 +209,7 @@ router.put('/:id', validateIdParam, async (req, res) => {
  *       404:
  *         description: Transaction not found | Transacción no encontrada
  */
-router.patch('/:id', validateIdParam, async (req, res) => {
+router.patch('/:id', validateIdParam, authenticate, allowSelfOrAdminTransaction, async (req, res) => {
   const result = await transactionService.updateTransaction(req.params.id, req.body);
   if (result.success) {
     res.status(200).json(result.data); // Cambio 27 junio: Devolver datos actualizados
@@ -236,7 +236,7 @@ router.patch('/:id', validateIdParam, async (req, res) => {
  *       404:
  *         description: Transaction not found | Transacción no encontrada
  */
-router.delete('/:id', validateIdParam, async (req, res) => {
+router.delete('/:id', validateIdParam, authenticate,  allowSelfOrAdminTransaction, async (req, res) => {
   const result = await transactionService.deleteTransaction(req.params.id);
   if (result.success) {
     res.status(200).json({ success: true, id: Number(req.params.id) }); // Cambio 27 junio: Devolver ID de la transacción eliminada
