@@ -1,7 +1,7 @@
 // src/modules/users/user.service.mjs
 
 import * as userDao from './user.dao.mjs'; // Importa el DAO de usuario | Import user DAO
-import bcrypt from 'bcryptjs'; // Librería para encriptar contraseñas | Library for password hashing
+import { encrypt } from '../../utils/encryption.mjs';
 import { Result } from '../../utils/result.mjs'; // Importa clase Result para manejar resultados de operaciones | Import Result class to handle operation results
 import { isValidEmail, isStrongPassword, checkRequiredFields, commonUserValidations } from '../../utils/validation.mjs'; // Importa funciones de validación | Import validation functions
 import { Errors } from '../../constants/errorMessages.mjs'; // Importa los mensajes centralizados | Import centralized error messages
@@ -71,7 +71,7 @@ export async function createUser(userData) {
   }
 
   // Hashear la contraseña antes de guardar | Hash the password before saving
-  const password_hash = await bcrypt.hash(userData.password, 10);
+  const password_hash = encrypt(userData.password); // Encriptar la contraseña (nuevo método de encriptación)
 
   // Prepara el objeto para el DAO
   const userForDao = {
@@ -109,7 +109,7 @@ export async function editUser(id, userData) {
 
   // Hashear contraseña si está presente | Hash password if present
   if (userData.password_hash) {
-    userData.password_hash = await bcrypt.hash(userData.password_hash, 10);
+    userData.password_hash = encrypt(userData.password_hash); // Encriptar la contraseña (nuevo método de encriptación)
   }
 
   try {
@@ -136,7 +136,7 @@ export async function patchUser(id, fields) {
   }
 
   if (fields.password_hash) {
-    fields.password_hash = await bcrypt.hash(fields.password_hash, 10);
+    fields.password_hash = encrypt(fields.password_hash); // Encriptar la contraseña (nuevo método de encriptación)
   }
 
   try {

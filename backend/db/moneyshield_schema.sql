@@ -119,8 +119,8 @@ INSERT INTO profiles (name) VALUES
 INSERT INTO users 
   (first_name, last_name, email, password_hash, profile_id)
 VALUES
-  ('Admin', 'User', 'admin@money.com', '$2a$12$8/B/aamlRLtF.s5Tq0yLXOgEjma0z3LWzksX5y9LsudloSOen7iZK', 1),
-  ('Normal', 'User', 'user@money.com', '$2a$12$8/B/aamlRLtF.s5Tq0yLXOgEjma0z3LWzksX5y9LsudloSOen7iZK', 2);
+  ('Admin', 'User', 'admin@money.com', 'UlXkDteqpXuKPD6lp8lX1IBa9gHKL8n4WQ3E3w==', 1),
+  ('Normal', 'User', 'user@money.com', 'UlXkDteqpXuKPD6lp8lX1IBa9gHKL8n4WQ3E3w==', 2);
 
 -- Categorías iniciales con tipo
 INSERT INTO categories (name, type) VALUES
@@ -156,16 +156,16 @@ INSERT INTO saving_types (name) VALUES
 -- Usuarios de ejemplo
 INSERT INTO users (first_name, last_name, email, password_hash, profile_id, base_budget, base_saving)
 VALUES
-('Juan', 'Pérez', 'juan.perez@example.com', '$2a$10$nOUIs5kJ7naTuTFkBy1veuK0kSxUFXfuaOKdOKf9xYT0KKIGSJwFa', 2, 1200.00, 200.00),
-('Ana', 'García', 'ana.garcia@example.com', '$2a$10$nOUIs5kJ7naTuTFkBy1veuK0kSxUFXfuaOKdOKf9xYT0KKIGSJwFa', 2, 1500.00, 300.00),
-('Carlos', 'Sánchez', 'carlos.sanchez@example.com', '$2a$10$nOUIs5kJ7naTuTFkBy1veuK0kSxUFXfuaOKdOKf9xYT0KKIGSJwFa', 2, 1000.00, 100.00),
-('Lucía', 'Martínez', 'lucia.martinez@example.com', '$2a$10$nOUIs5kJ7naTuTFkBy1veuK0kSxUFXfuaOKdOKf9xYT0KKIGSJwFa', 2, 1800.00, 400.00),
-('Pedro', 'López', 'pedro.lopez@example.com', '$2a$10$nOUIs5kJ7naTuTFkBy1veuK0kSxUFXfuaOKdOKf9xYT0KKIGSJwFa', 2, 900.00, 150.00),
-('María', 'Ruiz', 'maria.ruiz@example.com', '$2a$10$nOUIs5kJ7naTuTFkBy1veuK0kSxUFXfuaOKdOKf9xYT0KKIGSJwFa', 2, 1100.00, 250.00),
-('Sofía', 'Torres', 'sofia.torres@example.com', '$2a$10$nOUIs5kJ7naTuTFkBy1veuK0kSxUFXfuaOKdOKf9xYT0KKIGSJwFa', 2, 1300.00, 350.00),
-('Miguel', 'Ramírez', 'miguel.ramirez@example.com', '$2a$10$nOUIs5kJ7naTuTFkBy1veuK0kSxUFXfuaOKdOKf9xYT0KKIGSJwFa', 2, 1700.00, 500.00),
-('Laura', 'Morales', 'laura.morales@example.com', '$2a$10$nOUIs5kJ7naTuTFkBy1veuK0kSxUFXfuaOKdOKf9xYT0KKIGSJwFa', 2, 1400.00, 200.00),
-('Diego', 'Fernández', 'diego.fernandez@example.com', '$2a$10$nOUIs5kJ7naTuTFkBy1veuK0kSxUFXfuaOKdOKf9xYT0KKIGSJwFa', 2, 1600.00, 300.00);
+('Juan', 'Pérez', 'juan.perez@example.com', 'yrRIyAYZ2lMHdJzCgXHF4X78Znqt4qtw5mM=', 2, 1200.00, 200.00),
+('Ana', 'García', 'ana.garcia@example.com', 'bfpAEySKk2Di9qxrA3gr7THg5G0BIAyuulA=', 2, 1500.00, 300.00),
+('Carlos', 'Sánchez', 'carlos.sanchez@example.com', 'jR7bWU7O39JiUcBf6veRB6pT/iY73Dwr0FBIXMI0', 2, 1000.00, 100.00),
+('Lucía', 'Martínez', 'lucia.martinez@example.com', 'szt1KCz3vIfPbTTY5d1gKMToNpolpftgmQpnEYbg', 2, 1800.00, 400.00),
+('Pedro', 'López', 'pedro.lopez@example.com', 'Yfm+0EheK2B/ePUEa+nQVJgcKYdcwmOcLIQH', 2, 900.00, 150.00),
+('María', 'Ruiz', 'maria.ruiz@example.com', 'NJj0cs90w68ONn6i/wAvxjIuLvpnsvbEmAM=', 2, 1100.00, 250.00),
+('Sofía', 'Torres', 'sofia.torres@example.com', 'Hw7nmIKFuj4NSWmUebb26nWfgP9pJKdf7BQ1+w==', 2, 1300.00, 350.00),
+('Miguel', 'Ramírez', 'miguel.ramirez@example.com', 'I2kAJ6iVPQbpPthcWxvrU5Niwfe77vrwkM5NnfRI', 2, 1700.00, 500.00),
+('Laura', 'Morales', 'laura.morales@example.com', 'LBx0dg/qAVgIjJJ83rJZdVUIWE/UTEB4qQTVrJA=', 2, 1400.00, 200.00),
+('Diego', 'Fernández', 'diego.fernandez@example.com', 'pNGzNVMQCxf/6Ucbm0J+aDUXTfkldurKplreFjw2mw==', 2, 1600.00, 300.00);
 
 -- Transacciones
 INSERT INTO transactions (user_id, type_id, category_id, amount, description)
