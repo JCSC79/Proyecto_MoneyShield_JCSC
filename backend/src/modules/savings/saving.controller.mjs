@@ -3,6 +3,8 @@
 import express from 'express';
 import * as savingsService from './saving.service.mjs';
 import { validateIdParam } from '../../middlewares/validateParams.middleware.mjs';
+import { authenticate } from '../auth/auth.middleware.mjs';
+import { allowSelfOrAdminSaving, forceSelfFilter } from '../../middlewares/accessControl.middleware.mjs';
 
 const router = express.Router();
 
@@ -29,9 +31,8 @@ const router = express.Router();
  *       200:
  *         description: List of savings | Lista de ahorros
  */
-router.get('/', async (req, res) => {
-  const { user_id } = req.query;
-  const result = await savingsService.getAllSavings(user_id);
+router.get('/', authenticate, forceSelfFilter, async (req, res) => {
+  const result = await savingsService.getAllSavings({ user_id: req.filtroForzado.user_id});
   if (result.success) {
     res.status(200).json(result.data);
   } else {
@@ -57,7 +58,7 @@ router.get('/', async (req, res) => {
  *       404:
  *         description: Saving not found | Ahorro no encontrado
  */
-router.get('/:id', validateIdParam, async (req, res) => {
+router.get('/:id', validateIdParam, authenticate, allowSelfOrAdminSaving, async (req, res) => {
   const result = await savingsService.getSavingById(req.params.id);
   if (result.success) {
     res.status(200).json(result.data);
@@ -105,8 +106,9 @@ router.get('/:id', validateIdParam, async (req, res) => {
  *       400:
  *         description: Invalid request | Solicitud inválida
  */
-router.post('/', async (req, res) => {
-  const result = await savingsService.createSaving(req.body);
+router.post('/', authenticate, async (req, res) => {
+  const data = { ...req.body, user_id: req.user.id }; // Aseguramos que el user_id sea del usuario autenticado
+  const result = await savingsService.createSaving(data);
   if (result.success) {
     res.status(201).json(result.data);
   } else {
@@ -156,7 +158,7 @@ router.post('/', async (req, res) => {
  *       404:
  *         description: Saving not found | Ahorro no encontrado
  */
-router.put('/:id', validateIdParam, async (req, res) => {
+router.put('/:id', validateIdParam,  authenticate, allowSelfOrAdminSaving, async (req, res) => {
   const result = await savingsService.updateSaving(req.params.id, req.body);
   if (result.success) {
     res.status(200).json(result.data); // Cambio 27 de junio
@@ -196,7 +198,7 @@ router.put('/:id', validateIdParam, async (req, res) => {
  *       400:
  *         description: Invalid request | Solicitud inválida
  */
-router.patch('/:id', validateIdParam, async (req, res) => {
+router.patch('/:id', validateIdParam, authenticate, allowSelfOrAdminSaving, async (req, res) => {
   const result = await savingsService.patchSaving(req.params.id, req.body);
   if (result.success) {
     res.status(200).json(result.data); // Cambio 27 de junio
@@ -223,7 +225,7 @@ router.patch('/:id', validateIdParam, async (req, res) => {
  *       404:
  *         description: Saving not found | Ahorro no encontrado
  */
-router.delete('/:id', validateIdParam, async (req, res) => {
+router.delete('/:id', validateIdParam, authenticate, allowSelfOrAdminSaving, async (req, res) => {
   const result = await savingsService.deleteSaving(req.params.id);
   if (result.success) {
     res.status(200).json({ success: true, id: Number(req.params.id) }); // Cambio 27 de junio
@@ -262,9 +264,8 @@ router.delete('/:id', validateIdParam, async (req, res) => {
  *                   progress_percent: { type: number, example: 25.00 }
  *                   days_left: { type: integer, example: 180 }
  */
-router.get('/report/progress', async (req, res) => {
-  const user_id = Number(req.query.user_id);
-  const result = await savingsService.getSavingsProgress(user_id);
+router.get('/report/progress', authenticate, forceSelfFilter, async (req, res) => {
+  const result = await savingsService.getSavingsProgress({ user_id: req.filtroForzado.user_id });
   if (result.success) {
     res.status(200).json(result.data);
   } else {

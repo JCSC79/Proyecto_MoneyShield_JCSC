@@ -9,7 +9,8 @@ import { logger } from '../../utils/logger.mjs';  // Importamos el logger para r
 /**
  * Obtener todos los ahorros de un usuario | Get all savings for a user
  */
-export async function getAllSavings(user_id) {
+export async function getAllSavings(filter) {
+  const user_id  = filter.user_id;
   const idValidation = validateId(user_id);
   if (!idValidation.success) {
     return idValidation;
@@ -136,7 +137,8 @@ export async function deleteSaving(id) {
 /**
  * Obtener progreso de ahorros de un usuario | Get savings progress for a user
  */
-export async function getSavingsProgress(user_id) {
+export async function getSavingsProgress(filter) {
+  const user_id = filter.user_id;
   const idValidation = validateId(user_id, 'user ID');
   if (!idValidation.success) {
     return idValidation;

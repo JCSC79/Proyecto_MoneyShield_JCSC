@@ -28,7 +28,7 @@ describe('Transactions API (full integration, extended)', () => {
     othersCategoryId = rows[0].id;
   });
 
-  // 1. Crear transacción válida con category_id
+  // 1. Crear transacción válida con category_id (esta será la base para update/delete)
   it('should create a valid transaction with category_id', async () => {
     const res = await request(app)
       .post('/transactions')
@@ -64,7 +64,6 @@ describe('Transactions API (full integration, extended)', () => {
   });
 
   // Casos que deben fallar
-
   it('should fail with amount as string', async () => {
     const res = await request(app)
       .post('/transactions')
@@ -143,57 +142,60 @@ describe('Transactions API (full integration, extended)', () => {
     expect(res.statusCode).toBe(404);
   });
 
-  it('should fully update a transaction', async () => {
-    const res = await request(app)
-      .put(`/transactions/${createdTransactionId}`)
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send({
-        type_id: validTypeId,
-        category_id: validCategoryId,
-        amount: 300.00,
-        description: 'Actualización completa'
-      });
-    expect(res.statusCode).toBe(200);
-    expect(res.body.description).toBe('Actualización completa');
-  });
+  // === BLOQUE SEGURO PARA UPDATE/PATCH/DELETE ===
+  describe('Updates and Deletions', () => {
+    it('should fully update a transaction', async () => {
+      const res = await request(app)
+        .put(`/transactions/${createdTransactionId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          type_id: validTypeId,
+          category_id: validCategoryId,
+          amount: 300.00,
+          description: 'Actualización completa'
+        });
+      expect(res.statusCode).toBe(200);
+      expect(res.body.description).toBe('Actualización completa');
+    });
 
-  it('should partially update a transaction', async () => {
-    const res = await request(app)
-      .patch(`/transactions/${createdTransactionId}`)
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send({ amount: 350.00 });
-    expect(res.statusCode).toBe(200);
-    expect(Number(res.body.amount)).toBeCloseTo(350.00, 2);
-  });
+    it('should partially update a transaction', async () => {
+      const res = await request(app)
+        .patch(`/transactions/${createdTransactionId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ amount: 350.00 });
+      expect(res.statusCode).toBe(200);
+      expect(Number(res.body.amount)).toBeCloseTo(350.00, 2);
+    });
 
-  it('should fail to update with invalid category_id', async () => {
-    const res = await request(app)
-      .patch(`/transactions/${createdTransactionId}`)
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send({ category_id: invalidCategoryId });
-    expect(res.statusCode).toBe(400);
-  });
+    it('should fail to update with invalid category_id', async () => {
+      const res = await request(app)
+        .patch(`/transactions/${createdTransactionId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ category_id: invalidCategoryId });
+      expect(res.statusCode).toBe(400);
+    });
 
-  it('should fail to update non-existent transaction', async () => {
-    const res = await request(app)
-      .patch('/transactions/999999')
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send({ amount: 500 });
-    expect(res.statusCode).toBe(404);
-  });
+    it('should fail to update non-existent transaction', async () => {
+      const res = await request(app)
+        .patch('/transactions/999999')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ amount: 500 });
+      expect(res.statusCode).toBe(404);
+    });
 
-  it('should delete a transaction', async () => {
-    const res = await request(app)
-      .delete(`/transactions/${createdTransactionId}`)
-      .set('Authorization', `Bearer ${adminToken}`);
-    expect(res.statusCode).toBe(200);
-  });
+    it('should delete a transaction', async () => {
+      const res = await request(app)
+        .delete(`/transactions/${createdTransactionId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+      expect(res.statusCode).toBe(200);
+    });
 
-  it('should fail to delete non-existent transaction', async () => {
-    const res = await request(app)
-      .delete(`/transactions/${createdTransactionId}`)
-      .set('Authorization', `Bearer ${adminToken}`);
-    expect(res.statusCode).toBe(404);
+    it('should fail to delete non-existent transaction', async () => {
+      const res = await request(app)
+        .delete(`/transactions/${createdTransactionId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+      expect(res.statusCode).toBe(404);
+    });
   });
 
   // Reportes
