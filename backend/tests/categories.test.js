@@ -4,9 +4,16 @@ import db from '../src/db/DBHelper.mjs';
 
 describe('Categories API', () => {
   let createdCategoryId;
+  let adminToken;
   const testCategoryName = `TestCategory_${Date.now()}`;
 
-  // Limpiar datos después de las pruebas
+  beforeAll(async () => {
+    const loginRes = await request(app)
+      .post('/auth/login')
+      .send({ email: 'admin@money.com', password: '3lManduc0.56' });
+    adminToken = loginRes.body.token;
+  });
+
   afterAll(async () => {
     if (createdCategoryId) {
       await db.query('DELETE FROM categories WHERE id = ?', [createdCategoryId]);
@@ -18,8 +25,8 @@ describe('Categories API', () => {
   it('should create a new category', async () => {
     const res = await request(app)
       .post('/categories')
-      .send({ name: testCategoryName });
-    
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ name: testCategoryName, type: 'expense' });
     expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty('id');
     expect(res.body.name).toBe(testCategoryName);
@@ -30,8 +37,8 @@ describe('Categories API', () => {
   it('should fail to create duplicate category', async () => {
     const res = await request(app)
       .post('/categories')
-      .send({ name: testCategoryName });
-    
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ name: testCategoryName, type: 'expense' });
     expect(res.statusCode).toBe(409);
     expect(res.body.error).toMatch(/already exists/i);
   });
@@ -61,10 +68,11 @@ describe('Categories API', () => {
     const newName = 'UpdatedCategory';
     const res = await request(app)
       .put(`/categories/${createdCategoryId}`)
-      .send({ name: newName });
-    
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ name: newName, type: 'expense' }); // Requiere enviar type
+
     expect(res.statusCode).toBe(200);
-    
+
     // Verificar actualización en BD
     const [rows] = await db.query('SELECT name FROM categories WHERE id = ?', [createdCategoryId]);
     expect(rows[0].name).toBe(newName);
@@ -72,10 +80,12 @@ describe('Categories API', () => {
 
   // 7. DELETE: Eliminar categoría
   it('should delete category', async () => {
-    const res = await request(app).delete(`/categories/${createdCategoryId}`);
+    const res = await request(app)
+      .delete(`/categories/${createdCategoryId}`)
+      .set('Authorization', `Bearer ${adminToken}`);
     expect(res.statusCode).toBe(200);
-    
-    // Verificar eliminación
+
+    // Verificar eliminación en BD
     const [rows] = await db.query('SELECT * FROM categories WHERE id = ?', [createdCategoryId]);
     expect(rows.length).toBe(0);
   });

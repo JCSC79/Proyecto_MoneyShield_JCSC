@@ -3,6 +3,7 @@
 import express from 'express';
 import * as categoryService from './categories.service.mjs';
 import { validateIdParam } from '../../middlewares/validateParams.middleware.mjs';
+import { authenticate, authorize } from '../auth/auth.middleware.mjs';
 
 const router = express.Router();
 
@@ -81,7 +82,7 @@ router.get('/:id', validateIdParam, async (req, res) => {
  *       409:
  *         description: Category already exists | La categoría ya existe
  */
-router.post('/', async (req, res) => {
+router.post('/', authenticate, authorize([1]), async (req, res) => {
   const result = await categoryService.createCategory(req.body);
   if (result.success) {
     res.status(201).json(result.data);
@@ -116,7 +117,7 @@ router.post('/', async (req, res) => {
  *       404:
  *         description: Category not found | Categoría no encontrada
  */
-router.put('/:id', validateIdParam, async (req, res) => {
+router.put('/:id', authenticate, authorize([1]), validateIdParam, async (req, res) => {
   const result = await categoryService.updateCategory(req.params.id, req.body);
   if (result.success) {
     res.status(200).json({ message: 'Category updated' });
@@ -142,7 +143,7 @@ router.put('/:id', validateIdParam, async (req, res) => {
  *       404:
  *         description: Category not found | Categoría no encontrada
  */
-router.delete('/:id', validateIdParam, async (req, res) => {
+router.delete('/:id', authenticate, authorize([1]), validateIdParam, async (req, res) => {
   const result = await categoryService.deleteCategory(req.params.id);
   if (result.success) {
     res.status(200).json({ message: 'Category deleted' });
