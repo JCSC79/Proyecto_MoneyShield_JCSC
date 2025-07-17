@@ -94,8 +94,12 @@ export async function createTransaction(data) {
   }
 }
 
-export async function updateTransaction(id, fields) {
+export async function updateTransaction(id, fields, currentUser) {
   const ALLOWED_FIELDS = ['user_id', 'type_id', 'category_id', 'amount', 'description'];
+  // Solo un admin puede cambiar user_id
+  if ('user_id' in fields && (!currentUser || currentUser.profile_id !== 1)) {
+    return Result.Fail('Solo un administrador puede modificar el user_id de una transacción.', 403);
+  }
   const validKeys = Object.keys(fields).filter(k => ALLOWED_FIELDS.includes(k));
   if (validKeys.length === 0) {
     return Result.Fail(Errors.INVALID_UPDATE, 400); // Usamos el mensaje de error centralizado 26 de junio

@@ -144,6 +144,7 @@ router.post('/', authenticate, async (req, res) => {
  *             properties:
  *               user_id:
  *                 type: integer
+ *                 description: User ID (only for admins) | ID de usuario (solo para administradores)
  *               type_id:
  *                 type: integer
  *               category_id:
@@ -163,7 +164,10 @@ router.post('/', authenticate, async (req, res) => {
  *         description: Transaction not found | Transacción no encontrada
  */
 router.put('/:id', validateIdParam, authenticate, allowSelfOrAdminTransaction, async (req, res) => {
-  const result = await transactionService.updateTransaction(req.params.id, req.body);
+  if (!req.user || req.user.profile_id !== 1) {
+    delete req.body.user_id;
+  }
+  const result = await transactionService.updateTransaction(req.params.id, req.body, req.user);
   if (result.success) {
     res.status(200).json(result.data); // Cambio 27 junio: Devolver datos actualizados
   } else {
@@ -210,7 +214,10 @@ router.put('/:id', validateIdParam, authenticate, allowSelfOrAdminTransaction, a
  *         description: Transaction not found | Transacción no encontrada
  */
 router.patch('/:id', validateIdParam, authenticate, allowSelfOrAdminTransaction, async (req, res) => {
-  const result = await transactionService.updateTransaction(req.params.id, req.body);
+  if (!req.user || req.user.profile_id !== 1) {
+    delete req.body.user_id;
+  }
+  const result = await transactionService.updateTransaction(req.params.id, req.body, req.user);
   if (result.success) {
     res.status(200).json(result.data); // Cambio 27 junio: Devolver datos actualizados
   } else {
