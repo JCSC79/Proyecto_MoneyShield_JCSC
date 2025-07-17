@@ -160,8 +160,7 @@ router.post('/', authenticateOptional, async (req, res) => {
  *               - first_name
  *               - last_name
  *               - email
- *               - password_hash
- *               - profile_id
+ *               - password
  *             properties:
  *               first_name:
  *                 type: string
@@ -169,10 +168,13 @@ router.post('/', authenticateOptional, async (req, res) => {
  *                 type: string
  *               email:
  *                 type: string
- *               password_hash:
+ *               password:
  *                 type: string
+ *                 format: password
+ *                 description: Contraseña nueva del usuario. Si no desea actualizar, omítalo.
  *               profile_id:
  *                 type: integer
+ *                 description: 'Solo puede ser editado por un administrador.'
  *               base_budget:
  *                 type: number
  *               base_saving:
@@ -186,7 +188,11 @@ router.post('/', authenticateOptional, async (req, res) => {
  *         description: Email already exists | El email ya existe
  */
 router.put('/:id', validateIdParam, authenticate, allowSelfOrAdmin, async (req, res) => {
-  const result = await userService.editUser(req.params.id, req.body);
+  if (!req.user || req.user.profile_id !== 1) {
+    // Si no es admin, no se permite cambiar profile_id
+    delete req.body.profile_id;
+  }
+  const result = await userService.editUser(req.params.id, req.body, req.user);
   result.success
     ? res.status(200).json(result.data) //Cambio 27 de junio para devolver datos actualizados
     : res.status(result.error.code).json({ error: result.error.message });
@@ -217,10 +223,13 @@ router.put('/:id', validateIdParam, authenticate, allowSelfOrAdmin, async (req, 
  *                 type: string
  *               email:
  *                 type: string
- *               password_hash:
+ *               password:
  *                 type: string
+ *                 format: password
+ *                 description: Contraseña nueva del usuario. Si no desea actualizar, omítalo.
  *               profile_id:
  *                 type: integer
+ *                 description: 'Solo puede ser editado por un administrador.'
  *               base_budget:
  *                 type: number
  *               base_saving:
@@ -234,7 +243,11 @@ router.put('/:id', validateIdParam, authenticate, allowSelfOrAdmin, async (req, 
  *         description: Email already exists | El email ya existe
  */
 router.patch('/:id', validateIdParam, authenticate, allowSelfOrAdmin, async (req, res) => {
-  const result = await userService.patchUser(req.params.id, req.body);
+  if (!req.user || req.user.profile_id !== 1) {
+    // Si no es admin, no se permite cambiar profile_id
+    delete req.body.profile_id;
+  }
+  const result = await userService.patchUser(req.params.id, req.body, req.user);
   result.success
     ? res.status(200).json(result.data) // Cambio 27 de junio para devolver datos actualizados
     : res.status(result.error.code).json({ error: result.error.message });

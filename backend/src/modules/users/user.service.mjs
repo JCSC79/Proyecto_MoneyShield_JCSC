@@ -94,40 +94,67 @@ export async function createUser(userData) {
 }
 
 // Actualizar completamente un usuario | Fully update a user
-export async function editUser(id, userData) {
-  // Validación de campos requeridos | Required fields validation
-  const requiredFields = ['first_name', 'last_name', 'email', 'password_hash', 'profile_id'];
+export async function editUser(id, userData, currentUser) {
+  // Validar campos requeridos
+  const requiredFields = ['first_name', 'last_name', 'email'];
+  if (currentUser && currentUser.profile_id === 1) {
+  // Si es admin, espera profile_id también
+    requiredFields.push('profile_id');
+  }
   const missingField = checkRequiredFields(userData, requiredFields);
   if (missingField) {
-    return Result.Fail(Errors.MISSING_FIELD(missingField), 400); // Mensaje centralizado 25 de junio
+    return Result.Fail(Errors.MISSING_FIELD(missingField), 400);
   }
-  // Validaciones comunes | Common validations
-  const commonResult = await commonUserValidations(id, userData, userDao, Errors );
+  // SOLO ADMIN puede cambiar profile_id
+  if ('profile_id' in userData && (!currentUser || currentUser.profile_id !== 1)) {
+    return Result.Fail('Solo un administrador puede modificar el rol de usuario (profile_id)', 403);
+  }
+  // Validaciones comunes
+  const commonResult = await commonUserValidations(id, userData, userDao, Errors);
   if (!commonResult.success) {
     return commonResult;
   }
-
-  // Hashear contraseña si está presente | Hash password if present
-  if (userData.password_hash) {
-    userData.password_hash = encrypt(userData.password_hash); // Encriptar la contraseña (nuevo método de encriptación)
+  // Si llega 'password', encripta y elimina
+  if ('password' in userData) {
+    if (!isStrongPassword(userData.password)) {
+      return Result.Fail(Errors.INVALID_PASSWORD, 400);
+    }
+    userData.password_hash = encrypt(userData.password);
+    delete userData.password;
   }
-
+  //  Repara el profile_id antes del update
+  if (!('profile_id' in userData)) {
+    const usuarioActual = await userDao.getUserById(id);
+    if (!usuarioActual) {
+      return Result.Fail(Errors.NOT_FOUND('User'), 404);
+    }
+    userData.profile_id = usuarioActual.profile_id;
+  }
+  // Para PUT debe haber password_hash
+  if (!('password_hash' in userData)) {
+    return Result.Fail(Errors.MISSING_FIELD('password o password_hash'), 400);
+  }
   try {
     const updated = await userDao.updateUser(id, userData);
     return updated
       ? Result.Success(true)
-      : Result.Fail(Errors.NOT_FOUND('User'), 404); // Mensaje centralizado 25 de junio
+      : Result.Fail(Errors.NOT_FOUND('User'), 404);
   } catch (error) {
-    logger.error(`[Users] Error en editUser: ${error.message}`, { error }); // Nuevo logger 27 de junio
-    return Result.Fail(Errors.INTERNAL, 500); //  Mensaje centralizado 25 de junio
+    logger.error(`[Users] Error en editUser: ${error.message}`, { error });
+    return Result.Fail(Errors.INTERNAL, 500);
   }
 }
 
 // Actualizar parcialmente un usuario | Patch a user
-export async function patchUser(id, fields) {
+export async function patchUser(id, fields, currentUser) {
   const invalidFields = Object.keys(fields).filter(f => !ALLOWED_PATCH_FIELDS.has(f));
   if (invalidFields.length > 0) {
-    return Result.Fail(Errors.INVALID_FIELDS(invalidFields.join(', ')), 400); // Mensaje centralizado 25 de junio
+    return Result.Fail(Errors.INVALID_FIELDS(invalidFields.join(', ')), 400);
+  }
+
+  // SOLO ADMIN puede cambiar profile_id
+  if ('profile_id' in fields && (!currentUser || currentUser.profile_id !== 1)) {
+    return Result.Fail('Solo un administrador puede modificar el rol de usuario (profile_id)', 403);
   }
 
   const commonResult = await commonUserValidations(id, fields, userDao, Errors);
@@ -135,18 +162,22 @@ export async function patchUser(id, fields) {
     return commonResult;
   }
 
-  if (fields.password_hash) {
-    fields.password_hash = encrypt(fields.password_hash); // Encriptar la contraseña (nuevo método de encriptación)
+  if ('password' in fields) {
+    if (!isStrongPassword(fields.password)) {
+      return Result.Fail(Errors.INVALID_PASSWORD, 400);
+    }
+    fields.password_hash = encrypt(fields.password);
+    delete fields.password;
   }
 
   try {
     const updated = await userDao.patchUser(id, fields);
     return updated
       ? Result.Success(true)
-      : Result.Fail(Errors.NOT_FOUND('User'), 404); // Mensaje centralizado 25 de junio
+      : Result.Fail(Errors.NOT_FOUND('User'), 404);
   } catch (error) {
-    logger.error(`[Users] Error en patchUser: ${error.message}`, { error }); // Nuevo logger 27 de junio
-    return Result.Fail(Errors.INTERNAL, 500); // Mensaje centralizado 25 de junio
+    logger.error(`[Users] Error en patchUser: ${error.message}`, { error });
+    return Result.Fail(Errors.INTERNAL, 500);
   }
 }
 
