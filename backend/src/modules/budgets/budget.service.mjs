@@ -69,7 +69,10 @@ export async function createBudget(data) {
 
 }
 
-export async function updateBudget(id, fields) {
+export async function updateBudget(id, fields, currentUser) {
+  if ('user_id' in fields && (!currentUser || currentUser.profile_id !== 1)) {
+    return Result.Fail('Solo un administrador puede modificar el usuario de un presupuesto (user_id)', 403);
+  }
   if (fields.amount && !isPositiveNumber(fields.amount)) {
     return Result.Fail(Errors.AMOUNT_POSITIVE, 400); // Mensaje de error centralizado 26 de junio
   }

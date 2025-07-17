@@ -145,7 +145,10 @@ router.post('/', authenticate, async (req, res) => {
  *         description: Budget not found | Presupuesto no encontrado
  */
 router.put('/:id', validateIdParam, authenticate, allowSelfOrAdminBudget, async (req, res) => {
-  const result = await budgetService.updateBudget(req.params.id, req.body);
+  if (!req.user || req.user.profile_id !== 1) {
+    delete req.body.user_id;
+  }
+  const result = await budgetService.updateBudget(req.params.id, req.body, req.user);
   if (result.success) {
     res.status(200).json(result.data); // Cambio 27 junio
   } else {
@@ -184,7 +187,10 @@ router.put('/:id', validateIdParam, authenticate, allowSelfOrAdminBudget, async 
  *         description: Budget not found | Presupuesto no encontrado
  */
 router.patch('/:id', validateIdParam, authenticate, allowSelfOrAdminBudget, async (req, res) => {
-  const result = await budgetService.updateBudget(req.params.id, req.body);
+  if (!req.user || req.user.profile_id !== 1) {
+    delete req.body.user_id;
+  }
+  const result = await budgetService.updateBudget(req.params.id, req.body, req.user);
   if (result.success) {
     res.status(200).json(result.data); // Cambio 27 junio
   } else {
