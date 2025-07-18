@@ -71,9 +71,14 @@ router.get('/:id', validateIdParam, async (req, res) => {
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name]
+ *             required: [name, type]
  *             properties:
- *               name: { type: string }
+ *               name:
+ *                 type: string
+ *               type:
+ *                 type: string
+ *                 enum: [income, expense, both]
+ *                 description: Type of category, can be income, expense or both
  *     responses:
  *       201:
  *         description: Category created | Categoría creada
@@ -101,16 +106,22 @@ router.post('/', authenticate, authorize([1]), async (req, res) => {
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: integer }
+ *         schema:
+ *           type: integer
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name]
+ *             required: [name, type]
  *             properties:
- *               name: { type: string }
+ *               name:
+ *                 type: string
+ *               type:
+ *                 type: string
+ *                 enum: [income, expense, both]
+ *                 description: Type of category, can be income, expense or both
  *     responses:
  *       200:
  *         description: Category updated | Categoría actualizada

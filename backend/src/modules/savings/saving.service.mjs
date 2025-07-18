@@ -59,7 +59,10 @@ export async function createSaving(data) {
 /**
  * Actualizar completamente un ahorro | Fully update a saving
  */
-export async function updateSaving(id, data) {
+export async function updateSaving(id, data, currentUser) {
+  if ( 'user_id' in data && (!currentUser || currentUser.profile_id !== 1) ) {
+    return Result.Fail('Solo un administrador puede modificar (user_id)', 403);
+  }
   const validation = validateSavingData(data, true);
   if (!validation.success) {
     return validation;
@@ -81,7 +84,10 @@ export async function updateSaving(id, data) {
 /**
  * Actualizar parcialmente un ahorro | Partially update a saving
  */
-export async function patchSaving(id, fields) {
+export async function patchSaving(id, fields, currentUser) {
+  if ('user_id' in fields && (!currentUser || currentUser.profile_id !== 1)) {
+    return Result.Fail('Solo un administrador puede modificar (user_id)', 403);
+  }
   const allowedFields = ['type_id', 'name', 'amount', 'target_amount', 'target_date'];
   const keys = Object.keys(fields).filter(k => allowedFields.includes(k));
   if (keys.length === 0) {

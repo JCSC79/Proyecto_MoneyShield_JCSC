@@ -141,6 +141,7 @@ router.post('/', authenticate, async (req, res) => {
  *             properties:
  *               type_id:
  *                 type: integer
+ *                 description: 'Solo puede ser editado por un administrador'
  *               name:
  *                 type: string
  *               amount:
@@ -159,7 +160,10 @@ router.post('/', authenticate, async (req, res) => {
  *         description: Saving not found | Ahorro no encontrado
  */
 router.put('/:id', validateIdParam,  authenticate, allowSelfOrAdminSaving, async (req, res) => {
-  const result = await savingsService.updateSaving(req.params.id, req.body);
+  if (!req.user || req.user.profile_id !== 1) {
+      delete req.body.user_id;
+  }
+  const result = await savingsService.updateSaving(req.params.id, req.body, req.user);
   if (result.success) {
     res.status(200).json(result.data); // Cambio 27 de junio
   } else {
@@ -199,7 +203,10 @@ router.put('/:id', validateIdParam,  authenticate, allowSelfOrAdminSaving, async
  *         description: Invalid request | Solicitud inválida
  */
 router.patch('/:id', validateIdParam, authenticate, allowSelfOrAdminSaving, async (req, res) => {
-  const result = await savingsService.patchSaving(req.params.id, req.body);
+  if (!req.user || req.user.profile_id !== 1) {
+      delete req.body.user_id;
+  }
+  const result = await savingsService.patchSaving(req.params.id, req.body, req.user);
   if (result.success) {
     res.status(200).json(result.data); // Cambio 27 de junio
   } else {
