@@ -1,39 +1,15 @@
 // src/pages/Perfil.jsx
 
-import { useEffect, useState } from 'react';
-import { getPerfil } from '../services/users.api';
 import '../styles/Form.css';
 import Input from '../components/Input';
 import Alert from '../components/Alert';
+import { useAuth } from '../contexts/AuthContext';
 
-function Perfil({ token }) {
-  const [usuario, setUsuario] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+function Perfil() {
+  const { user } = useAuth();
 
-  useEffect(() => {
-    async function fetchPerfil() {
-      try {
-        const data = await getPerfil(token);
-        setUsuario(data);
-      } catch (err) {
-        console.error('Error en login:', err);
-        setError('Error al cargar el perfil');
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchPerfil();
-  }, [token]);
-
-  if (loading) {
-    return <p>Cargando perfil...</p>;
-  }
-  if (error) {
-    return <Alert type="error">{error}</Alert>;
-  }
-  if (!usuario) {
-    return null;
+  if (!user) {
+    return <Alert type="error">No se pudo cargar el perfil.</Alert>;
   }
 
   return (
@@ -43,42 +19,42 @@ function Perfil({ token }) {
         <Input
           label="Nombre"
           type="text"
-          value={usuario.first_name}
+          value={user.first_name}
           disabled
           placeholder="Nombre"
         />
         <Input
           label="Apellido"
           type="text"
-          value={usuario.last_name}
+          value={user.last_name}
           disabled
           placeholder="Apellido"
         />
         <Input
           label="Correo electrónico"
           type="email"
-          value={usuario.email}
+          value={user.email}
           disabled
           placeholder="Correo electrónico"
         />
         <Input
           label="Perfil"
           type="text"
-          value={usuario.profile_id === 1 ? 'Admin' : 'Usuario'}
+          value={user.profile_id === 1 ? 'Admin' : 'Usuario'}
           disabled
           placeholder="Perfil"
         />
         <Input
           label="Presupuesto base"
           type="number"
-          value={usuario.base_budget}
+          value={user.base_budget}
           disabled
           placeholder="Presupuesto base"
         />
         <Input
           label="Ahorro base"
           type="number"
-          value={usuario.base_saving}
+          value={user.base_saving}
           disabled
           placeholder="Ahorro base"
         />

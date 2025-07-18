@@ -6,19 +6,20 @@ import { login } from '../services/auth.api';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Alert from '../components/Alert';
+import { useAuth } from '../contexts/AuthContext'; // <-- IMPORTA el contexto
 
-function Login({ onLogin }) {
+function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const { setToken } = useAuth(); // <-- Usa setToken del contexto
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
       const token = await login(email, password);
-      localStorage.setItem('token', token);
-      onLogin(token);
+      setToken(token); // <-- Contexto se encarga de todo lo demás (incluso llamar a getPerfil)
     } catch (err) {
       console.error('Error en login:', err);
       setError('Correo o contraseña incorrectos');
@@ -53,4 +54,3 @@ function Login({ onLogin }) {
 }
 
 export default Login;
-

@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import '../styles/Form.css';
 import { registerUser } from '../services/users.api';
+import { login } from '../services/auth.api';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Alert from '../components/Alert';
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 function Registro() {
   const [form, setForm] = useState({
@@ -13,13 +16,16 @@ function Registro() {
     last_name: '',
     email: '',
     password: '',
-    //profile_id: 2,
     base_budget: '',
     base_saving: ''
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [mostrarBotonLogin, setMostrarBotonLogin] = useState(false);
+  const [loginData, setLoginData] = useState(null); // <-- NUEVO
+  const { setToken } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -34,6 +40,7 @@ function Registro() {
     setLoading(true);
     setError('');
     setSuccess('');
+    setMostrarBotonLogin(false);
     try {
       const data = {
         first_name: form.first_name,
@@ -44,19 +51,35 @@ function Registro() {
         base_saving: form.base_saving ? Number(form.base_saving) : 0
       };
       await registerUser(data);
-      setSuccess('¡Registro exitoso! Ahora puedes iniciar sesión.');
+      setSuccess('¡Registro exitoso! ¿Desea iniciar sesión ahora?');
+      setMostrarBotonLogin(true);
+      setLoginData({ email: form.email, password: form.password }); // <-- GUARDA datos para login!
       setForm({
         first_name: '',
         last_name: '',
         email: '',
         password: '',
-        //profile_id: 2,
         base_budget: '',
         base_saving: ''
       });
     } catch (err) {
       console.error('Error al registrar usuario:', err);
       setError('Error al registrar usuario');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLoginAutomatico = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      // Usa loginData, NO el form
+      const token = await login(loginData.email, loginData.password);
+      setToken(token);
+      navigate('/'); // Redirecciona al dashboard o donde prefieras
+    } catch {
+      setError('Error al acceder automáticamente. Inicia sesión manualmente.');
     } finally {
       setLoading(false);
     }
@@ -123,6 +146,11 @@ function Registro() {
         </Button>
         {success && <Alert type="success">{success}</Alert>}
         {error && <Alert type="error">{error}</Alert>}
+        {mostrarBotonLogin && (
+          <Button type="button" onClick={handleLoginAutomatico} disabled={loading || !loginData}>
+            {loading ? 'Entrando...' : 'Entrar ahora'}
+          </Button>
+        )}
       </form>
       <div style={{ marginTop: 12, fontSize: '0.98em', color: '#555' }}>
         <strong>¿Para qué sirve?</strong><br />
@@ -137,3 +165,5 @@ function Registro() {
 }
 
 export default Registro;
+
+

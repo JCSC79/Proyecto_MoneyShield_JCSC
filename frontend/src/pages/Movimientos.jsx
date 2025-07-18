@@ -7,8 +7,10 @@ import '../styles/Form.css';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Alert from '../components/Alert';
+import { useAuth } from '../contexts/AuthContext'; // <-- IMPORTANTE
 
-function NuevoMovimiento({ token }) {
+function NuevoMovimiento() {
+  const { token } = useAuth(); // <-- AQUÍ NUEVO
   const [form, setForm] = useState({
     amount: '',
     category_id: '',
@@ -58,7 +60,7 @@ function NuevoMovimiento({ token }) {
       setSuccess('¡Registro exitoso!');
       setForm({ amount: '', category_id: '', description: '', type_id: 2 });
     } catch (err) {
-      console.error('Error al registrar usuario:', err);
+      console.error('Error al registrar movimiento:', err);
       setError('Error al registrar el movimiento');
     } finally {
       setLoading(false);

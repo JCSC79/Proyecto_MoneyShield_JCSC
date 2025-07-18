@@ -1,15 +1,17 @@
 // src/App.jsx
 
-import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, NavLink } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import NuevoMovimiento from './pages/Movimientos';
 import Perfil from './pages/Perfil';
 import Registro from './pages/Registro';
+import Navbar from './components/Navbar'; // Nuevo componente navbar
+import { useAuth } from './contexts/AuthContext';
 import './styles/Navbar.css';
 
-function PublicRoutes({ setToken }) {
+// Rutas públicas
+function PublicRoutes() {
   return (
     <>
       <nav className="navbar">
@@ -19,7 +21,7 @@ function PublicRoutes({ setToken }) {
       <div style={{ maxWidth: 400, margin: 'auto', padding: 32 }}>
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="/login" element={<Login onLogin={setToken} />} />
+          <Route path="/login" element={<Login />} /> {/* ya NO mandamos onLogin */}
           <Route path="/registro" element={<Registro />} />
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
@@ -28,41 +30,25 @@ function PublicRoutes({ setToken }) {
   );
 }
 
-
 function App() {
-  const [token, setToken] = useState(() => localStorage.getItem('token') || '');
+  const { token } = useAuth(); // Usamos el contexto para obtener el token
 
   if (!token) {
     return (
       <BrowserRouter>
-        <PublicRoutes setToken={setToken} />
+        <PublicRoutes />
       </BrowserRouter>
     );
   }
 
   return (
     <BrowserRouter>
-      {/* El navbar ahora está fuera del contenedor para ocupar el ancho total */}
-      <nav className="navbar">
-        <NavLink to="/" end>Dashboard</NavLink>
-        <NavLink to="/nuevo-movimiento">Movimientos</NavLink>
-        <NavLink to="/perfil">Perfil</NavLink>
-        
-        <button
-          onClick={() => {
-            localStorage.removeItem('token');
-            setToken('');
-          }}
-        >
-          Cerrar sesión
-        </button>
-      </nav>
+      <Navbar /> {/* Mostramos navbar siempre que esté logueado */}
       <div style={{ maxWidth: 600, margin: 'auto', padding: 32 }}>
         <Routes>
-          <Route path="/" element={<Dashboard token={token} />} />
-          <Route path="/nuevo-movimiento" element={<NuevoMovimiento token={token}/>} />
-          <Route path="/perfil" element={<Perfil token={token} />} />
-          
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/nuevo-movimiento" element={<NuevoMovimiento />} />
+          <Route path="/perfil" element={<Perfil />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>

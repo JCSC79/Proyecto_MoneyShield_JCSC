@@ -1,13 +1,16 @@
 .navbar {
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 24px;
-  background: #1976d2;
-  padding: 18px 0;
+  justify-content: space-between;
+  margin: 0 auto 32px auto;
+  padding: 18px 32px;  /* ¡Aquí el padding left y right! */
   border-radius: 0 0 12px 12px;
-  margin-bottom: 32px;
+  background: #1976d2;
+  gap: 16px;
+  box-sizing: border-box;
+  flex-wrap: wrap;
 }
+
 .navbar a {
   color: #fff;
   text-decoration: none;
@@ -16,11 +19,30 @@
   padding: 6px 14px;
   border-radius: 4px;
   transition: background 0.2s;
+  white-space: nowrap;
+  box-sizing: border-box;
 }
+
 .navbar a.active,
 .navbar a:hover {
   background: #1565c0;
+  border-radius: 4px;
+  outline: none;
 }
+
+.navbar span {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: #1565c013;
+  color: #fff;
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-weight: 500;
+  margin-left: 12px;
+}
+
 .navbar button {
   background: #f44336;
   color: #fff;
@@ -33,6 +55,42 @@
   transition: background 0.2s;
   margin-left: 12px;
 }
-.navbar button:hover {
+
+.navbar button:hover,
+.navbar button:focus {
   background: #b71c1c;
+}
+
+/* RESPONSIVO para dispositivos pequeños */
+@media (max-width: 700px) {
+  .navbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 8px;  /* Menor padding lateral por espacio */
+    gap: 8px;
+    /* padding ya asegura que la barra nunca es touch-to-borde en móvl */
+  }
+  .navbar a,
+  .navbar button,
+  .navbar span {
+    width: 100%;
+    text-align: left;
+    margin: 0;
+    box-sizing: border-box;
+  }
+  .navbar a.active,
+  .navbar a:hover {
+    background: #1565c0;
+    border-radius: 4px;
+    width: calc(100% - 0px);  /* Evita que el azul se “vaya de la barra” en pequeño */
+  }
+  .navbar button {
+    margin-top: 8px;
+    margin-left: 0;
+  }
+  .navbar span {
+    margin-left: 0;
+    margin-right: 0;
+    padding: 4px 8px;
+  }
 }
