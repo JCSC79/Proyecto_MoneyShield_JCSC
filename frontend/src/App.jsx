@@ -7,6 +7,7 @@ import NuevoMovimiento from './pages/Movimientos';
 import Perfil from './pages/Perfil';
 import Registro from './pages/Registro';
 import Navbar from './components/Navbar'; // Nuevo componente navbar
+import AdminDashboard from './pages/AdminDashboard'; // Página de administración
 import { useAuth } from './contexts/AuthContext';
 import './styles/Navbar.css';
 
@@ -31,7 +32,7 @@ function PublicRoutes() {
 }
 
 function App() {
-  const { token } = useAuth(); // Usamos el contexto para obtener el token
+  const { token, user } = useAuth(); // Usamos el contexto para obtener el token
 
   if (!token) {
     return (
@@ -44,11 +45,12 @@ function App() {
   return (
     <BrowserRouter>
       <Navbar /> {/* Mostramos navbar siempre que esté logueado */}
-      <div style={{ maxWidth: 600, margin: 'auto', padding: 32 }}>
+      <div style={{ maxWidth: '1100px', margin: 'auto', padding: 32 }}>
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/nuevo-movimiento" element={<NuevoMovimiento />} />
           <Route path="/perfil" element={<Perfil />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
