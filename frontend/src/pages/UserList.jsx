@@ -124,8 +124,29 @@ export default function UserList() {
 
       {/* Modal de detalle */}
       {seleccionado && (
-        <UserDetailModal user={seleccionado} onClose={() => setSeleccionado(null)} />
+        <UserDetailModal
+          user={seleccionado}
+          onClose={() => setSeleccionado(null)}
+          onEdit={async (form) => {
+            // Actualizamos usuario en el backend con PUT/PATCH
+            //await api.patch(`/users/${form.id}`, form);
+            await api.patch(`/users/${form.id}`, {
+              first_name: form.first_name,
+              last_name: form.last_name,
+              email: form.email,
+              profile_id: Number(form.profile_id),
+              base_budget: Number(form.base_budget),
+              base_saving: Number(form.base_saving),
+            });
+            // Recarga los usuarios tras editar
+            const refresco = await api.get('/users');
+            setUsuarios(refresco.data);
+            // Actualiza el usuario en el modal tras guardar
+            setSeleccionado({ ...form });
+          }}
+        />
       )}
+
     </div>
   );
 }
