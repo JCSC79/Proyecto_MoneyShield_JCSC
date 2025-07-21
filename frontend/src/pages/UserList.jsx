@@ -4,16 +4,18 @@ import { useEffect, useState } from 'react';
 import api from '../services/axios';
 import Input from '../components/Input';
 import Alert from '../components/Alert';
+import UserDetailModal from './UserDetailModal';
 
 export default function UserList() {
   const [usuarios, setUsuarios] = useState([]);
   const [busqueda, setBusqueda] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [seleccionado, setSeleccionado] = useState(null);
 
   // Estado para la paginación
   const [pagina, setPagina] = useState(1);
-  const usuariosPorPagina = 5;
+  const usuariosPorPagina = 10;
 
   useEffect(() => {
     api.get('/users')
@@ -60,17 +62,30 @@ export default function UserList() {
                 <th>Perfil</th>
                 <th>Base Budget</th>
                 <th>Base Saving</th>
+                <th>Creado</th>
               </tr>
             </thead>
             <tbody>
               {usuariosPagina.map(u => (
-                <tr key={u.id}>
+                <tr
+                  key={u.id}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => setSeleccionado(u)}
+                >
                   <td>{u.first_name}</td>
                   <td>{u.last_name}</td>
                   <td>{u.email}</td>
                   <td>{u.profile_id === 1 ? 'Admin' : 'Usuario'}</td>
                   <td>{u.base_budget}</td>
                   <td>{u.base_saving}</td>
+                  <td>
+                    {u.created_at
+                      ? new Date(u.created_at).toLocaleString('es-ES', {
+                          day: '2-digit', month: '2-digit', year: '2-digit',
+                          hour: '2-digit', minute: '2-digit', second: '2-digit'
+                        })
+                      : '—'}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -105,6 +120,11 @@ export default function UserList() {
             </svg>
           </button>
         </div>
+      )}
+
+      {/* Modal de detalle */}
+      {seleccionado && (
+        <UserDetailModal user={seleccionado} onClose={() => setSeleccionado(null)} />
       )}
     </div>
   );

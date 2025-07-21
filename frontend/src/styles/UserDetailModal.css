@@ -1,0 +1,57 @@
+/* src/styles/UserDetailModal.css */
+
+.user-modal-backdrop {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: #0008;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-modal-content {
+    background: #fff;
+    border-radius: 12px;
+    padding: 32px 24px;
+    min-width: 320px;
+    max-width: 95vw;
+    box-shadow: 0 8px 40px #0003;
+    font-size: 1.07em;
+    position: relative;
+    animation: modalIn 0.18s;
+}
+@keyframes modalIn {
+    0% { opacity: 0; transform: scale(0.90);}
+    100% { opacity: 1; transform: scale(1);}
+}
+
+.user-modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 18px;
+    font-weight: 600;
+    color: #1976d2;
+}
+
+.user-modal-content p {
+    margin: 7px 0 0 0;
+    line-height: 1.4;
+}
+
+.user-modal-close-btn {
+    display: block;
+    margin: 28px auto 0 auto;
+    padding: 9px 20px;
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.05em;
+    cursor: pointer;
+    transition: background 0.18s;
+}
+.user-modal-close-btn:hover,
+.user-modal-close-btn:focus {
+    background: #1251ac;
+}
