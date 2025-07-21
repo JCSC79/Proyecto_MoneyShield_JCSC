@@ -106,3 +106,83 @@
   background: #90caf9;
   cursor: not-allowed;
 }
+
+/* ==== Estilos para la tabla del admin ==== */
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  background: #fafbfc;
+  box-shadow: 0 1px 4px #0001;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.admin-table th, .admin-table td {
+  padding: 10px 18px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+.admin-table th {
+  background: #dde7fa;
+  font-weight: 600;
+  color: #235;
+}
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+.admin-table tr:hover {
+  background: #f0f4fc;
+}
+
+@media (max-width: 700px) {
+  .admin-table th, .admin-table td {
+    padding: 6px 3px;
+    font-size: 0.90em;
+    min-width: 80px;
+    word-break: break-all;
+  }
+  .admin-table th {
+    font-size: 1em;
+  }
+}
+
+.admin-pagination {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-pagination-btn {
+  padding: 7px 18px;
+  border-radius: 4px;
+  border: none;
+  font-size: 1em;
+  font-weight: 500;
+  background: #1976d2;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+  outline: none;
+}
+.admin-pagination-btn:disabled {
+  background: #bfcde3;
+  color: #fff;
+  cursor: not-allowed;
+}
+.admin-pagination-btn:hover:not(:disabled),
+.admin-pagination-btn:focus:not(:disabled) {
+  background: #1565c0;
+}
+
+.admin-pagination-current {
+  background: #fff;
+  color: #1976d2;
+  font-weight: bold;
+  border: 1px solid #1976d2;
+  border-radius: 4px;
+  padding: 7px 13px;
+  margin: 0 2px;
+}

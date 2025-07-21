@@ -11,6 +11,10 @@ export default function UserList() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
+  // Estado para la paginación
+  const [pagina, setPagina] = useState(1);
+  const usuariosPorPagina = 5;
+
   useEffect(() => {
     api.get('/users')
       .then(res => setUsuarios(res.data))
@@ -22,6 +26,17 @@ export default function UserList() {
   const usuariosFiltrados = usuarios.filter(u =>
     `${u.first_name} ${u.last_name} ${u.email}`.toLowerCase().includes(busqueda.toLowerCase())
   );
+
+  // Cálculo de paginación
+  const totalPaginas = Math.ceil(usuariosFiltrados.length / usuariosPorPagina);
+  const inicio = (pagina - 1) * usuariosPorPagina;
+  const fin = inicio + usuariosPorPagina;
+  const usuariosPagina = usuariosFiltrados.slice(inicio, fin);
+
+  // Al buscar, vuelve siempre a página 1
+  useEffect(() => {
+    setPagina(1);
+  }, [busqueda]);
 
   return (
     <div>
@@ -35,31 +50,61 @@ export default function UserList() {
       {loading ? (
         <p>Cargando usuarios...</p>
       ) : (
-        <table style={{ width: '100%', marginTop: 16 }}>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Apellido</th>
-              <th>Email</th>
-              <th>Perfil</th>
-              <th>Base Budget</th>
-              <th>Base Saving</th>
-              {/* Se pueden agregar más columnas según sea necesario */}
-            </tr>
-          </thead>
-          <tbody>
-            {usuariosFiltrados.map(u => (
-              <tr key={u.id}>
-                <td>{u.first_name}</td>
-                <td>{u.last_name}</td>
-                <td>{u.email}</td>
-                <td>{u.profile_id === 1 ? 'Admin' : 'Usuario'}</td>
-                <td>{u.base_budget}</td>
-                <td>{u.base_saving}</td>
+        <div style={{ overflowX: 'auto' }}>
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Email</th>
+                <th>Perfil</th>
+                <th>Base Budget</th>
+                <th>Base Saving</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {usuariosPagina.map(u => (
+                <tr key={u.id}>
+                  <td>{u.first_name}</td>
+                  <td>{u.last_name}</td>
+                  <td>{u.email}</td>
+                  <td>{u.profile_id === 1 ? 'Admin' : 'Usuario'}</td>
+                  <td>{u.base_budget}</td>
+                  <td>{u.base_saving}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Paginación usando clases de Form.css */}
+      {!loading && totalPaginas > 1 && (
+        <div className="admin-pagination">
+          <button
+            className="admin-pagination-btn"
+            onClick={() => setPagina(pagina - 1)}
+            disabled={pagina === 1}
+            aria-label="Página anterior"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" style={{ verticalAlign: 'middle', display: 'inline' }}>
+              <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor"/>
+            </svg>
+          </button>
+          <span className="admin-pagination-current">
+            Página {pagina} / {totalPaginas}
+          </span>
+          <button
+            className="admin-pagination-btn"
+            onClick={() => setPagina(pagina + 1)}
+            disabled={pagina === totalPaginas}
+            aria-label="Página siguiente"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" style={{ verticalAlign: 'middle', display: 'inline' }}>
+              <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z" fill="currentColor"/>
+            </svg>
+          </button>
+        </div>
       )}
     </div>
   );
