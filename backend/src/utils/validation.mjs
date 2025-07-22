@@ -145,7 +145,7 @@ export async function commonUserValidations(id, data, userDao, Errors) {
       return Result.Fail(Errors.INVALID_EMAIL, 400); // Mensaje centralizado 25 de junio
     }
     const existing = await userDao.getUserByEmail(data.email);
-    if (existing && existing.id !== id) {
+    if (existing && String(existing.id) !== String(id)) {
       return Result.Fail(Errors.EMAIL_EXISTS, 409); // Mensaje centralizado 25 de junio
     }
   }
