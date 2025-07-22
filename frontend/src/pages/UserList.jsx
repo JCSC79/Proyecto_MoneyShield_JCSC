@@ -12,6 +12,7 @@ export default function UserList() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [seleccionado, setSeleccionado] = useState(null);
+  const [usuarioAEliminar, setUsuarioAEliminar] = useState(null);
 
   // Estado para la paginación
   const [pagina, setPagina] = useState(1);
@@ -63,6 +64,7 @@ export default function UserList() {
                 <th>Base Budget</th>
                 <th>Base Saving</th>
                 <th>Creado</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -86,6 +88,17 @@ export default function UserList() {
                         })
                       : '—'}
                   </td>
+                  <td>
+                    <button
+                      className="admin-delete-btn"
+                      onClick={e => {
+                        e.stopPropagation();
+                        setUsuarioAEliminar(u);
+                      }}
+                    >
+                      Eliminar
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -103,7 +116,7 @@ export default function UserList() {
             aria-label="Página anterior"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" style={{ verticalAlign: 'middle', display: 'inline' }}>
-              <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor"/>
+              <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor" />
             </svg>
           </button>
           <span className="admin-pagination-current">
@@ -116,9 +129,42 @@ export default function UserList() {
             aria-label="Página siguiente"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" style={{ verticalAlign: 'middle', display: 'inline' }}>
-              <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z" fill="currentColor"/>
+              <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z" fill="currentColor" />
             </svg>
           </button>
+        </div>
+      )}
+
+      {/* Modal de confirmación de eliminación */}
+      {usuarioAEliminar && (
+        <div className="user-modal-backdrop">
+          <div className="user-modal-content">
+            <h3>¿Eliminar usuario?</h3>
+            <p>
+              ¿Seguro que deseas eliminar a <strong>{usuarioAEliminar.first_name} {usuarioAEliminar.last_name}</strong>?<br />
+              Esta acción no se puede deshacer.
+            </p>
+            <div className="user-modal-actions">
+              <button
+                className="admin-delete-btn"
+                onClick={async () => {
+                  await api.delete(`/users/${usuarioAEliminar.id}`);
+                  const refresco = await api.get('/users');
+                  setUsuarios(refresco.data);
+                  setUsuarioAEliminar(null);
+                  setSeleccionado(null); // Por si está abierto el detalle
+                }}
+              >
+                Sí, eliminar
+              </button>
+              <button
+                className="user-modal-close-btn"
+                onClick={() => setUsuarioAEliminar(null)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -128,8 +174,6 @@ export default function UserList() {
           user={seleccionado}
           onClose={() => setSeleccionado(null)}
           onEdit={async (form) => {
-            // Actualizamos usuario en el backend con PUT/PATCH
-            //await api.patch(`/users/${form.id}`, form);
             await api.patch(`/users/${form.id}`, {
               first_name: form.first_name,
               last_name: form.last_name,
@@ -138,15 +182,13 @@ export default function UserList() {
               base_budget: Number(form.base_budget),
               base_saving: Number(form.base_saving),
             });
-            // Recarga los usuarios tras editar
             const refresco = await api.get('/users');
             setUsuarios(refresco.data);
-            // Actualiza el usuario en el modal tras guardar
             setSeleccionado({ ...form });
           }}
         />
       )}
-
     </div>
   );
 }
+
