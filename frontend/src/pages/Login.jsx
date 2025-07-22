@@ -19,10 +19,19 @@ function Login() {
     setError('');
     try {
       const token = await login(email, password);
-      setToken(token); // <-- Contexto se encarga de todo lo demás (incluso llamar a getPerfil)
+      setToken(token);
     } catch (err) {
       console.error('Error en login:', err);
-      setError('Correo o contraseña incorrectos');
+      let mensaje = "Correo o contraseña incorrectos";
+      if (err.response) {
+        // Diferencia usuarios bloqueados de otros errores
+        if (err.response.status === 403 && err.response.data?.error) {
+          mensaje = err.response.data.error;
+        } else if (err.response.data?.error) {
+          mensaje = err.response.data.error;
+        }
+      }
+      setError(mensaje);
     }
   };
 

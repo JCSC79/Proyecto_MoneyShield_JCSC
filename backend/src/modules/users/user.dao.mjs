@@ -8,7 +8,7 @@ import db from '../../db/DBHelper.mjs';
  */
 export async function getAllUsers() {
   const [rows] = await db.query(`
-    SELECT id, first_name, last_name, email, profile_id, base_budget, base_saving, created_at
+    SELECT id, first_name, last_name, email, profile_id, base_budget, base_saving, is_active, created_at
     FROM users
   `);
   return rows;
@@ -20,7 +20,7 @@ export async function getAllUsers() {
  */
 export async function getUserById(id) {
   const [rows] = await db.query(`
-    SELECT id, first_name, last_name, email, profile_id, base_budget, base_saving, created_at
+    SELECT id, first_name, last_name, email, profile_id, base_budget, base_saving, is_active,  created_at
     FROM users WHERE id = ?
   `, [id]);
   return rows[0];
@@ -72,7 +72,7 @@ export async function updateUser(id, { first_name, last_name, email, password_ha
  */
 export async function patchUser(id, fields) {
   const ALLOWED_FIELDS = [
-    'first_name', 'last_name', 'email', 'password_hash', 'profile_id', 'base_budget', 'base_saving'
+    'first_name', 'last_name', 'email', 'password_hash', 'profile_id', 'base_budget', 'base_saving', 'is_active'
   ];
   const keys = Object.keys(fields).filter(k => ALLOWED_FIELDS.includes(k));
   if (keys.length === 0) {

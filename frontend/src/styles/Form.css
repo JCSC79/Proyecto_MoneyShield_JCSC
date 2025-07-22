@@ -204,3 +204,48 @@
 .admin-delete-btn:focus {
   background: #a31515;
 }
+
+.admin-block-btn {
+  padding: 7px 14px;
+  border: none;
+  border-radius: 5px;
+  background: #fbc02d;
+  color: #444;
+  font-size: 0.98em;
+  cursor: pointer;
+  transition: background 0.18s;
+  margin-left: 6px;
+}
+.admin-block-btn:hover,
+.admin-block-btn:focus {
+  background: #d0a507;
+  color: #fff;
+}
+
+.badge-active {
+  display: inline-block;
+  background: #43a047;
+  color: #fff;
+  border-radius: 12px;
+  padding: 3px 12px;
+  font-size: 0.95em;
+}
+.badge-inactive {
+  display: inline-block;
+  background: #b71c1c;
+  color: #fff;
+  border-radius: 12px;
+  padding: 3px 12px;
+  font-size: 0.95em;
+}
+
+.acciones-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.acciones-btns button {
+  white-space: nowrap;
+}

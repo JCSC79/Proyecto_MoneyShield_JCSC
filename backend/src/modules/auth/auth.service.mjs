@@ -24,6 +24,10 @@ export async function login(email, password) {
       return Result.Fail(Errors.FORBIDDEN, 401);
     }
 
+    if (!user.is_active) {
+      return Result.Fail(Errors.USER_INACTIVE, 403); // Usuario inactivo o bloque
+    }
+
     // 1. Desciframos la contraseña guardada
     const originalPassword = decrypt(user.password_hash);
 

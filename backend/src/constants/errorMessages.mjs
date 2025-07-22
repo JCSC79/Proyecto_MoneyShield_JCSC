@@ -9,6 +9,7 @@ export const Errors = {
   INVALID_EMAIL: 'Invalid email address',
   EMAIL_EXISTS: 'Email already exists',
   INVALID_PASSWORD: 'Password must be at least 8 characters, contain uppercase, lowercase and a number',
+  USER_INACTIVE: 'User is inactive or blocked',
   INVALID_DATE: 'Invalid date',
   INVALID_THRESHOLD: 'Threshold must be between 0 and 100',
   FORBIDDEN: 'Forbidden',

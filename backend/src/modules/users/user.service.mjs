@@ -12,7 +12,7 @@ import { logger } from '../../utils/logger.mjs'; // Importa el logger para regis
 const ALLOWED_PATCH_FIELDS = new Set([
   'first_name', 'last_name', 'email',
   'password_hash', 'profile_id',
-  'base_budget', 'base_saving'
+  'base_budget', 'base_saving', 'is_active'
 ]);
 
 // Obtener todos los usuarios | Get all users

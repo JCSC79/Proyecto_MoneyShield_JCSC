@@ -24,6 +24,7 @@ CREATE TABLE users (
   profile_id INT NOT NULL COMMENT 'ID del perfil asociado',
   base_budget DECIMAL(10,2) UNSIGNED NOT NULL DEFAULT 0.00 COMMENT 'Presupuesto mensual base',
   base_saving DECIMAL(10,2) UNSIGNED NOT NULL DEFAULT 0.00 COMMENT 'Ahorro mensual base',
+  is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT 'Si el usuario está activo (true) o bloqueado (false)',
   currency CHAR(3) NOT NULL DEFAULT 'EUR' COMMENT 'Divisa según ISO 4217',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación del usuario',
   FOREIGN KEY (profile_id) REFERENCES profiles(id),
