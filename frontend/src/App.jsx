@@ -8,6 +8,7 @@ import Perfil from './pages/Perfil';
 import Registro from './pages/Registro';
 import Navbar from './components/Navbar'; // Nuevo componente navbar
 import AdminDashboard from './pages/AdminDashboard'; // Página de administración
+import TransactionsList from './pages/TransactionsList';
 import { useAuth } from './contexts/AuthContext';
 import './styles/Navbar.css';
 
@@ -51,6 +52,7 @@ function App() {
           <Route path="/nuevo-movimiento" element={<NuevoMovimiento />} />
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/transactions" element={<TransactionsList />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>

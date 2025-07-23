@@ -1,0 +1,106 @@
+/* src/styles/TransactionsList.css */
+
+.trans-list-root {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 12px 40px 12px;
+}
+
+.admin-page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #222 !important;
+  margin-bottom: 20px;
+  margin-top: 0;
+  letter-spacing: -0.01em;
+}
+
+.trans-global-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  box-shadow: 0 1px 6px #0001;
+  background: #fafbfc;
+  border-radius: 10px 10px 0 0;
+  overflow: hidden;
+}
+
+.trans-global-table th,
+.trans-global-table td {
+  padding: 13px 18px;
+  border-bottom: 1px solid #e3eafd;
+  text-align: left;
+  font-size: 1em;
+}
+
+.trans-global-table th {
+  background: #e4f1fd;
+  color: #222;
+  font-weight: bold;
+  font-size: 1.04em;
+  letter-spacing: 0.01em;
+}
+
+.trans-global-table tr:last-child td {
+  border-bottom: none;
+}
+
+.trans-global-table tr:nth-child(even) {
+  background-color: #f6f9fc;
+}
+
+.trans-global-table tr:hover {
+  background: #edf4fa;
+}
+
+.trans-global-table td {
+  vertical-align: middle;
+}
+
+.trans-global-table td:last-child {
+  white-space: nowrap;
+  min-width: 190px;
+}
+
+.trans-filter-select {
+  min-width: 270px;
+  font-size: 1.08em;
+  padding: 9px 16px;
+  border-radius: 6px;
+  border: 1px solid #aac;
+  margin-left: 11px;
+  box-shadow: 0 1px 1px #e4eafd;
+  background: #f4f7fd;
+}
+
+/* Tablen action buttons */
+.admin-table-btn,
+.admin-table-btn-delete {
+  display: inline-block;
+  min-width: 90px;
+  padding: 8px 0;
+  border-radius: 5px;
+  font-size: 1em;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  margin-right: 6px;
+  text-align: center;
+  transition: background .18s;
+}
+.admin-table-btn {
+  background: #ff9800;
+  color: #fff;
+}
+.admin-table-btn:hover,
+.admin-table-btn:focus {
+  background: #e58300;
+}
+.admin-table-btn-delete {
+  background: #e53935;
+  color: #fff;
+}
+.admin-table-btn-delete:hover,
+.admin-table-btn-delete:focus {
+  background: #a31515;
+}

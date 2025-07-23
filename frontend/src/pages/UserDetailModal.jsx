@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import api from '../services/axios';
-import '../styles/UserDetailModal.css';
+import '../styles/Modals.css';
+
 
 // Modal de detalle de usuario con edición de movimientos
 export default function UserDetailModal({ user, onClose, onEdit }) {
