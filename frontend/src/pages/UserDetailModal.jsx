@@ -4,28 +4,47 @@ import { useEffect, useState } from 'react';
 import api from '../services/axios';
 import '../styles/UserDetailModal.css';
 
-// Modal de detalle de usuario
+// Modal de detalle de usuario con edición de movimientos
 export default function UserDetailModal({ user, onClose, onEdit }) {
   const [editando, setEditando] = useState(false);
   const [form, setForm] = useState({ ...user });
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  // Estado y carga para movimientos recientes
   const [movimientos, setMovimientos] = useState([]);
   const [loadingMov, setLoadingMov] = useState(false);
+  const [movEdit, setMovEdit] = useState(null);
+  const [movGuardando, setMovGuardando] = useState(false);
+  const [movAEliminar, setMovAEliminar] = useState(null);
 
+  // Categorías para el selector
+  const [categorias, setCategorias] = useState([]);
+
+  // Cargar movimientos de este usuario
   useEffect(() => {
     if (!user) return;
+    cargarMovimientos();
+    // eslint-disable-next-line
+  }, [user]);
+
+  function cargarMovimientos() {
     setLoadingMov(true);
     api
       .get(`/transactions`, { params: { user_id: user.id } })
       .then(res => {
-        setMovimientos(res.data.slice(0, 5)); // solo los 5 más recientes
+        setMovimientos(res.data.slice(0, 10)); // muestra los 10 más recientes
       })
       .catch(() => setMovimientos([]))
       .finally(() => setLoadingMov(false));
-  }, [user]);
+  }
+
+  // Cargar categorías una vez al abrir el modal
+  useEffect(() => {
+    api
+      .get('/categories')
+      .then(res => setCategorias(res.data))
+      .catch(() => setCategorias([]));
+  }, []);
 
   if (!user) return null;
 
@@ -58,6 +77,45 @@ export default function UserDetailModal({ user, onClose, onEdit }) {
     }
   };
 
+  // Edición de movimiento individual en la tabla modal
+  const handleMovEditChange = e => {
+    const { name, value } = e.target;
+    setMovEdit(me => ({ ...me, [name]: value }));
+  };
+
+  const handleMovEditSave = async (e) => {
+    e.preventDefault();
+    setMovGuardando(true);
+    try {
+      await api.patch(`/transactions/${movEdit.id}`, {
+        type_id: Number(movEdit.type_id),
+        category_id: movEdit.category_id ? Number(movEdit.category_id) : null,
+        amount: Number(movEdit.amount),
+        description: movEdit.description || null,
+      });
+      setMovEdit(null);
+      cargarMovimientos();
+    } catch (err) {
+      alert('Error al actualizar el movimiento');
+    } finally {
+      setMovGuardando(false);
+    }
+  };
+
+  const handleMovDelete = async () => {
+    if (!movAEliminar) return;
+    setMovGuardando(true);
+    try {
+      await api.delete(`/transactions/${movAEliminar.id}`);
+      setMovAEliminar(null);
+      cargarMovimientos();
+    } catch {
+      alert('Error al eliminar el movimiento');
+    } finally {
+      setMovGuardando(false);
+    }
+  };
+
   return (
     <div className="user-modal-backdrop">
       <div className="user-modal-content">
@@ -70,42 +128,121 @@ export default function UserDetailModal({ user, onClose, onEdit }) {
             <p><strong>Presupuesto base:</strong> {user.base_budget}</p>
             <p><strong>Ahorro base:</strong> {user.base_saving}</p>
             <p><strong>Creado:</strong> {user.created_at ? new Date(user.created_at).toLocaleString('es-ES') : '—'}</p>
-            {/* ====== Movimientos recientes ====== */}
-            <h3 style={{marginTop:32, fontSize:'1.02em'}}>Movimientos recientes</h3>
+            {/* ====== Tabla editable de movimientos recientes ====== */}
+            <h3 style={{marginTop:32, fontSize:'1.02em'}}>Movimientos recientes (editable)</h3>
             {loadingMov ? (
               <p>Cargando movimientos...</p>
             ) : movimientos.length === 0 ? (
               <p style={{color:'#888'}}>No hay movimientos registrados.</p>
             ) : (
-              <table className="mini-table-mov">
-                <thead>
-                  <tr>
-                    <th>Fecha</th>
-                    <th>Tipo</th>
-                    <th>Categoría</th>
-                    <th>Monto</th>
-                    <th>Descripción</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {movimientos.map(mov => (
-                    <tr key={mov.id}>
-                      <td>{new Date(mov.created_at).toLocaleDateString('es-ES')}</td>
-                      <td>{mov.type_name}</td>
-                      <td>{mov.category_name || '-'}</td>
-                      <td style={{color: mov.type_id === 1 ? "#1976d2" : "#b71c1c" }}>
-                        {mov.type_id === 2 ? '-' : ''}${mov.amount}
-                      </td>
-                      <td>{mov.description || '-'}</td>
+              <div style={{maxHeight:260, overflowY:'auto'}}>
+                <table className="mini-table-mov">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Tipo</th>
+                      <th>Categoría</th>
+                      <th>Monto</th>
+                      <th>Descripción</th>
+                      <th>Acciones</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {movimientos.map(mov => movEdit && movEdit.id === mov.id ? (
+                      <tr key={mov.id}>
+                        <td>{new Date(mov.created_at).toLocaleDateString('es-ES')}</td>
+                        <td>
+                          <select name="type_id" value={movEdit.type_id} onChange={handleMovEditChange} disabled={movGuardando}>
+                            <option value={1}>Ingreso</option>
+                            <option value={2}>Gasto</option>
+                          </select>
+                        </td>
+                        <td>
+                          <select
+                            name="category_id"
+                            value={movEdit.category_id || ''}
+                            onChange={handleMovEditChange}
+                            style={{ width: 120 }}
+                            disabled={movGuardando}
+                          >
+                            <option value="">Selecciona...</option>
+                            {categorias.map(cat => (
+                              <option key={cat.id} value={cat.id}>{cat.name}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td>
+                          <input
+                            name="amount"
+                            type="number"
+                            value={movEdit.amount}
+                            onChange={handleMovEditChange}
+                            style={{width:75}}
+                            disabled={movGuardando}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            name="description"
+                            value={movEdit.description || ''}
+                            onChange={handleMovEditChange}
+                            style={{width:110}}
+                            maxLength={64}
+                            disabled={movGuardando}
+                          />
+                        </td>
+                        <td>
+                          <button className="user-modal-edit-btn" onClick={handleMovEditSave} disabled={movGuardando}>
+                            Guardar
+                          </button>
+                          <button className="user-modal-close-btn" onClick={() => setMovEdit(null)} disabled={movGuardando}>
+                            Cancelar
+                          </button>
+                        </td>
+                      </tr>
+                    ) : (
+                      <tr key={mov.id}>
+                        <td>{new Date(mov.created_at).toLocaleDateString('es-ES')}</td>
+                        <td>{mov.type_name}</td>
+                        <td>{mov.category_name || '-'}</td>
+                        <td style={{color: mov.type_id === 1 ? "#1976d2" : "#b71c1c"}}>
+                          {Number(mov.amount).toLocaleString('es-ES', { minimumFractionDigits: 2 })} €
+                        </td>
+                        <td>{mov.description || '-'}</td>
+                        <td>
+                          <button className="user-modal-edit-btn" onClick={() => setMovEdit(mov)}>
+                            Editar
+                          </button>
+                          <button className="admin-delete-btn" onClick={() => setMovAEliminar(mov)} disabled={movGuardando}>
+                            Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
-            {/* ================================ */}
+            {/* ===== Modal de confirmación de borrado de movimiento ===== */}
+            {movAEliminar && (
+              <div className="mini-modal-backdrop">
+                <div className="mini-modal-content">
+                  <h4>¿Eliminar movimiento?</h4>
+                  <p>
+                    ¿Seguro que deseas eliminar este movimiento de {user.first_name} {user.last_name}?<br />
+                    <span style={{color:'#b71c1c'}}>Esta acción no se puede deshacer.</span>
+                  </p>
+                  <div style={{display:'flex',justifyContent:'center',gap:16,marginTop:20}}>
+                    <button className="admin-delete-btn" onClick={handleMovDelete} disabled={movGuardando}>Eliminar</button>
+                    <button className="user-modal-close-btn" onClick={() => setMovAEliminar(null)} disabled={movGuardando}>Cancelar</button>
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* ======================================================= */}
             <div className="user-modal-actions">
               <button className="user-modal-edit-btn" onClick={() => setEditando(true)}>
-                Editar
+                Editar usuario
               </button>
               <button className="user-modal-close-btn" onClick={onClose}>
                 Cerrar
@@ -155,4 +292,3 @@ export default function UserDetailModal({ user, onClose, onEdit }) {
     </div>
   );
 }
-

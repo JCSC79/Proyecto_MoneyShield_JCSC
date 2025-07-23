@@ -84,6 +84,28 @@
   width: 100%;
   border-collapse: collapse;
   margin: 14px 0 10px 0;
+  background: #f4f7fa;
+  font-size: 0.97em;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.mini-table-mov th, .mini-table-mov td {
+  padding: 4px 9px;
+  border-bottom: 1px solid #e0eafd;
+  text-align: left;
+}
+.mini-table-mov th {
+  background: #e4f1fd;
+  font-size: 1em;
+}
+.mini-table-mov tr:last-child td {
+  border-bottom: none;
+}
+
+.mini-table-mov {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14px 0 10px 0;
   background: #f5f7fa;
   font-size: 0.97em;
   border-radius: 4px;
@@ -103,7 +125,35 @@
 .mini-table-mov tr:last-child td {
   border-bottom: none;
 }
-.mini-table-mov td {
-  white-space: nowrap;
-  font-size: 1em;
+.mini-table-mov input, .mini-table-mov select {
+  font-size: 0.98em;
+  padding: 3px 4px;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+  width: auto;
+  min-width: 40px;
+  box-sizing: border-box;
+}
+
+/* Modal pequeño para confirmación de borrado */
+.mini-modal-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: #2227;
+  z-index: 4001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mini-modal-content {
+  background: #fff;
+  border-radius: 10px;
+  padding: 28px 24px;
+  min-width: 270px;
+  max-width: 95vw;
+  box-shadow: 0 6px 24px #0004;
+  font-size: 1.02em;
+  position: relative;
+  text-align: center;
 }
