@@ -1,14 +1,31 @@
 // src/pages/UserDetailModal.jsx
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import api from '../services/axios';
 import '../styles/UserDetailModal.css';
 
+// Modal de detalle de usuario
 export default function UserDetailModal({ user, onClose, onEdit }) {
   const [editando, setEditando] = useState(false);
   const [form, setForm] = useState({ ...user });
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  // Estado y carga para movimientos recientes
+  const [movimientos, setMovimientos] = useState([]);
+  const [loadingMov, setLoadingMov] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    setLoadingMov(true);
+    api
+      .get(`/transactions`, { params: { user_id: user.id } })
+      .then(res => {
+        setMovimientos(res.data.slice(0, 5)); // solo los 5 más recientes
+      })
+      .catch(() => setMovimientos([]))
+      .finally(() => setLoadingMov(false));
+  }, [user]);
 
   if (!user) return null;
 
@@ -53,6 +70,39 @@ export default function UserDetailModal({ user, onClose, onEdit }) {
             <p><strong>Presupuesto base:</strong> {user.base_budget}</p>
             <p><strong>Ahorro base:</strong> {user.base_saving}</p>
             <p><strong>Creado:</strong> {user.created_at ? new Date(user.created_at).toLocaleString('es-ES') : '—'}</p>
+            {/* ====== Movimientos recientes ====== */}
+            <h3 style={{marginTop:32, fontSize:'1.02em'}}>Movimientos recientes</h3>
+            {loadingMov ? (
+              <p>Cargando movimientos...</p>
+            ) : movimientos.length === 0 ? (
+              <p style={{color:'#888'}}>No hay movimientos registrados.</p>
+            ) : (
+              <table className="mini-table-mov">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Categoría</th>
+                    <th>Monto</th>
+                    <th>Descripción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {movimientos.map(mov => (
+                    <tr key={mov.id}>
+                      <td>{new Date(mov.created_at).toLocaleDateString('es-ES')}</td>
+                      <td>{mov.type_name}</td>
+                      <td>{mov.category_name || '-'}</td>
+                      <td style={{color: mov.type_id === 1 ? "#1976d2" : "#b71c1c" }}>
+                        {mov.type_id === 2 ? '-' : ''}${mov.amount}
+                      </td>
+                      <td>{mov.description || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            {/* ================================ */}
             <div className="user-modal-actions">
               <button className="user-modal-edit-btn" onClick={() => setEditando(true)}>
                 Editar
@@ -105,3 +155,4 @@ export default function UserDetailModal({ user, onClose, onEdit }) {
     </div>
   );
 }
+

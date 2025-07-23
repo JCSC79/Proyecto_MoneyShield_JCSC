@@ -78,3 +78,32 @@
 .user-modal-close-btn:focus {
   background: #1251ac;
 }
+
+/* Mini tabla de movimientos recientes dentro del modal */
+.mini-table-mov {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14px 0 10px 0;
+  background: #f5f7fa;
+  font-size: 0.97em;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.mini-table-mov th, .mini-table-mov td {
+  padding: 4px 9px;
+  border-bottom: 1px solid #e0eafd;
+  text-align: left;
+}
+.mini-table-mov th {
+  background: #e4f1fd;
+  font-size: 1em;
+  color: #144e76;
+  font-weight: 600;
+}
+.mini-table-mov tr:last-child td {
+  border-bottom: none;
+}
+.mini-table-mov td {
+  white-space: nowrap;
+  font-size: 1em;
+}
