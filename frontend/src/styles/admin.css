@@ -17,7 +17,7 @@
 
 /* Layout */
 .admin-layout-root {
-    max-width: 1500px;
+    max-width: 1800px;
     width: 98vw;
     width: 100%;
     min-width: 0;
@@ -299,7 +299,7 @@
 
 .admin-table td:last-child,
 .admin-table th:last-child {
-    min-width: 250px;    /* Así caben dos botones y posible separación */
+    min-width: 200px;    /* Así caben dos botones y posible separación */
     white-space: nowrap;
     text-align: center;
 }

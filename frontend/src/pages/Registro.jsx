@@ -23,7 +23,7 @@ function Registro() {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [mostrarBotonLogin, setMostrarBotonLogin] = useState(false);
-  const [loginData, setLoginData] = useState(null); // <-- NUEVO
+  const [loginData, setLoginData] = useState(null);
   const { setToken } = useAuth();
   const navigate = useNavigate();
 
@@ -53,7 +53,7 @@ function Registro() {
       await registerUser(data);
       setSuccess('¡Registro exitoso! ¿Desea iniciar sesión ahora?');
       setMostrarBotonLogin(true);
-      setLoginData({ email: form.email, password: form.password }); // <-- GUARDA datos para login!
+      setLoginData({ email: form.email, password: form.password });
       setForm({
         first_name: '',
         last_name: '',
@@ -63,7 +63,6 @@ function Registro() {
         base_saving: ''
       });
     } catch (err) {
-      console.error('Error al registrar usuario:', err);
       setError('Error al registrar usuario');
     } finally {
       setLoading(false);
@@ -74,10 +73,9 @@ function Registro() {
     setLoading(true);
     setError('');
     try {
-      // Usa loginData, NO el form
       const token = await login(loginData.email, loginData.password);
       setToken(token);
-      navigate('/'); // Redirecciona al dashboard o donde prefieras
+      navigate('/');
     } catch {
       setError('Error al acceder automáticamente. Inicia sesión manualmente.');
     } finally {
@@ -86,84 +84,101 @@ function Registro() {
   };
 
   return (
-    <div>
-      <h2 style={{ textAlign: 'center' }}>Registro de Usuario</h2>
-      <form className="form-base" onSubmit={handleSubmit}>
-        <Input
-          name="first_name"
-          label="Nombre"
-          placeholder="Nombre"
-          value={form.first_name}
-          onChange={handleChange}
-          required
-        />
-        <Input
-          name="last_name"
-          label="Apellido"
-          placeholder="Apellido"
-          value={form.last_name}
-          onChange={handleChange}
-          required
-        />
-        <Input
-          name="email"
-          label="Correo electrónico"
-          type="email"
-          placeholder="Correo electrónico"
-          value={form.email}
-          onChange={handleChange}
-          required
-        />
-        <Input
-          name="password"
-          label="Contraseña"
-          type="password"
-          placeholder="Contraseña"
-          value={form.password}
-          onChange={handleChange}
-          required
-        />
-        <Input
-          name="base_budget"
-          label="Presupuesto base mensual (opcional)"
-          type="number"
-          placeholder="Presupuesto base mensual"
-          value={form.base_budget}
-          onChange={handleChange}
-          min="0"
-        />
-        <Input
-          name="base_saving"
-          label="Ahorro base mensual (opcional)"
-          type="number"
-          placeholder="Ahorro base mensual"
-          value={form.base_saving}
-          onChange={handleChange}
-          min="0"
-        />
-        <Button type="submit" disabled={loading}>
-          {loading ? 'Registrando...' : 'Registrarse'}
-        </Button>
-        {success && <Alert type="success">{success}</Alert>}
-        {error && <Alert type="error">{error}</Alert>}
-        {mostrarBotonLogin && (
-          <Button type="button" onClick={handleLoginAutomatico} disabled={loading || !loginData}>
-            {loading ? 'Entrando...' : 'Entrar ahora'}
+    <main style={{
+      minHeight: '100vh',
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    }}>
+      <section style={{ minWidth: 0, width: "100%", maxWidth: 410 }}>
+        <h2 style={{
+          textAlign: "center",
+          color: "#1976d2",
+          margin: "0 0 22px 0",
+          fontWeight: 700,
+          fontSize: "2rem"
+        }}>
+          Registro de Usuario
+        </h2>
+        <form className="form-base" onSubmit={handleSubmit}>
+          <Input
+            name="first_name"
+            label="Nombre"
+            placeholder="Nombre"
+            value={form.first_name}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            name="last_name"
+            label="Apellido"
+            placeholder="Apellido"
+            value={form.last_name}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            name="email"
+            label="Correo electrónico"
+            type="email"
+            placeholder="Correo electrónico"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            name="password"
+            label="Contraseña"
+            type="password"
+            placeholder="Contraseña"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            name="base_budget"
+            label="Presupuesto base mensual (opcional)"
+            type="number"
+            placeholder="Presupuesto base mensual"
+            value={form.base_budget}
+            onChange={handleChange}
+            min="0"
+          />
+          <Input
+            name="base_saving"
+            label="Ahorro base mensual (opcional)"
+            type="number"
+            placeholder="Ahorro base mensual"
+            value={form.base_saving}
+            onChange={handleChange}
+            min="0"
+          />
+          <Button type="submit" disabled={loading}>
+            {loading ? 'Registrando...' : 'Registrarse'}
           </Button>
-        )}
-      </form>
-      <div style={{ marginTop: 12, fontSize: '0.98em', color: '#555' }}>
-        <strong>¿Para qué sirve?</strong><br />
-        <em>
-          El presupuesto base es el monto mensual que planeas gastar.<br />
-          El ahorro base es lo que te gustaría apartar cada mes.<br />
-          Ambos campos son opcionales.
-        </em>
-      </div>
-    </div>
+          {success && <Alert type="success">{success}</Alert>}
+          {error && <Alert type="error">{error}</Alert>}
+          {mostrarBotonLogin && (
+            <Button
+              type="button"
+              onClick={handleLoginAutomatico}
+              disabled={loading || !loginData}
+            >
+              {loading ? 'Entrando...' : 'Entrar ahora'}
+            </Button>
+          )}
+        </form>
+        <div style={{ marginTop: 12, fontSize: '0.98em', color: '#555', background: "#f5f5f9", borderRadius: 6, padding: "12px 14px" }}>
+          <strong>¿Para qué sirve?</strong><br />
+          <em>
+            El presupuesto base es el monto mensual que planeas gastar.<br />
+            El ahorro base es lo que te gustaría apartar cada mes.<br />
+            Ambos campos son opcionales.
+          </em>
+        </div>
+      </section>
+    </main>
   );
 }
 
 export default Registro;
-
-

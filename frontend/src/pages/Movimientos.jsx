@@ -7,10 +7,10 @@ import '../styles/Form.css';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Alert from '../components/Alert';
-import { useAuth } from '../contexts/AuthContext'; // <-- IMPORTANTE
+import { useAuth } from '../contexts/AuthContext';
 
 function NuevoMovimiento() {
-  const { token } = useAuth(); // <-- AQUÍ NUEVO
+  const { token } = useAuth();
   const [form, setForm] = useState({
     amount: '',
     category_id: '',
@@ -60,7 +60,6 @@ function NuevoMovimiento() {
       setSuccess('¡Registro exitoso!');
       setForm({ amount: '', category_id: '', description: '', type_id: 2 });
     } catch (err) {
-      console.error('Error al registrar movimiento:', err);
       setError('Error al registrar el movimiento');
     } finally {
       setLoading(false);
@@ -74,63 +73,79 @@ function NuevoMovimiento() {
   );
 
   return (
-    <div>
-      <h1 style={{ textAlign: 'center' }}>Registrar ingreso o gasto</h1>
-      <form className="form-base" onSubmit={handleSubmit}>
-        <div style={{ marginBottom: 12 }}>
-          <label style={{ display: 'block', marginBottom: 4 }}>Tipo de movimiento</label>
-          <select
-            name="type_id"
-            value={form.type_id}
+    <main style={{
+      minHeight: '100vh',
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "none"
+    }}>
+      <section style={{ minWidth: 0, width: "100%", maxWidth: 410, }}>
+        <h2 style={{
+          textAlign: "center",
+          color: "#1976d2",
+          margin: "0 0 22px 0",
+          fontWeight: 700,
+          fontSize: "2rem"
+        }}>
+          Registrar ingreso o gasto
+        </h2>
+        <form className="form-base" onSubmit={handleSubmit} style={{ marginTop: 0 }}>
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, color: "#144e76" }}>Tipo de movimiento</label>
+            <select
+              name="type_id"
+              value={form.type_id}
+              onChange={handleChange}
+              required
+              className="input"
+            >
+              <option value={2}>Gasto</option>
+              <option value={1}>Ingreso</option>
+            </select>
+          </div>
+          <Input
+            type="number"
+            name="amount"
+            label="Cantidad"
+            placeholder="Cantidad"
+            value={form.amount}
             onChange={handleChange}
             required
-            className="input"
-          >
-            <option value={2}>Gasto</option>
-            <option value={1}>Ingreso</option>
-          </select>
-        </div>
-        <Input
-          type="number"
-          name="amount"
-          label="Cantidad"
-          placeholder="Cantidad"
-          value={form.amount}
-          onChange={handleChange}
-          required
-          min="0.01"
-          step="0.01"
-        />
-        <div style={{ marginBottom: 12 }}>
-          <label style={{ display: 'block', marginBottom: 4 }}>Categoría</label>
-          <select
-            name="category_id"
-            value={form.category_id}
+            min="0.01"
+            step="0.01"
+          />
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, color: "#144e76" }}>Categoría</label>
+            <select
+              name="category_id"
+              value={form.category_id}
+              onChange={handleChange}
+              required
+              className="input"
+            >
+              <option value="">Selecciona una categoría</option>
+              {filteredCategories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+          </div>
+          <Input
+            type="text"
+            name="description"
+            label="Descripción"
+            placeholder="Descripción"
+            value={form.description}
             onChange={handleChange}
-            required
-            className="input"
-          >
-            <option value="">Selecciona una categoría</option>
-            {filteredCategories.map(cat => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
-            ))}
-          </select>
-        </div>
-        <Input
-          type="text"
-          name="description"
-          label="Descripción"
-          placeholder="Descripción"
-          value={form.description}
-          onChange={handleChange}
-        />
-        <Button type="submit" disabled={loading}>
-          {loading ? 'Guardando...' : 'Registrar'}
-        </Button>
-        {success && <Alert type="success">{success}</Alert>}
-        {error && <Alert type="error">{error}</Alert>}
-      </form>
-    </div>
+          />
+          <Button type="submit" disabled={loading}>
+            {loading ? 'Guardando...' : 'Registrar'}
+          </Button>
+          {success && <Alert type="success">{success}</Alert>}
+          {error && <Alert type="error">{error}</Alert>}
+        </form>
+      </section>
+    </main>
   );
 }
 

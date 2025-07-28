@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import { getMovement } from '../services/movimientos.api';
 import '../styles/Form.css';
 import Alert from '../components/Alert';
-import { useAuth } from '../contexts/AuthContext'; // <-- NUEVO
+import { useAuth } from '../contexts/AuthContext';
 
 function Dashboard() {
-  const { token } = useAuth(); // <-- Añadido
+  const { token } = useAuth();
   const [gastos, setGastos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -24,7 +24,7 @@ function Dashboard() {
         setLoading(false);
       }
     }
-    if (token) { // Solo intenta cargar si hay token
+    if (token) {
       fetchGastos();
     }
   }, [token]);
@@ -37,8 +37,8 @@ function Dashboard() {
   }
 
   return (
-    <div>
-      <h1>Dashboard MoneyShield</h1>
+    <main style={{ maxWidth: 600, margin: "0 auto", padding: "32px 0" }}>
+      <h1 style={{ textAlign: "center", color: "#1976d2", fontWeight: 700 }}>Dashboard MoneyShield</h1>
       <ul className="gastos-lista">
         {gastos.map(gasto => (
           <li
@@ -56,10 +56,14 @@ function Dashboard() {
             </span>
           </li>
         ))}
+        {gastos.length === 0 && (
+          <li style={{ color: "#888", textAlign: "center", padding: "32px 0" }}>
+            No hay movimientos registrados.
+          </li>
+        )}
       </ul>
-    </div>
+    </main>
   );
 }
 
 export default Dashboard;
-
