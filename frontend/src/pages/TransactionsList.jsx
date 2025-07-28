@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import api from '../services/axios';
-import '../styles/Modals.css';
-import '../styles/TransactionsList.css';
-
+import AdminLayout from '../components/AdminLayout';
+import AdminPagination from '../components/AdminPagination';
+import AdminModal from '../components/AdminModal';
 
 export default function TransactionsList() {
   const [trans, setTrans] = useState([]);
@@ -86,15 +86,14 @@ export default function TransactionsList() {
   };
 
   return (
-    <div className="trans-list-root">
-      <h2>Transacciones del sistema</h2>
+    <AdminLayout title="Transacciones del sistema">
       {/* Filtro de usuario */}
       <div style={{ margin: '18px 0 12px 0' }}>
         <label><strong>Filtrar por usuario:</strong>{' '}
           <select
             value={filtroUsuario}
             onChange={e => { setFiltroUsuario(e.target.value); setPagina(1); }}
-            className="trans-filter-select"
+            className="admin-filter-select"
           >
             <option value="">(Todos los usuarios)</option>
             {usuarios.map(u => (
@@ -103,12 +102,13 @@ export default function TransactionsList() {
           </select>
         </label>
       </div>
+
       {/* Tabla de transacciones */}
       {buscando ? (
         <p>Cargando transacciones...</p>
       ) : (
         <div style={{ overflowX: 'auto' }}>
-          <table className="trans-global-table">
+          <table className="admin-trans-table">
             <thead>
               <tr>
                 <th>ID</th>
@@ -134,15 +134,17 @@ export default function TransactionsList() {
                   </td>
                   <td>{t.description || '-'}</td>
                   <td>
-                    <button
-                      className="user-modal-edit-btn"
-                      onClick={() => setMovEdit(t)}
-                    >Editar</button>
-                    <button
-                      className="user-modal-close-btn"
-                      onClick={() => setTransAEliminar(t)}
-                      disabled={movGuardando}
-                    >Eliminar</button>
+                    <div className="acciones-btns">
+                      <button
+                        className="admin-btn"
+                        onClick={() => setMovEdit(t)}
+                      >Editar</button>
+                      <button
+                        className="admin-btn admin-btn--delete"
+                        onClick={() => setTransAEliminar(t)}
+                        disabled={movGuardando}
+                      >Eliminar</button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -153,123 +155,113 @@ export default function TransactionsList() {
 
       {/* Modal de edición de movimiento */}
       {movEdit && (
-        <div className="mini-modal-backdrop">
-          <div className="mini-modal-content">
-            <h4>Editar transacción #{movEdit.id}</h4>
-            <form onSubmit={handleMovEditSave} style={{margin: '12px 0'}}>
-              <label>
-                <span style={{fontWeight:500}}>Tipo:</span>{' '}
-                <select
-                  name="type_id"
-                  value={movEdit.type_id}
-                  onChange={handleMovEditChange}
-                  disabled={movGuardando}
-                  style={{marginRight:8}}
-                >
-                  <option value={1}>Ingreso</option>
-                  <option value={2}>Gasto</option>
-                </select>
-              </label>
-              <label>
-                <span style={{fontWeight:500}}>Categoría:</span>{' '}
-                <select
-                  name="category_id"
-                  value={movEdit.category_id || ''}
-                  onChange={handleMovEditChange}
-                  disabled={movGuardando}
-                  style={{marginRight:8}}
-                >
-                  <option value="">Sin categoría</option>
-                  {categorias.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </select>
-              </label><br/><br/>
-              <label>
-                <span style={{fontWeight:500}}>Monto (€):</span>{' '}
-                <input
-                  name="amount"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={movEdit.amount}
-                  onChange={handleMovEditChange}
-                  disabled={movGuardando}
-                  style={{width:80, marginRight:8}}
-                />
-              </label>
-              <label>
-                <span style={{fontWeight:500}}>Descripción:</span>{' '}
-                <input
-                  name="description"
-                  value={movEdit.description || ''}
-                  onChange={handleMovEditChange}
-                  maxLength={64}
-                  disabled={movGuardando}
-                  style={{width:160, marginTop:6}}
-                />
-              </label>
-              <div style={{marginTop:18, display:'flex', gap:12, justifyContent:'center'}}>
-                <button
-                  className="user-modal-edit-btn"
-                  type="submit"
-                  disabled={movGuardando}
-                >Guardar</button>
-                <button
-                  className="user-modal-close-btn"
-                  type="button"
-                  onClick={() => setMovEdit(null)}
-                  disabled={movGuardando}
-                >Cancelar</button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <AdminModal
+          title={`Editar transacción #${movEdit.id}`}
+          onClose={() => setMovEdit(null)}
+        >
+          <form onSubmit={handleMovEditSave} style={{ margin: '12px 0' }}>
+            <label>
+              <span style={{ fontWeight: 500 }}>Tipo:</span>{' '}
+              <select
+                name="type_id"
+                value={movEdit.type_id}
+                onChange={handleMovEditChange}
+                disabled={movGuardando}
+                style={{ marginRight: 8 }}
+              >
+                <option value={1}>Ingreso</option>
+                <option value={2}>Gasto</option>
+              </select>
+            </label>
+            <label>
+              <span style={{ fontWeight: 500 }}>Categoría:</span>{' '}
+              <select
+                name="category_id"
+                value={movEdit.category_id || ''}
+                onChange={handleMovEditChange}
+                disabled={movGuardando}
+                style={{ marginRight: 8 }}
+              >
+                <option value="">Sin categoría</option>
+                {categorias.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+            </label><br /><br />
+            <label>
+              <span style={{ fontWeight: 500 }}>Monto (€):</span>{' '}
+              <input
+                name="amount"
+                type="number"
+                min="0"
+                step="0.01"
+                value={movEdit.amount}
+                onChange={handleMovEditChange}
+                disabled={movGuardando}
+                style={{ width: 80, marginRight: 8 }}
+              />
+            </label>
+            <label>
+              <span style={{ fontWeight: 500 }}>Descripción:</span>{' '}
+              <input
+                name="description"
+                value={movEdit.description || ''}
+                onChange={handleMovEditChange}
+                maxLength={64}
+                disabled={movGuardando}
+                style={{ width: 160, marginTop: 6 }}
+              />
+            </label>
+            <div className="admin-modal-actions" style={{ marginTop: 18 }}>
+              <button
+                className="admin-btn"
+                type="submit"
+                disabled={movGuardando}
+              >Guardar</button>
+              <button
+                className="admin-btn admin-btn--cancel"
+                type="button"
+                onClick={() => setMovEdit(null)}
+                disabled={movGuardando}
+              >Cancelar</button>
+            </div>
+          </form>
+        </AdminModal>
       )}
 
       {/* Modal de confirmación de borrado */}
       {transAEliminar && (
-        <div className="mini-modal-backdrop">
-          <div className="mini-modal-content">
-            <h4>¿Eliminar transacción?</h4>
-            <p>
-              ¿Seguro que deseas eliminar la transacción #{transAEliminar.id}?<br />
-              <span style={{color:'#b71c1c'}}>Esta acción no se puede deshacer.</span>
-            </p>
-            <div style={{display:'flex',justifyContent:'center',gap:16,marginTop:20}}>
-              <button
-                className="user-modal-edit-btn"
-                onClick={handleMovDelete}
-                disabled={movGuardando}
-              >Eliminar</button>
-              <button
-                className="user-modal-close-btn"
-                onClick={() => setTransAEliminar(null)}
-                disabled={movGuardando}
-              >Cancelar</button>
-            </div>
+        <AdminModal
+          title="¿Eliminar transacción?"
+          onClose={() => setTransAEliminar(null)}
+        >
+          <p>
+            ¿Seguro que deseas eliminar la transacción #{transAEliminar.id}?<br />
+            <span style={{ color: '#b71c1c' }}>Esta acción no se puede deshacer.</span>
+          </p>
+          <div className="admin-modal-actions">
+            <button
+              className="admin-btn admin-btn--delete"
+              onClick={handleMovDelete}
+              disabled={movGuardando}
+            >Eliminar</button>
+            <button
+              className="admin-btn admin-btn--cancel"
+              onClick={() => setTransAEliminar(null)}
+              disabled={movGuardando}
+            >Cancelar</button>
           </div>
-        </div>
+        </AdminModal>
       )}
 
       {/* Paginación */}
       {!buscando && totalPaginas > 1 && (
-        <div className="trans-pagination" style={{marginTop: '14px', display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center'}}>
-          <button
-            className="admin-pagination-btn"
-            onClick={() => setPagina(p => Math.max(1, p - 1))}
-            disabled={pagina === 1}
-          >Anterior</button>
-          <span className="admin-pagination-current">
-            Página {pagina} / {totalPaginas}
-          </span>
-          <button
-            className="admin-pagination-btn"
-            onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
-            disabled={pagina === totalPaginas}
-          >Siguiente</button>
-        </div>
+        <AdminPagination
+          pagina={pagina}
+          totalPaginas={totalPaginas}
+          onChange={setPagina}
+        />
       )}
-    </div>
+    </AdminLayout>
   );
 }

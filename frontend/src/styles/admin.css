@@ -62,15 +62,23 @@
 
 .acciones-btns {
     display: flex;
-    gap: 10px;
+    gap: 16px !important;
     justify-content: center;
     align-items: center;
+}
+
+.acciones-btns > button,
+.admin-modal-actions > button {
+    margin-right: 0 !important;
+    min-width: 104px;
+    box-sizing: border-box;
 }
 
 /* Botones */
 .admin-btn,
 .admin-btn--block,
-.admin-btn--delete {
+.admin-btn--delete,
+.admin-btn--cancel {
     display: inline-block;
     padding: 8px 16px;
     border-radius: var(--radius-btn);
@@ -79,6 +87,7 @@
     font-weight: 600;
     cursor: pointer;
     transition: background .18s;
+    min-width: 104px;
 }
 
 .admin-btn {
@@ -95,7 +104,6 @@
     background: var(--color-warning);
     color: #444;
 }
-
 .admin-btn--block:hover,
 .admin-btn--block:focus {
     background: #d0a507;
@@ -106,10 +114,19 @@
     background: var(--color-error);
     color: #fff;
 }
-
 .admin-btn--delete:hover,
 .admin-btn--delete:focus {
     background: #a31515;
+}
+
+/* Botón cancelar/azul para acciones secundarias (cerrar/cancelar) */
+.admin-btn--cancel {
+    background: var(--color-primary);
+    color: #fff;
+}
+.admin-btn--cancel:hover,
+.admin-btn--cancel:focus {
+    background: var(--color-primary-dark);
 }
 
 /* Badges */
@@ -121,7 +138,6 @@
     padding: 3px 12px;
     font-size: 0.95em;
 }
-
 .admin-badge--inactive {
     display: inline-block;
     background: var(--color-badge-inactive);
@@ -153,7 +169,6 @@
     align-items: center;
     justify-content: center;
 }
-
 .admin-pagination-btn {
     padding: 7px 18px;
     border-radius: 4px;
@@ -166,18 +181,15 @@
     transition: background 0.2s;
     outline: none;
 }
-
 .admin-pagination-btn:disabled {
     background: #bfcde3;
     color: #fff;
     cursor: not-allowed;
 }
-
 .admin-pagination-btn:hover:not(:disabled),
 .admin-pagination-btn:focus:not(:disabled) {
     background: var(--color-primary-dark);
 }
-
 .admin-pagination-current {
     background: #fff;
     color: var(--color-primary);
@@ -219,7 +231,6 @@
         opacity: 0;
         transform: scale(0.90);
     }
-
     100% {
         opacity: 1;
         transform: scale(1);
