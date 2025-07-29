@@ -2,21 +2,25 @@
 
 import api from './axios';
 
-// Funciones para interactuar con la API de gastos
-export async function getMovement(token) {
-  const res = await api.get('/transactions', {
-    headers: {
-      Authorization: `Bearer ${token}` // Envía el token en la cabecera de autorización
-    }
-  });
-  return res.data; // Devuelve la lista de gastos
+// Trae todos los movimientos del usuario autenticado
+export async function getMovement() {
+  const res = await api.get('/transactions');
+  return res.data; // Devuelve array de movimientos o []
 }
 
-export async function createMovement( token, data ) {
-  const res = await api.post('/transactions', data, {
-    headers: {
-      Authorization: `Bearer ${token}` // Envía el token en la cabecera de autorización
-    }
-  });
-  return res.data; // Devuelve el gasto creado
+// Crea un nuevo movimiento
+export async function createMovement(data) {
+  const res = await api.post('/transactions', data);
+  return res.data;
+}
+
+
+export async function getForecast() {
+  const res = await api.get('/transactions/report/forecast');
+  return res.data;
+}
+
+export async function getCategoryExpenses() {
+  const res = await api.get('/transactions/report/expenses-by-category');
+  return res.data;
 }

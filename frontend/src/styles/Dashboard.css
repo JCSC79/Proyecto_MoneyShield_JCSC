@@ -1,0 +1,155 @@
+/* src/styles/Dashboard.css */
+
+.dashboard-root {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 32px 16px;
+}
+
+.dashboard-title {
+    text-align: center;
+    color: #1976d2;
+    font-weight: 700;
+    margin-bottom: 28px;
+    font-size: 2.1rem;
+    letter-spacing: -0.5px;
+}
+
+/* KPI cards */
+.dashboard-kpis {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.dashboard-kpi {
+    border-radius: 10px;
+    padding: 18px 28px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 130px;
+    box-shadow: 0 2px 8px #1976d215;
+}
+
+.dashboard-kpi-saldo {
+    background: #e3ecfa;
+}
+
+.dashboard-kpi-gasto {
+    background: #ffefd3;
+}
+
+.dashboard-kpi-presup {
+    background: #e9f7ef;
+}
+
+.dashboard-kpi-title {
+    font-size: 15px;
+}
+
+.dashboard-kpi-saldo .dashboard-kpi-title {
+    color: #1976d2;
+}
+
+.dashboard-kpi-gasto .dashboard-kpi-title {
+    color: #f57c00;
+}
+
+.dashboard-kpi-presup .dashboard-kpi-title {
+    color: #369120;
+}
+
+.dashboard-kpi-value {
+    font-size: 27px;
+    font-weight: 700;
+    color: #1976d2;
+}
+
+.dashboard-kpi-gasto .dashboard-kpi-value {
+    color: #b71c1c;
+}
+
+.dashboard-kpi-presup .dashboard-kpi-value.warn {
+    color: #fbc02d;
+}
+
+.dashboard-kpi-presup .dashboard-kpi-value.error {
+    color: #e53935;
+}
+
+.dashboard-kpi-presup .dashboard-kpi-value.ok {
+    color: #1976d2;
+}
+
+.dashboard-kpi-ahorro {
+    background: #e3faeb;
+}
+
+.dashboard-kpi-mov {
+    background: #eff2fc;
+}
+
+.dashboard-kpi-prom {
+    background: #f2e4fa;
+}
+
+.dashboard-kpi-ahorro .dashboard-kpi-value {
+    color: #388e3c;
+}
+
+.dashboard-kpi-prom .dashboard-kpi-value {
+    color: #a069c7;
+}
+
+.dashboard-kpi-mov .dashboard-kpi-value {
+    color: #1976d2;
+}
+
+.dashboard-card-section {
+    margin: 22px auto 0 auto;
+    text-align: center;
+}
+
+.dashboard-section-subtitle {
+    color: #1976d2;
+    font-size: 1.07em;
+    margin-bottom: 12px;
+}
+
+.dashboard-section-tip {
+    font-style: italic;
+    color: #1976d2;
+    margin: 18px 0;
+}
+
+.dashboard-mov-title {
+    color: #1976d2;
+    margin-top: 28px;
+    margin-bottom: 18px;
+    font-size: 22px;
+}
+
+/* Botón flotante "+" */
+.dashboard-fab {
+    position: fixed;
+    right: 30px;
+    bottom: 40px;
+    border-radius: 50%;
+    background: #1976d2;
+    color: #fff;
+    width: 62px;
+    height: 62px;
+    font-size: 34px;
+    font-weight: 700;
+    box-shadow: 0 4px 14px #0002;
+    border: none;
+    cursor: pointer;
+    z-index: 1000;
+    transition: background 0.15s;
+}
+
+.dashboard-fab:hover {
+    background: #1565c0;
+}

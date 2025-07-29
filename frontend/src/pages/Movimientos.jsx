@@ -10,7 +10,7 @@ import Alert from '../components/Alert';
 import { useAuth } from '../contexts/AuthContext';
 
 function NuevoMovimiento() {
-  const { token } = useAuth();
+  // El token ya lo mete el interceptor de axios en cada llamada
   const [form, setForm] = useState({
     amount: '',
     category_id: '',
@@ -56,9 +56,11 @@ function NuevoMovimiento() {
         category_id: Number(form.category_id),
         type_id: Number(form.type_id)
       };
-      await createMovement(token, data);
+      await createMovement(data);
       setSuccess('¡Registro exitoso!');
       setForm({ amount: '', category_id: '', description: '', type_id: 2 });
+      // Redirige al dashboard tras 1.5 segundos
+      setTimeout(() => window.location.href = "/", 1500);
     } catch (err) {
       setError('Error al registrar el movimiento');
     } finally {
