@@ -254,3 +254,74 @@ export async function getMonthlyForecast(user_id) {
     return Result.Fail(Errors.INTERNAL, 500); // Usamos el mensaje de error centralizado 26 de junio
   }
 }
+
+// Métodos nuevos del dao
+
+
+export async function getIncomeByMonth(user_id, year = null, month = null) {
+  if (!user_id) {
+    return { success: false, error: "Missing user_id" };
+  }
+  try {
+    const income = await transactionDao.getIncomeByMonth(user_id, year, month);
+    return { success: true, data: income };
+  } catch (err) {
+    return { success: false, error: err.message || err };
+  }
+}
+
+export async function getMovementsCountByMonth(user_id, year = null, month = null) {
+  if (!user_id) {
+    return { success: false, error: "Missing user_id" };
+  }
+  try {
+    const count = await transactionDao.getMovementsCountByMonth(user_id, year, month);
+    return { success: true, data: count };
+  } catch (err) {
+    return { success: false, error: err.message || err };
+  }
+}
+
+/**
+ * Summary de dashboard en un solo fetch
+ */
+export async function getDashboardSummary(user_id, year = null, month = null) {
+  if (!user_id) {
+    return { success: false, error: "Missing user_id" };
+  }
+  try {
+    // obtiene fecha actual
+    const now = new Date();
+    year = year || now.getFullYear();
+    month = month || now.getMonth() + 1;
+
+    
+    const [
+      saldo,
+      gastoMesForecast,
+      ingresoMes,
+      movimientosMes
+    ] = await Promise.all([
+      transactionDao.getUserBalance(user_id),
+      transactionDao.getMonthlyForecast(user_id), // ya tiene gasto_mes, proyeccion_mes, etc
+      transactionDao.getIncomeByMonth(user_id, year, month),
+      transactionDao.getMovementsCountByMonth(user_id, year, month)
+    ]);
+
+    // Unifica los resultados
+    return {
+      success: true,
+      data: {
+        saldo_actual: saldo,
+        gasto_mes: gastoMesForecast?.gasto_actual ?? 0,
+        ingreso_mes: ingresoMes,
+        proyeccion_mes: gastoMesForecast?.proyeccion_mes ?? 0,
+        movimientos_mes: movimientosMes,
+        dias_transcurridos: gastoMesForecast?.dias_transcurridos ?? null,
+        dias_mes: gastoMesForecast?.dias_mes ?? null
+      }
+    };
+  } catch (error) {
+    return { success: false, error: error.message || error };
+  }
+}

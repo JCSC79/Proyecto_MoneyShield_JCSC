@@ -2,25 +2,26 @@
 
 import api from './axios';
 
-// Trae todos los movimientos del usuario autenticado
-export async function getMovement() {
-  const res = await api.get('/transactions');
-  return res.data; // Devuelve array de movimientos o []
+// ---- DASHBOARD SUMMARY:  principal para KPIs ----
+export async function getDashboardSummary() {
+  const res = await api.get('/transactions/report/summary');
+  return res.data; // { saldo_actual, gasto_mes, ingreso_mes, proyeccion_mes, movimientos_mes, dias_transcurridos, dias_mes }
 }
 
-// Crea un nuevo movimiento
+// PieChart por categoría
+export async function getExpensesByCategory() {
+  const res = await api.get('/transactions/report/expenses-by-category');
+  return res.data;
+}
+
+// Últimos movimientos (para el listado clásico)
+export async function getRecentMovements(limit = 5) {
+  const res = await api.get(`/transactions?limit=${limit}`);
+  return res.data;
+}
+
+// Alta de movimiento
 export async function createMovement(data) {
   const res = await api.post('/transactions', data);
-  return res.data;
-}
-
-
-export async function getForecast() {
-  const res = await api.get('/transactions/report/forecast');
-  return res.data;
-}
-
-export async function getCategoryExpenses() {
-  const res = await api.get('/transactions/report/expenses-by-category');
   return res.data;
 }

@@ -326,3 +326,46 @@ export async function getMonthlyForecast(user_id, connection = db) {
   return rows[0] || null;
 }
 
+/**
+ * Ingresos del mes (income for current month)
+ */
+export async function getIncomeByMonth(user_id, year = null, month = null, connection = db) {
+  // Usa año/mes actual si no se dan
+  if (!year || !month) {
+    const now = new Date();
+    year = now.getFullYear();
+    month = now.getMonth() + 1;
+  }
+  const [rows] = await connection.query(
+    `SELECT SUM(amount) AS ingreso_mes
+    FROM transactions
+    WHERE user_id = ?
+      AND type_id = 1
+      AND YEAR(created_at) = ?
+      AND MONTH(created_at) = ?`,
+    [user_id, year, month]
+  );
+  return rows[0]?.ingreso_mes || 0;
+}
+
+/**
+ * Número de movimientos este mes
+ */
+export async function getMovementsCountByMonth(user_id, year = null, month = null, connection = db) {
+  if (!year || !month) {
+    const now = new Date();
+    year = now.getFullYear();
+    month = now.getMonth() + 1;
+  }
+  const [rows] = await connection.query(
+    `SELECT COUNT(*) AS movimientos_mes
+    FROM transactions
+    WHERE user_id = ?
+      AND YEAR(created_at) = ?
+      AND MONTH(created_at) = ?`,
+    [user_id, year, month]
+  );
+  return rows[0]?.movimientos_mes || 0;
+}
+
+

@@ -530,4 +530,33 @@ router.get('/report/forecast', authenticate, forceSelfFilter, async (req, res) =
     : res.status(result.error.code).json({ error: result.error.message });
 });
 
+/**
+ * @swagger
+ * /transactions/report/summary:
+ *   get:
+ *     tags: [Transactions]
+ *     summary: Get all major dashboard KPIs in one call
+ *     parameters:
+ *       - in: query
+ *         name: year
+ *         schema: { type: integer }
+ *         required: false
+ *       - in: query
+ *         name: month
+ *         schema: { type: integer }
+ *         required: false
+ *     responses:
+ *       200:
+ *         description: Dashboard summary KPIs
+ */
+router.get('/report/summary', authenticate, forceSelfFilter, async (req, res) => {
+  const user_id = req.filtroForzado.user_id;
+  const { year, month } = req.query;
+  const result = await transactionService.getDashboardSummary(user_id, year ? Number(year) : null, month ? Number(month) : null);
+  result.success
+    ? res.status(200).json(result.data)
+    : res.status(400).json({ error: result.error });
+});
+
+
 export default router;
