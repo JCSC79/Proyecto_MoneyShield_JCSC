@@ -162,55 +162,75 @@ Español:
 ## 🗂️ Project Structure
 
 ```
-db/
-    moneyshield_schema.sql
-    datos_prueba_actualizados.sql
-docs/
-    swagger.mjs
-src/
-    db/DBHelper.mjs
-    modules/
-        users/
-            user.controller.mjs
-            user.service.mjs
-            user.dao.mjs
-        transactions/
-            transaction.controller.mjs
-            transaction.service.mjs
-            transaction.dao.mjs
-        budgets/
-            budget.controller.mjs
-            budget.service.mjs
-            budget.dao.mjs
-        savings/
-            saving.controller.mjs
-            saving.service.mjs
-            saving.dao.mjs
-        categories/
-            categories.controller.mjs
-            categories.service.mjs
-            categories.dao.mjs
-        profiles/
-            profile.controller.mjs
-            profile.service.mjs
-            profile.dao.mjs
-        auth/
-            auth.controller.mjs
-            auth.service.mjs
-            auth.middleware.mjs
-            
-    index.mjs
-.env
-package.json
-README.md
-tests/
-  users.test.js
-  transactions.test.js
-  budgets.test.js
-  categories.test.js
-  savings.test.js
-  profiles.test.js
-  auth.test.js
+backend/
+    db/
+        moneyshield_schema.sql
+    docs/
+        swagger.mjs
+    logs/
+    node_modules/
+    scripts/
+        encrypt-password.mjs
+    src/
+        constants/
+            errorMessages.mjs
+            financial.mjs
+        db/    
+            db/DBHelper.mjs
+        middlewares
+            accessControl.middleware.mjs
+            validateParams.middleware.mjs
+        modules/
+            auth/
+                auth.controller.mjs
+                auth.service.mjs
+                auth.middleware.mjs
+            budgets/
+                budget.controller.mjs
+                budget.service.mjs
+                budget.dao.mjs
+            categories/
+                categories.controller.mjs
+                categories.service.mjs
+                categories.dao.mjs
+            profiles/
+                profile.controller.mjs
+                profile.service.mjs
+                profile.dao.mjs
+            savings/
+                saving.controller.mjs
+                saving.service.mjs
+                saving.dao.mjs
+            transactions/
+                transaction.controller.mjs
+                transaction.service.mjs
+                transaction.dao.mjs
+            users/
+                user.controller.mjs
+                user.service.mjs
+                user.dao.mjs
+        utils/ 
+            encryption.mjs
+            logger.mjs
+            omitFields.mjs
+            result.mjs
+            validation.mjs   
+        app.js         
+        index.mjs
+    tests/
+        auth.test.mjs
+        budgets.test.js
+        categories.test.js
+        profiles.test.js
+        savings.test.js
+        transactions.test.js
+        users.test.js
+    .env
+    jest.config.js
+    package.json
+    package-lock.json
+    README.md
+    sonar-project.properties
 ```
 ## 🛡️ Security
 
@@ -236,4 +256,4 @@ Sigue las instrucciones anteriores para instalar, configurar y ejecutar el proye
 ---
 
 Created for MoneyShield by Juan Carlos Sandomingo version © 2025
-Current date: Thursday, July 10, 2025, 11:40 PM
+Current date: Thursday, July 31, 2025, 10:00 AM
