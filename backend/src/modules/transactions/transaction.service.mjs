@@ -290,35 +290,44 @@ export async function getDashboardSummary(user_id, year = null, month = null) {
     return { success: false, error: "Missing user_id" };
   }
   try {
-    // obtiene fecha actual
     const now = new Date();
     year = year || now.getFullYear();
     month = month || now.getMonth() + 1;
 
-    
+    // datos DAO (sin ahorro base todavía)
     const [
-      saldo,
+      saldoSinAhorroBase,
       gastoMesForecast,
       ingresoMes,
       movimientosMes
     ] = await Promise.all([
       transactionDao.getUserBalance(user_id),
-      transactionDao.getMonthlyForecast(user_id), // ya tiene gasto_mes, proyeccion_mes, etc
+      transactionDao.getMonthlyForecast(user_id),
       transactionDao.getIncomeByMonth(user_id, year, month),
       transactionDao.getMovementsCountByMonth(user_id, year, month)
     ]);
 
-    // Unifica los resultados
+    // Fetch ahorro base desde users
+    const [[usuario]] = await db.query('SELECT base_saving FROM users WHERE id = ?', [user_id]);
+    const ahorroBase = usuario ? Number(usuario.base_saving) : 0;
+
+    // El saldo actual debe sumar ese ahorro base
+    const saldoActual = Number(saldoSinAhorroBase || 0) + ahorroBase;
+
+    const ahorroMes = Number(ingresoMes || 0) - Number(gastoMesForecast?.gasto_actual || 0);
+
     return {
       success: true,
       data: {
-        saldo_actual: saldo,
-        gasto_mes: gastoMesForecast?.gasto_actual ?? 0,
+        saldo_actual: saldoActual,
+        ahorro_base: ahorroBase,
+        ahorro_mes: ahorroMes,
+        gasto_mes: gastoMesForecast?.gasto_actual || 0,
         ingreso_mes: ingresoMes,
-        proyeccion_mes: gastoMesForecast?.proyeccion_mes ?? 0,
+        proyeccion_mes: gastoMesForecast?.proyeccion_mes || 0,
         movimientos_mes: movimientosMes,
-        dias_transcurridos: gastoMesForecast?.dias_transcurridos ?? null,
-        dias_mes: gastoMesForecast?.dias_mes ?? null
+        dias_transcurridos: gastoMesForecast?.dias_transcurridos || null,
+        dias_mes: gastoMesForecast?.dias_mes || null
       }
     };
   } catch (error) {

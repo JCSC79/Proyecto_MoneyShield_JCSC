@@ -53,7 +53,7 @@ function Dashboard() {
   const diasMes = Number(summary.dias_mes) ?? 0;
   const presupuesto = user?.base_budget ? Number(user.base_budget) : 0;
   const porcUsado = presupuesto > 0 ? (gastoMes / presupuesto) * 100 : 0;
-  const ahorroMes = ingresoMes - gastoMes;
+  const ahorroMes = Number(summary.ahorro_mes) ?? 0;
   const promedioDiario = diasTranscurridos ? gastoMes / diasTranscurridos : 0;
 
   return (
