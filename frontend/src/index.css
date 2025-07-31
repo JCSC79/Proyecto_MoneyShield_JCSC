@@ -1,0 +1,9 @@
+/* src/index.css */
+
+@import './styles/theme.css';
+
+body, html {
+  background: var(--bg-main);
+  min-height: 100vh;
+  margin: 0;
+}

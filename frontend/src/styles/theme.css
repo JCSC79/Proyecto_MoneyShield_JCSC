@@ -1,0 +1,109 @@
+/* src/styles/theme.css */
+
+/* === Variables de tema claro (por defecto) === */
+:root {
+    /* Backgrounds y paneles principales */
+    --bg-main: #f6f8fc;
+    --bg-card: #fff;
+    --bg-panel: #fafbfc;
+
+    /* Texto general */
+    --color-text-main: #212121;
+
+    /* Colores de KPIs / Cards Dashboard */
+    --color-kpi-saldo-bg: #e3ecfa;
+    --color-kpi-gastos-bg: #ffefd3;
+    --color-kpi-presup-bg: #e9f7ef;
+    --color-kpi-ahorro-bg: #e3faeb;
+    --color-kpi-mov-bg: #eff2fc;
+    --color-kpi-prom-bg: #f2e4fa;
+
+    /* Colores de valores principales KPI */
+    --color-kpi-saldo: #1976d2;
+    --color-kpi-gasto: #b71c1c;
+    --color-kpi-presup-ok: #1976d2;
+    --color-kpi-presup-warn: #fbc02d;
+    --color-kpi-presup-err: #e53935;
+    --color-kpi-prom: #a069c7;
+    --color-kpi-ahorro: #388e3c;
+    --color-kpi-mov: #1976d2;
+
+    /* Colores para los títulos de KPIs (para contraste) */
+    --color-kpi-title-general: #292929;
+    --color-kpi-title-ahorro: #217245;
+    --color-kpi-title-mov: #1652a0;
+    --color-kpi-title-prom: #7430a7;
+    --color-kpi-title-ahorro: #146432;
+    --color-kpi-title-mov: #103b65;
+    --color-kpi-title-prom: #52136e;
+
+    /* Navbar */
+    --color-navbar-bg: #1976d2;
+    --color-navbar-hover: #1565c0;
+    --color-navbar-text: #fff;
+
+    /* Botones/Acciones */
+    --color-primary: #1976d2;
+    --color-primary-dark: #1565c0;
+    --color-success: #388e3c;
+    --color-warning: #fbc02d;
+    --color-error: #e53935;
+    --color-badge-active: #43a047;
+    --color-badge-inactive: #b71c1c;
+    --color-modal-backdrop: #0008;
+
+    /* Otros */
+    --shadow-main: 0 1px 4px #0001, 0 8px 40px #0003;
+    --radius-main: 12px;
+    --radius-btn: 5px;
+}
+
+/* === Variables para tema oscuro === */
+[data-theme="dark"] {
+    --bg-main: #181c22;
+    --bg-card: #222636;
+    --bg-panel: #23253c;
+    --color-text-main: #f5f6fa;
+
+    --color-kpi-saldo-bg: #212e3f;
+    --color-kpi-gastos-bg: #4b3320;
+    --color-kpi-presup-bg: #1f3731;
+    --color-kpi-ahorro-bg: #173824;
+    --color-kpi-mov-bg: #26293e;
+    --color-kpi-prom-bg: #372646;
+
+    --color-kpi-saldo: #79aaff;
+    --color-kpi-gasto: #ef5350;
+    --color-kpi-presup-ok: #50fa7b;
+    --color-kpi-presup-warn: #fed766;
+    --color-kpi-presup-err: #ff8585;
+    --color-kpi-prom: #c994fa;
+    --color-kpi-ahorro: #6ee7b7;
+    --color-kpi-mov: #6ec6ff;
+
+    /* Nuevo: contraste mejorado para títulos de KPIs */
+    --color-kpi-title-general: #c2cadc;
+    --color-kpi-title-ahorro: #89e7b3;
+    --color-kpi-title-mov: #9dbbfa;
+    --color-kpi-title-prom: #e9b8ff;
+    --color-kpi-title-ahorro: #45c682;
+    --color-kpi-title-mov: #4e94ea;
+    --color-kpi-title-prom: #b653e8;
+
+    --color-navbar-bg: #22253a;
+    --color-navbar-hover: #232e4b;
+    --color-navbar-text: #dfefff;
+
+    --color-primary: #79aaff;
+    --color-primary-dark: #3d529d;
+    --color-success: #00d29a;
+    --color-warning: #ffe066;
+    --color-error: #ef5363;
+    --color-badge-active: #4caf50;
+    --color-badge-inactive: #c62828;
+    --color-modal-backdrop: #000c;
+
+    --shadow-main: 0 1px 4px #0007, 0 8px 40px #04081d;
+    --radius-main: 12px;
+    --radius-btn: 5px;
+}

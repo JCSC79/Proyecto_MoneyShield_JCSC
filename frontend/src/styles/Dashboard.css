@@ -4,11 +4,13 @@
     max-width: 780px;
     margin: 0 auto;
     padding: 32px 16px;
+    background: var(--bg-main);
+    color: var(--color-text-main);
 }
 
 .dashboard-title {
     text-align: center;
-    color: #1976d2;
+    color: var(--color-primary);
     font-weight: 700;
     margin-bottom: 28px;
     font-size: 2.1rem;
@@ -30,81 +32,81 @@
     font-weight: 600;
     text-align: center;
     min-width: 130px;
-    box-shadow: 0 2px 8px #1976d215;
+    box-shadow: 0 2px 8px var(--color-primary, #1976d215);
+    background: var(--bg-card);
 }
 
 .dashboard-kpi-saldo {
-    background: #e3ecfa;
+    background: var(--color-kpi-saldo-bg);
 }
-
 .dashboard-kpi-gasto {
-    background: #ffefd3;
+    background: var(--color-kpi-gastos-bg);
 }
-
 .dashboard-kpi-presup {
-    background: #e9f7ef;
+    background: var(--color-kpi-presup-bg);
+}
+.dashboard-kpi-ahorro {
+    background: var(--color-kpi-ahorro-bg);
+}
+.dashboard-kpi-mov {
+    background: var(--color-kpi-mov-bg);
+}
+.dashboard-kpi-prom {
+    background: var(--color-kpi-prom-bg);
 }
 
 .dashboard-kpi-title {
     font-size: 15px;
+    color: var(--color-kpi-title-general);
+}
+.dashboard-kpi-saldo .dashboard-kpi-title {
+    color: var(--color-primary);
 }
 
-.dashboard-kpi-saldo .dashboard-kpi-title {
-    color: #1976d2;
+/* Títulos de KPIs con color específico según variable */
+.dashboard-kpi-ahorro .dashboard-kpi-title {
+    color: var(--color-kpi-title-ahorro);
+}
+.dashboard-kpi-mov .dashboard-kpi-title {
+    color: var(--color-kpi-title-mov);
+}
+.dashboard-kpi-prom .dashboard-kpi-title {
+    color: var(--color-kpi-title-prom);
 }
 
 .dashboard-kpi-gasto .dashboard-kpi-title {
     color: #f57c00;
 }
-
 .dashboard-kpi-presup .dashboard-kpi-title {
     color: #369120;
 }
 
+/* Valores de KPI */
 .dashboard-kpi-value {
     font-size: 27px;
     font-weight: 700;
-    color: #1976d2;
+    color: var(--color-kpi-saldo);
 }
-
 .dashboard-kpi-gasto .dashboard-kpi-value {
-    color: #b71c1c;
+    color: var(--color-kpi-gasto);
 }
-
 .dashboard-kpi-presup .dashboard-kpi-value.warn {
-    color: #fbc02d;
+    color: var(--color-kpi-presup-warn);
 }
-
 .dashboard-kpi-presup .dashboard-kpi-value.error {
-    color: #e53935;
+    color: var(--color-kpi-presup-err);
 }
-
 .dashboard-kpi-presup .dashboard-kpi-value.ok {
-    color: #1976d2;
+    color: var(--color-kpi-presup-ok);
 }
-
-.dashboard-kpi-ahorro {
-    background: #e3faeb;
-}
-
-.dashboard-kpi-mov {
-    background: #eff2fc;
-}
-
-.dashboard-kpi-prom {
-    background: #f2e4fa;
-}
-
 .dashboard-kpi-ahorro .dashboard-kpi-value {
-    color: #388e3c;
+    color: var(--color-kpi-ahorro);
 }
-
-.dashboard-kpi-prom .dashboard-kpi-value {
-    color: #a069c7;
-}
-
 .dashboard-kpi-mov .dashboard-kpi-value {
-    color: #1976d2;
+    color: var(--color-kpi-mov);
+}
+.dashboard-kpi-prom .dashboard-kpi-value {
+    color: var(--color-kpi-prom);
 }
 
 .dashboard-card-section {
@@ -113,19 +115,19 @@
 }
 
 .dashboard-section-subtitle {
-    color: #1976d2;
+    color: var(--color-primary);
     font-size: 1.07em;
     margin-bottom: 12px;
 }
 
 .dashboard-section-tip {
     font-style: italic;
-    color: #1976d2;
+    color: var(--color-primary);
     margin: 18px 0;
 }
 
 .dashboard-mov-title {
-    color: #1976d2;
+    color: var(--color-primary);
     margin-top: 28px;
     margin-bottom: 18px;
     font-size: 22px;
@@ -137,7 +139,7 @@
     right: 30px;
     bottom: 40px;
     border-radius: 50%;
-    background: #1976d2;
+    background: var(--color-primary);
     color: #fff;
     width: 62px;
     height: 62px;
@@ -151,5 +153,5 @@
 }
 
 .dashboard-fab:hover {
-    background: #1565c0;
+    background: var(--color-primary-dark);
 }

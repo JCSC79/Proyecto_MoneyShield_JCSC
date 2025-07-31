@@ -5,16 +5,16 @@
   align-items: center;
   justify-content: space-between;
   margin: 0 auto 32px auto;
-  padding: 18px 32px;  /* ¡Aquí el padding left y right! */
+  padding: 18px 32px;
   border-radius: 0 0 12px 12px;
-  background: #1976d2;
+  background: var(--color-navbar-bg);
   gap: 16px;
   box-sizing: border-box;
   flex-wrap: wrap;
 }
 
 .navbar a {
-  color: #fff;
+  color: var(--color-navbar-text, #fff);
   text-decoration: none;
   font-weight: 500;
   font-size: 1.08em;
@@ -27,7 +27,7 @@
 
 .navbar a.active,
 .navbar a:hover {
-  background: #1565c0;
+  background: var(--color-navbar-hover);
   border-radius: 4px;
   outline: none;
 }
@@ -37,8 +37,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  background: #1565c013;
-  color: #fff;
+  background: #1565c013; /* transparente para avatar/fondo, puedes crear una variable nueva si quieres */
+  color: var(--color-navbar-text, #fff);
   border-radius: 4px;
   padding: 4px 12px;
   font-weight: 500;
@@ -46,7 +46,7 @@
 }
 
 .navbar button {
-  background: #f44336;
+  background: var(--color-error);
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -63,14 +63,12 @@
   background: #b71c1c;
 }
 
-/* RESPONSIVO para dispositivos pequeños */
 @media (max-width: 700px) {
   .navbar {
     flex-direction: column;
     align-items: stretch;
-    padding: 12px 8px;  /* Menor padding lateral por espacio */
+    padding: 12px 8px;
     gap: 8px;
-    /* padding ya asegura que la barra nunca es touch-to-borde en móvl */
   }
   .navbar a,
   .navbar button,
@@ -82,9 +80,9 @@
   }
   .navbar a.active,
   .navbar a:hover {
-    background: #1565c0;
+    background: var(--color-navbar-hover);
     border-radius: 4px;
-    width: calc(100% - 0px);  /* Evita que el azul se “vaya de la barra” en pequeño */
+    width: 100%;
   }
   .navbar button {
     margin-top: 8px;

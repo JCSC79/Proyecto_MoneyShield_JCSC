@@ -1,20 +1,5 @@
 /* src/styles/admin.css */
 
-:root {
-    --color-primary: #1976d2;
-    --color-primary-dark: #1565c0;
-    --color-success: #388e3c;
-    --color-warning: #fbc02d;
-    --color-error: #e53935;
-    --color-badge-active: #43a047;
-    --color-badge-inactive: #b71c1c;
-    --color-modal-backdrop: #0008;
-    --radius-main: 12px;
-    --radius-btn: 5px;
-    --font-main: 1.07em;
-    --shadow-main: 0 1px 4px #0001, 0 8px 40px #0003;
-}
-
 /* Layout */
 .admin-layout-root {
     max-width: 1800px;
@@ -25,12 +10,14 @@
     padding: 32px 0 24px 0;
     min-height: 100vh;
     box-sizing: border-box;
+    background: var(--bg-main); /* Añade fondo base del layout */
+    color: var(--color-text-main);
 }
 
 .admin-page-title {
     font-size: 2rem;
     font-weight: 700;
-    color: #222;
+    color: var(--color-text-main); /* #222 era hardcode */
     margin-bottom: 28px;
     margin-top: 0;
     letter-spacing: -0.01em;
@@ -43,7 +30,7 @@
     min-width: 1100px;
     border-collapse: collapse;
     margin-top: 12px;
-    background: #fafbfc;
+    background: var(--bg-panel);
     box-shadow: var(--shadow-main);
     border-radius: 8px;
     overflow: hidden;
@@ -54,15 +41,15 @@
 .admin-trans-table th,
 .admin-trans-table td {
     padding: 13px 18px;
-    border-bottom: 1px solid #eef3fa;
+    border-bottom: 1px solid var(--color-table-border, #eef3fa);
     text-align: left;
     font-size: 1em;
 }
 
 .admin-table th,
 .admin-trans-table th {
-    background: #e4f1fd;
-    color: #144e76;
+    background: var(--color-table-head-bg, #e4f1fd);
+    color: var(--color-table-head-text, #144e76);
     font-weight: bold;
 }
 
@@ -100,7 +87,6 @@
     background: #ff9800;
     color: #fff;
 }
-
 .admin-btn:hover,
 .admin-btn:focus {
     background: #e58300;
@@ -125,7 +111,6 @@
     background: #a31515;
 }
 
-/* Botón cancelar/azul para acciones secundarias (cerrar/cancelar) */
 .admin-btn--cancel {
     background: var(--color-primary);
     color: #fff;
@@ -163,8 +148,9 @@
     padding: 9px 14px;
     border: 1px solid #aac;
     box-shadow: 0 1px 1px #e4eafd;
-    background: #f4f7fd;
+    background: var(--bg-panel);
     margin-bottom: 10px;
+    color: var(--color-text-main)
 }
 
 /* Paginación */
@@ -197,7 +183,7 @@
     background: var(--color-primary-dark);
 }
 .admin-pagination-current {
-    background: #fff;
+    background: var(--bg-card);
     color: var(--color-primary);
     font-weight: bold;
     border: 1px solid var(--color-primary);
@@ -220,7 +206,7 @@
 }
 
 .admin-modal-content {
-    background: #fff;
+    background: var(--bg-card);
     border-radius: var(--radius-main);
     padding: 32px 24px;
     min-width: 320px;
@@ -230,6 +216,7 @@
     position: relative;
     animation: modalIn .18s;
     text-align: left;
+    color: var(--color-text-main);
 }
 
 @keyframes modalIn {
@@ -274,7 +261,7 @@
     width: 100%;
     border-collapse: collapse;
     margin: 14px 0 10px 0;
-    background: #f5f7fa;
+    background: var(--bg-panel);
     font-size: 0.97em;
     border-radius: 4px;
     overflow: hidden;
@@ -283,13 +270,13 @@
 .mini-table-mov th,
 .mini-table-mov td {
     padding: 4px 9px;
-    border-bottom: 1px solid #e0eafd;
+    border-bottom: 1px solid var(--color-table-border, #e0eafd);
     text-align: left;
 }
 
 .mini-table-mov th {
-    background: #e4f1fd;
-    color: #144e76;
+    background: var(--color-table-head-bg, #e4f1fd);
+    color: var(--color-table-head-text, #144e76);
     font-weight: 600;
 }
 
