@@ -199,6 +199,11 @@ npm run dev
 
 ---
 
+## 🖥️ Demo rápida
+
+![MoneyShield Demo](./doc/demo.gif)
+
+
 ## 📚 Español
 
 Repositorio monorepo de MoneyShield.  
